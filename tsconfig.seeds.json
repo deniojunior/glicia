@@ -1,0 +1,20 @@
+{
+  // Compila os seeds (importador da base de alimentos) EM SEU PRÓPRIO diretório,
+  // gerando `seeds/import-sbd-foods.js` ao lado dos CSVs versionados.
+  //
+  // Por que separado do build principal (`tsconfig.json`, rootDir=src → dist):
+  // em runtime o `dist/app/wiring.js` importa dinamicamente
+  // `../../seeds/import-sbd-foods.js`, que resolve para `<raiz>/seeds/…` (fora do
+  // dist, exatamente como as migrations em `<raiz>/migrations`). Emitindo o JS
+  // aqui, o import funciona no `node dist/...` e o importador lê os CSVs vizinhos
+  // via `new URL("./sbd-foods.csv", import.meta.url)`.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "seeds",
+    "outDir": "seeds",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": ["seeds/**/*.ts"],
+  "exclude": ["node_modules", "dist", "tests"]
+}

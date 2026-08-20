@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+*.log
+
+# Artefatos compilados do seeder (emitidos ao lado dos CSVs pelo build)
+seeds/*.js
+seeds/*.js.map
+seeds/*.d.ts
+
+# Segredos e banco local
+.env
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
