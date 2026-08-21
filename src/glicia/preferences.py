@@ -6,6 +6,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from glicia.config import EDITABLE_PARAMETER_LABELS
 from glicia.models import FoodMemoryUpdate, InteractionMode
 
 
@@ -17,6 +18,7 @@ def default_preferences_path() -> Path:
 class UserPreferences:
     interaction_mode: InteractionMode = InteractionMode.PRECISE
     food_memory: dict[str, str] = field(default_factory=dict)
+    parameter_overrides: dict[str, float] = field(default_factory=dict)
 
     def remember(self, updates: tuple[FoodMemoryUpdate, ...]) -> bool:
         changed = False
@@ -47,7 +49,15 @@ class PreferenceStore:
                 for key, value in memory.items()
                 if isinstance(key, str) and isinstance(value, str) and key.strip() and value.strip()
             }
-            return UserPreferences(mode, valid_memory)
+            overrides = payload.get("parameter_overrides", {})
+            if not isinstance(overrides, dict):
+                overrides = {}
+            valid_overrides = {
+                key: float(value)
+                for key, value in overrides.items()
+                if key in EDITABLE_PARAMETER_LABELS and isinstance(value, int | float)
+            }
+            return UserPreferences(mode, valid_memory, valid_overrides)
         except (OSError, json.JSONDecodeError, ValueError):
             return UserPreferences()
 
@@ -56,6 +66,7 @@ class PreferenceStore:
         payload = {
             "interaction_mode": preferences.interaction_mode.value,
             "food_memory": preferences.food_memory,
+            "parameter_overrides": preferences.parameter_overrides,
         }
         self.path.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

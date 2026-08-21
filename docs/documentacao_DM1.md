@@ -26,13 +26,13 @@ O arredondamento ocorre uma única vez no total; valores em `0,5` são arredonda
 
 | Tendência | FC < 25 | FC 25–<50 | FC 50–75 | FC > 75 |
 | --- | ---: | ---: | ---: | ---: |
-| Subindo rápido | +4 U | +3 U | +2 U | +1 U |
-| Subindo | +3 U | +2 U | +1 U | 0 U |
+| Subindo rápido | +2 U | +2 U | +1 U | +1 U |
+| Subindo | +1 U | +1 U | +1 U | 0 U |
 | Estável ou não informada | 0 U | 0 U | 0 U | 0 U |
-| Caindo | −3 U | −2 U | −1 U | 0 U |
-| Caindo rápido | −4 U | −3 U | −1 U | 0 U |
+| Caindo | −1 U | −1 U | −1 U | 0 U |
+| Caindo rápido | −2 U | −2 U | −1 U | 0 U |
 
-As faixas de 50 e 75 pertencem à faixa `50–75`. Esta é uma proposta para FreeStyle Libre, não um algoritmo universalmente validado, e deve ser individualizada pela equipe de saúde.
+As faixas de 50 e 75 pertencem à faixa `50–75`. O Glicia usa limites locais mais conservadores: `+2 U` para subida rápida, `+1 U` para subida simples, `−1 U` para queda simples e `−2 U` para queda rápida. A seta simples corresponde a uma variação de 1–2 mg/dL/min, aproximadamente 15–30 mg/dL em 15 minutos. Esta é uma proposta para FreeStyle Libre, não um algoritmo universalmente validado, e deve ser individualizada pela equipe de saúde.
 
 ## Travas atuais
 

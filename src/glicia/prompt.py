@@ -17,7 +17,6 @@ RESPONSE_SCHEMA = {
         "glucose",
         "glucose_trend",
         "meal_type",
-        "ready_for_confirmation",
         "food_memory_updates",
     ],
     "properties": {
@@ -40,7 +39,6 @@ RESPONSE_SCHEMA = {
             "type": ["string", "null"],
             "enum": ["CAFE_DA_MANHA", "ALMOCO", "CAFE_DA_TARDE", "JANTAR", "CEIA", None],
         },
-        "ready_for_confirmation": {"type": "boolean"},
         "food_memory_updates": {
             "type": "array",
             "items": {
@@ -80,7 +78,7 @@ Para tendência, retorne somente SUBINDO_RAPIDO (↑↑), SUBINDO (↑), ESTAVEL
 
 Classifique a refeição como CAFE_DA_MANHA, ALMOCO, CAFE_DA_TARDE, JANTAR ou CEIA. Se não for possível inferir, pergunte. Contexto do dia: {current_datetime}. A pessoa aplicou {basal_morning_units} unidade(s) de basal ultralenta pela manhã; é apenas contexto e não entra em carboidratos ou dose.
 
-Mantenha os dados já fornecidos. ready_for_confirmation só é true quando carboidratos, glicemia, tendência e refeição estiverem definidos. Ao completar, resuma cada item, total e fonte, tendência e refeição, e peça confirmação. Em glicemia baixa ou hipoglicemia, priorize o tratamento e não conclua bolus habitual. Nunca calcule nem recomende insulina. Retorne somente JSON conforme o schema solicitado.
+Mantenha os dados já fornecidos. Quando carboidratos, glicemia, tendência e refeição estiverem definidos, o campo reply deve obrigatoriamente conter o resumo por item, total e fonte, tendência e refeição; nunca retorne apenas uma introdução quando todos os dados estiverem disponíveis. O aplicativo fará a confirmação localmente: não interprete uma futura resposta “sim” nem continue a conversa após o resumo. Em glicemia baixa ou hipoglicemia, priorize o tratamento e não conclua bolus habitual. Nunca calcule ou recomende insulina. Retorne somente JSON conforme o schema solicitado.
 
 TABELA DE ALIMENTOS:
 {food_table}

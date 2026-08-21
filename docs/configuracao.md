@@ -13,6 +13,10 @@ As RICs representam gramas de carboidrato cobertas por uma unidade de insulina. 
 
 `FOOD_TABLE_PATH` aceita um CSV com as colunas `Alimento`, `Medida usual`, `g ou ml` e `CHO (g)`. Linhas vazias ou sem esses valores são ignoradas.
 
+`GLICIA_HISTORY_PATH` define o arquivo SQLite do histórico. O padrão é `~/.glicia/history.sqlite3`.
+
 ## Preferências locais
 
-O modo e a memória alimentar são armazenados em `~/.glicia/preferences.json`. O arquivo não contém glicemias, conversas ou a chave da OpenAI.
+O modo, a memória alimentar e os parâmetros alterados pelo comando `/config` são armazenados em `~/.glicia/preferences.json`. O arquivo não contém glicemias, conversas ou a chave da OpenAI.
+
+Os valores editados pelo terminal têm prioridade sobre os padrões e as variáveis de ambiente nas próximas execuções. A edição exige uma confirmação explícita e aceita apenas números finitos; RIC, fator de correção, meta e limite de hipoglicemia devem ser maiores que zero, enquanto a basal pode ser zero ou positiva.

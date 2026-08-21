@@ -8,11 +8,13 @@ def test_persists_mode_and_food_memory(tmp_path: Path) -> None:
     store = PreferenceStore(tmp_path / "preferences.json")
     preferences = UserPreferences(interaction_mode=InteractionMode.FAST)
     assert preferences.remember((FoodMemoryUpdate("Feijão", "carioquinha"),))
+    preferences.parameter_overrides["TARGET_GLUCOSE"] = 105
     store.save(preferences)
 
     loaded = store.load()
     assert loaded.interaction_mode is InteractionMode.FAST
     assert loaded.food_memory == {"feijão": "carioquinha"}
+    assert loaded.parameter_overrides == {"TARGET_GLUCOSE": 105}
 
 
 def test_memory_does_not_change_when_value_is_identical() -> None:

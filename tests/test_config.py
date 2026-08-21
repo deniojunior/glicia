@@ -1,6 +1,6 @@
 import pytest
 
-from glicia.config import load_settings
+from glicia.config import apply_parameter_overrides, load_settings, parameter_value
 from glicia.models import MealType
 
 
@@ -16,3 +16,8 @@ def test_loads_default_ratios() -> None:
 def test_rejects_invalid_correction_factor() -> None:
     with pytest.raises(ValueError, match="Fator de correção"):
         load_settings({"CORRECTION_FACTOR": "0"})
+
+
+def test_applies_persisted_parameter_override() -> None:
+    settings = apply_parameter_overrides(load_settings(), {"TARGET_GLUCOSE": 105})
+    assert parameter_value(settings, "TARGET_GLUCOSE") == 105

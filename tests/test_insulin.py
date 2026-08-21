@@ -1,4 +1,4 @@
-from glicia.insulin import calculate_suggested_dose
+from glicia.insulin import calculate_suggested_dose, trend_adjustment
 from glicia.models import GlucoseTrend
 
 
@@ -26,9 +26,22 @@ def test_applies_libre_trend_adjustment() -> None:
         carbohydrate_ratio=10,
         trend=GlucoseTrend.RISING_FAST,
     )
-    assert calculation.trend_adjustment == 3
-    assert calculation.total == 10
-    assert calculation.suggested == 10
+    assert calculation.trend_adjustment == 2
+    assert calculation.total == 9
+    assert calculation.suggested == 9
+
+
+def test_caps_simple_rising_arrow_adjustment_at_one_unit() -> None:
+    assert trend_adjustment(GlucoseTrend.RISING, correction_factor=20) == 1
+    assert trend_adjustment(GlucoseTrend.RISING, correction_factor=40) == 1
+    assert trend_adjustment(GlucoseTrend.RISING, correction_factor=60) == 1
+    assert trend_adjustment(GlucoseTrend.RISING, correction_factor=80) == 0
+
+
+def test_uses_conservative_caps_for_all_directional_arrows() -> None:
+    assert trend_adjustment(GlucoseTrend.RISING_FAST, correction_factor=20) == 2
+    assert trend_adjustment(GlucoseTrend.FALLING, correction_factor=20) == -1
+    assert trend_adjustment(GlucoseTrend.FALLING_FAST, correction_factor=20) == -2
 
 
 def test_never_suggests_negative_dose() -> None:

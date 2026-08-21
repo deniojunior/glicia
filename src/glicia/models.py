@@ -41,7 +41,6 @@ class ConversationTurn:
     glucose: float | None
     glucose_trend: GlucoseTrend | None
     meal_type: MealType | None
-    ready_for_confirmation: bool
     food_memory_updates: tuple[FoodMemoryUpdate, ...]
 
     @classmethod
@@ -78,15 +77,13 @@ class ConversationTurn:
             glucose=optional_number("glucose"),
             glucose_trend=optional_trend("glucose_trend"),
             meal_type=optional_meal("meal_type"),
-            ready_for_confirmation=payload.get("ready_for_confirmation") is True,
             food_memory_updates=memory_updates(),
         )
 
     @property
-    def is_ready(self) -> bool:
+    def is_complete(self) -> bool:
         return (
-            self.ready_for_confirmation
-            and self.total_carbohydrates is not None
+            self.total_carbohydrates is not None
             and self.total_carbohydrates >= 0
             and self.glucose is not None
             and self.glucose > 0

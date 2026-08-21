@@ -31,12 +31,16 @@ mypy
 
 ## Uso rápido
 
-Descreva a refeição e informe glicemia e seta do sensor quando solicitado. Use `/config` para ver os parâmetros ativos sem expor segredos e `/mode` para visualizar ou trocar o modo de interação.
+Descreva a refeição e informe glicemia e seta do sensor quando solicitado. Use `/config` para ver e editar os parâmetros clínicos ativos sem expor segredos, `/mode` para visualizar ou trocar o modo de interação e `/quit` ou `/exit` para encerrar.
 
 - **Preciso**: pergunta quando uma ambiguidade puder alterar materialmente os carboidratos.
 - **Rápido**: usa estimativas razoáveis quando houver base na tabela e informa o que estimou.
 
 O modo e as preferências alimentares confirmadas ficam apenas em `~/.glicia/preferences.json`. Glicemias, conversas e chaves da OpenAI não são gravadas nesse arquivo.
+
+Use `/config` para abrir a configuração e, dentro dela, digite `/edit`. Escolha o número do parâmetro, informe o novo valor e confirme a alteração. As alterações feitas pelo terminal têm prioridade sobre os valores padrão ou variáveis de ambiente na próxima execução.
+
+Após cada dose sugerida, informe a quantidade de insulina efetivamente aplicada. O registro completo é salvo localmente em `~/.glicia/history.sqlite3` e o aplicativo permanece aberto para a próxima refeição. Use `GLICIA_HISTORY_PATH` para definir outro local.
 
 ```text
 Vou tomar café da manhã: um pão francês com manteiga e café sem açúcar.
@@ -59,6 +63,7 @@ Glicemia: 160. Seta subindo.
 | `BASAL_MORNING_UNITS` | `28` | Contexto informado à IA; não entra na fórmula. |
 | `HYPOGLYCEMIA_THRESHOLD` | `70` | Abaixo deste valor não há sugestão de bolus. |
 | `FOOD_TABLE_PATH` | tabela incluída | Caminho alternativo para CSV compatível. |
+| `GLICIA_HISTORY_PATH` | `~/.glicia/history.sqlite3` | Arquivo SQLite do histórico. |
 
 Mais detalhes: [uso](docs/uso.md), [configuração](docs/configuracao.md), [arquitetura](docs/arquitetura.md), [cálculo e segurança](docs/Documentacao_DM1.md), [tabela SBD](docs/tabela-sbd.md) e [desenvolvimento](docs/desenvolvimento.md).
 

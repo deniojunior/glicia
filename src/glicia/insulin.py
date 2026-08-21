@@ -8,11 +8,15 @@ from dataclasses import dataclass
 from glicia.models import GlucoseTrend
 
 TREND_ADJUSTMENTS: dict[GlucoseTrend, tuple[int, int, int, int]] = {
-    GlucoseTrend.RISING_FAST: (4, 3, 2, 1),
-    GlucoseTrend.RISING: (3, 2, 1, 0),
+    # Limites conservadores configurados para o projeto: a seta rápida sobe
+    # no máximo 2 U, a seta simples 1 U e as quedas reduzem no máximo 2 U.
+    GlucoseTrend.RISING_FAST: (2, 2, 1, 1),
+    # Regra conservadora configurada para o projeto: a seta simples nunca
+    # acrescenta mais que 1 U, mesmo nas faixas de maior resistência.
+    GlucoseTrend.RISING: (1, 1, 1, 0),
     GlucoseTrend.STABLE: (0, 0, 0, 0),
-    GlucoseTrend.FALLING: (-3, -2, -1, 0),
-    GlucoseTrend.FALLING_FAST: (-4, -3, -1, 0),
+    GlucoseTrend.FALLING: (-1, -1, -1, 0),
+    GlucoseTrend.FALLING_FAST: (-2, -2, -1, 0),
     GlucoseTrend.NOT_INFORMED: (0, 0, 0, 0),
 }
 
