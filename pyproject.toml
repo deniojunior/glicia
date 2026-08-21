@@ -18,7 +18,7 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.12",
 ]
-dependencies = ["prompt-toolkit>=3.0,<4", "rich>=13.7,<14"]
+dependencies = ["prompt-toolkit>=3.0,<4", "rich>=13.7,<16"]
 
 [project.optional-dependencies]
 dev = ["mypy>=1.13", "pre-commit>=4.0", "pytest>=8.3", "ruff>=0.8"]
