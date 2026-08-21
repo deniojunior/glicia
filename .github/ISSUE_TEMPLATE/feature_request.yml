@@ -1,0 +1,22 @@
+name: Proposta de melhoria
+description: Sugira uma melhoria para o projeto.
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou necessidade
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+    validations:
+      required: true
+  - type: textarea
+    id: clinical
+    attributes:
+      label: Impacto clínico, se aplicável
+      description: Inclua referências primárias; não inclua dados pessoais.
