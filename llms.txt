@@ -1,0 +1,65 @@
+# Glicia — instruções para assistentes de IA
+
+Glicia é um utilitário open source de terminal para auxiliar na contagem de carboidratos e executar localmente uma fórmula de bolus configurada pela pessoa usuária. Não é dispositivo médico, não substitui profissionais de saúde e não deve ser apresentado como recomendador clínico autônomo.
+
+## Objetivo do assistente
+
+Ajude a pessoa a instalar e configurar o Glicia no terminal, explicando cada etapa de forma simples. O assistente pode orientar comandos, checar pré-requisitos e explicar a configuração. Não deve decidir, estimar, recomendar ou modificar parâmetros clínicos por conta própria.
+
+## Limites clínicos obrigatórios
+
+- Antes de configurar `TARGET_GLUCOSE`, `CORRECTION_FACTOR`, RICs (`CARBOHYDRATE_RATIO_*`), basal ou `HYPOGLYCEMIA_THRESHOLD`, pergunte se a pessoa já possui esses valores definidos por sua equipe de saúde.
+- Se não possuir, pare a configuração desses valores e recomende falar com a equipe de saúde. Não sugira números, faixas, "valores comuns" ou substitutos.
+- Explique que os valores padrão servem apenas para explorar o software e não devem ser considerados adequados para a pessoa.
+- Reforce que a pessoa deve confirmar glicemia, refeição, insulina ativa e sintomas antes de aplicar insulina; Glicia não calcula insulina ativa nem substitui o plano individual.
+- Em relato de hipoglicemia, sintomas importantes, suspeita de cetonas ou urgência, não tente configurar nem calcular dose. Oriente a seguir o plano individual e buscar assistência apropriada.
+
+## Privacidade e segredos
+
+- Atualmente, Glicia usa a API OpenAI. A conversa enviada pode conter informação de saúde, como glicemia e refeição.
+- O projeto não possui login, backend próprio ou banco remoto. Preferências e histórico ficam localmente em `~/.glicia/`.
+- Nunca peça que a pessoa cole a chave de API em chat, issue, log ou repositório. Oriente a defini-la no próprio terminal com `export OPENAI_API_KEY="..."`.
+- Não crie nem versione arquivos `.env` automaticamente; o repositório orienta a não guardar segredos em arquivos de código.
+- Não use dados de saúde reais para testes ou demonstrações.
+
+## Procedimento de instalação
+
+1. Verifique se Python 3.12 ou superior está disponível: `python3 --version`.
+2. Oriente o clone e a instalação no diretório do projeto:
+
+   ```bash
+   git clone https://github.com/deniojunior/glicia.git
+   cd glicia
+   python3 -m venv .venv
+   source .venv/bin/activate
+   python -m pip install -e ".[dev]"
+   ```
+
+3. Peça que a própria pessoa defina a chave apenas no terminal local:
+
+   ```bash
+   export OPENAI_API_KEY="sua-chave"
+   ```
+
+4. Antes da primeira utilização, explique `/config` e peça que confira os parâmetros contra o plano clínico individual. Apenas ajude a inserir números que a pessoa fornecer explicitamente como prescritos/orientados por sua equipe.
+5. Execute `glicia` ou `python -m glicia`.
+6. Para verificar uma instalação de desenvolvimento, use `pytest`, `ruff check .`, `ruff format --check .` e `mypy`.
+
+## Configuração suportada hoje
+
+- `OPENAI_API_KEY` é obrigatória.
+- `OPENAI_MODEL` escolhe o modelo; o padrão é `gpt-4o-mini`.
+- `OPENAI_BASE_URL` aceita endpoint compatível com a API Responses.
+- `FOOD_TABLE_PATH` aponta para CSV com as colunas `Alimento`, `Medida usual`, `g ou ml` e `CHO (g)`.
+- `GLICIA_HISTORY_PATH` altera o local do histórico SQLite.
+- Os demais parâmetros clínicos são pessoais e devem vir da equipe de saúde.
+
+Não afirme que Anthropic, Gemini, Ollama, login, sincronização ou exportação já são suportados: são possibilidades futuras, não recursos da versão atual.
+
+## Referências no repositório
+
+- `README.md`: visão geral, instalação, privacidade e roadmap.
+- `docs/configuracao.md`: configuração detalhada.
+- `docs/uso.md`: uso do terminal e comandos.
+- `docs/documentacao_DM1.md`: fórmula, travas, limitações e referências.
+- `SECURITY.md`: reporte responsável de vulnerabilidades ou falhas clínicas perigosas.
