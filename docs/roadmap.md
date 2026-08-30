@@ -65,19 +65,32 @@ A tela da OpenAI oferecerá instruções para criar uma chave, campo protegido p
 
 A chave pertence à pessoa usuária e nunca deverá ser incluída em conversas, histórico, exportações, telemetria ou logs. O projeto deverá documentar claramente que armazenar uma chave em uma aplicação executada no navegador possui riscos diferentes do uso atual por variável de ambiente. A estratégia de armazenamento, a política de conteúdo da aplicação e a viabilidade de chamadas diretas ao provedor deverão passar por revisão de segurança antes da disponibilização pública.
 
-## Caminho para a v1
+## Versionamento e caminho para a v1
+
+Enquanto faltar uma parte essencial do fluxo de uso real no celular, as versões usam o sufixo
+`alpha`. Isto inclui onboarding, parâmetros clínicos obrigatórios, chave/configuração do
+provedor, cálculo local, persistência e recuperação de dados.
+
+Uma versão `beta` começa quando o fluxo está completo para os pilotos: não faltam etapas do
+percurso principal, a PWA foi validada em Android e iOS e os riscos de chave, dados locais,
+erros e backup têm uma decisão implementada. Beta ainda é período de validação ampliada — não é
+uma alegação de dispositivo médico nem substitui a conferência humana.
+
+Use sufixos de correção para releases intermediárias, por exemplo `v0.3.0-alpha.1` e
+`v0.9.0-beta.1`. A versão `v1.0.0` só será publicada após uma beta sem problemas críticos e com
+o fluxo principal, instalação e recuperação estáveis.
 
 | Versão | Foco | Critério de avanço |
 | --- | --- | --- |
-| `v0.1.0` | CLI alpha e validação inicial da utilidade. | Código instalável, contagem assistida por IA, confirmação explícita, cálculo local e histórico. |
-| `v0.2.0` | Contrato de comportamento independente da CLI. | Fluxo conversacional, correções, modos, memória, configuração, travas e histórico cobertos por testes de caracterização. |
-| `v0.3.0` | Protótipo mobile-first da conversa. | PWA utilizável no navegador do celular com texto, ditado do teclado, respostas em Markdown e continuidade entre turnos. |
-| `v0.4.0` | Onboarding, configuração e BYOK na PWA. | Primeiro acesso obrigatório e retomável, estados de chave ausente/inválida/válida, configuração dos parâmetros e RICs, revisão final, seletor de modo e edição posterior confirmada. |
-| `v0.5.0` | Paridade funcional com a CLI. | Confirmação e correção dos dados, mesmas travas, mesmos resultados de cálculo e registro da dose aplicada. |
-| `v0.6.0` | Persistência, portabilidade e instalação. | Preferências, memória alimentar e histórico estáveis; atualização da PWA sem perda de dados; exportação, importação e backup local validados; instalação orientada na tela inicial. |
-| `v0.7.0` | Segurança, privacidade e contingência. | Revisão do tratamento da chave e dos dados de saúde, política de conteúdo restritiva, limpeza de dados e modo manual sem IA. |
-| `v0.8.0` | Seleção de modelo e múltiplos provedores de IA. | Contrato comum de provedor, modelos validados por avaliações de regressão, credenciais separadas e troca de provedor ou modelo entre refeições. |
-| `v0.9.0` / RC | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, avaliação com usuários pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
+| `v0.1.0-alpha` | CLI alpha e validação inicial da utilidade. | Código instalável, contagem assistida por IA, confirmação explícita, cálculo local e histórico. |
+| `v0.2.0-alpha` | Contrato de comportamento independente da CLI. | Fluxo conversacional, correções, modos, memória, configuração, travas e histórico cobertos por testes de caracterização. |
+| `v0.3.0-alpha` | Protótipo mobile-first da conversa. | PWA utilizável no navegador do celular com texto, ditado do teclado, respostas em Markdown e continuidade entre turnos. |
+| `v0.4.0-alpha` | Onboarding, configuração e BYOK na PWA. | Primeiro acesso obrigatório e retomável, estados de chave ausente/inválida/válida, configuração dos parâmetros e RICs, revisão final, seletor de modo e edição posterior confirmada. |
+| `v0.5.0-alpha` | Paridade funcional com a CLI. | Confirmação e correção dos dados, mesmas travas, mesmos resultados de cálculo e registro da dose aplicada. |
+| `v0.6.0-alpha` | Persistência, portabilidade e instalação. | Preferências, memória alimentar e histórico estáveis; atualização da PWA sem perda de dados; exportação, importação e backup local validados; instalação orientada na tela inicial. |
+| `v0.7.0-alpha` | Segurança, privacidade e contingência. | Revisão do tratamento da chave e dos dados de saúde, política de conteúdo restritiva, limpeza de dados e modo manual sem IA. |
+| `v0.8.0-alpha` | Seleção de modelo e múltiplos provedores de IA. | Contrato comum de provedor, modelos validados por avaliações de regressão, credenciais separadas e troca de provedor ou modelo entre refeições. |
+| `v0.9.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, avaliação com usuários pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
 | `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
 
 ## Portabilidade e testes
