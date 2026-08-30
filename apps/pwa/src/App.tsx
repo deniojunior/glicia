@@ -1,10 +1,16 @@
-import { FormEvent, useReducer, useRef } from "react";
+import { FormEvent, useEffect, useReducer, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { ConversationSession, type SessionSnapshot } from "./application";
+import { PreferencesService } from "./application";
 import { DemoAiProvider } from "./adapters/fake/demo-ai-provider";
-import type { InteractionMode } from "./domain";
+import { OpenAIResponsesProvider } from "./adapters/openai/openai-responses-provider";
+import { buildOpenAiInstructions } from "./adapters/openai/instructions";
+import { IndexedDbPreferencesRepository } from "./adapters/storage/indexeddb-preferences-repository";
+import { Onboarding } from "./components/onboarding";
+import { Settings } from "./components/settings";
+import type { InteractionMode, OnboardingProgress, PersistedPreferences } from "./domain";
 
 interface AppState {
   draft: string;
@@ -35,8 +41,11 @@ function reduce(state: AppState, action: AppAction): AppState {
   }
 }
 
-function createSession(mode: InteractionMode): ConversationSession {
-  return new ConversationSession(new DemoAiProvider(), mode);
+const preferencesService = new PreferencesService(new IndexedDbPreferencesRepository());
+
+function createSession(mode: InteractionMode, apiKey: string | null, preferences: PersistedPreferences): ConversationSession {
+  const provider = apiKey ? new OpenAIResponsesProvider({ apiKey, model: preferences.provider.model, instructions: buildOpenAiInstructions }) : new DemoAiProvider();
+  return new ConversationSession(provider, mode);
 }
 
 function initialState(session: ConversationSession): AppState {
@@ -58,16 +67,15 @@ function AssistantMarkdown({ content }: { content: string }) {
   return <div className="assistant-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{content}</ReactMarkdown></div>;
 }
 
-export function App() {
+function ConversationApp({ preferences, apiKey, onOpenSettings }: { preferences: PersistedPreferences; apiKey: string | null; onOpenSettings(): void }) {
   const sessionRef = useRef<ConversationSession | null>(null);
   if (sessionRef.current === null) {
-    sessionRef.current = createSession("preciso");
+    sessionRef.current = createSession(preferences.interaction_mode, apiKey, preferences);
   }
   const session = sessionRef.current;
   const [state, dispatch] = useReducer(reduce, session, initialState);
   const isAwaitingConfirmation = state.snapshot.state === "awaiting_confirmation";
   const isConfirmed = state.snapshot.state === "confirmed";
-  const isLocked = state.snapshot.state !== "ready";
 
   async function send(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -86,12 +94,6 @@ export function App() {
     } finally {
       dispatch({ type: "request_finished" });
     }
-  }
-
-  function changeMode(mode: InteractionMode) {
-    if (isLocked) return;
-    session.changeInteractionMode(mode);
-    dispatch({ type: "snapshot_updated", snapshot: session.snapshot });
   }
 
   function confirm() {
@@ -125,23 +127,14 @@ export function App() {
           <img src="/icons/glicia-192.png" width="44" height="44" alt="" />
           <span>Glicia</span>
         </a>
-        <span className="demo-badge">demonstração local</span>
+        <button className="text-action" type="button" onClick={onOpenSettings}>Configurações</button>
       </header>
 
       <section className="conversation" id="conversation" aria-labelledby="conversation-title">
-        <div className="conversation-intro">
-          <p className="eyebrow">Entende. Organiza. Calcula.</p>
-          <h1 id="conversation-title">Informe tudo de uma vez.</h1>
-          <p>Inclua o que vai comer, sua glicemia, a tendência e o tipo de refeição.</p>
-        </div>
-
-        <div className="mode-selector" aria-label="Modo de interação">
-          <button className={state.snapshot.interaction_mode === "preciso" ? "selected" : ""} type="button" aria-pressed={state.snapshot.interaction_mode === "preciso"} disabled={isLocked} onClick={() => changeMode("preciso")}>Preciso</button>
-          <button className={state.snapshot.interaction_mode === "rapido" ? "selected" : ""} type="button" aria-pressed={state.snapshot.interaction_mode === "rapido"} disabled={isLocked} onClick={() => changeMode("rapido")}>Rápido</button>
-        </div>
+        {state.snapshot.history.length === 0 ? <div className="conversation-intro"><h1 id="conversation-title">O que você vai comer?</h1><p>Conte a refeição e sua glicemia do jeito que lembrar.</p></div> : null}
 
         <div className="message-feed" aria-live="polite" aria-busy={state.is_waiting}>
-          {state.snapshot.history.length === 0 ? <div className="welcome-message"><span className="message-label">Glicia</span><p>Envie de uma vez o alimento e a quantidade, glicemia, seta e tipo de refeição. Você sempre confere antes.</p></div> : state.snapshot.history.map((exchange, index) => <div className="exchange" key={`${index}-${exchange.user_message}`}><article className="message user-message"><span className="message-label">Você</span><p>{exchange.user_message}</p></article><article className="message assistant-message"><span className="message-label">Glicia</span><AssistantMarkdown content={exchange.assistant_turn.reply} /></article></div>)}
+          {state.snapshot.history.map((exchange, index) => <div className="exchange" key={`${index}-${exchange.user_message}`}><article className="message user-message"><p>{exchange.user_message}</p></article><article className="message assistant-message"><AssistantMarkdown content={exchange.assistant_turn.reply} /></article></div>)}
           {state.is_waiting ? <p className="waiting">Organizando sua resposta…</p> : null}
           {state.error ? <p className="error-message" role="alert">{state.error}</p> : null}
         </div>
@@ -151,7 +144,28 @@ export function App() {
         {isConfirmed ? <aside className="confirmed-card" aria-live="polite"><p className="eyebrow">Dados confirmados</p><h2>Você decide.</h2><p>O cálculo local será conectado a este passo na próxima etapa.</p><button className="secondary-action" type="button" onClick={startNewMeal}>Iniciar nova refeição</button></aside> : null}
       </section>
 
-      {!isConfirmed ? <form className="composer" onSubmit={send}><label htmlFor="meal-message">{isAwaitingConfirmation ? "O que precisa corrigir?" : "Refeição, glicemia, tendência e tipo"}</label><div className="composer-row"><textarea id="meal-message" value={state.draft} onChange={(event) => dispatch({ type: "draft_changed", draft: event.target.value })} placeholder={isAwaitingConfirmation ? "Ex.: a glicemia correta é 110" : "Ex.: arroz, frango e salada; 120 mg/dL, seta estável, almoço"} rows={2} disabled={state.is_waiting} /><button className="send-button" type="submit" disabled={state.is_waiting || !state.draft.trim()}><span className="visually-hidden">Enviar mensagem</span><span aria-hidden="true">↑</span></button></div><p>A demonstração não envia dados e não substitui sua equipe de saúde.</p></form> : null}
+      {!isConfirmed && apiKey ? <form className="composer" onSubmit={send}><label htmlFor="meal-message">{isAwaitingConfirmation ? "O que precisa corrigir?" : "Refeição, glicemia, tendência e tipo"}</label><div className="composer-row"><textarea id="meal-message" value={state.draft} onChange={(event) => dispatch({ type: "draft_changed", draft: event.target.value })} placeholder={isAwaitingConfirmation ? "Ex.: a glicemia correta é 110" : "Ex.: arroz, frango e salada; 120 mg/dL, seta estável, almoço"} rows={2} disabled={state.is_waiting} /><button className="send-button" type="submit" disabled={state.is_waiting || !state.draft.trim()}><span className="visually-hidden">Enviar mensagem</span><span aria-hidden="true">↑</span></button></div><p>Confira a resposta antes de decidir.</p></form> : null}
+      {!isConfirmed && !apiKey ? <aside className="key-required"><h2>Falta sua chave OpenAI.</h2><p>Ela não fica salva neste aparelho. Abra Configurações e cole uma chave para continuar.</p><button className="primary-action" type="button" onClick={onOpenSettings}>Abrir configurações</button></aside> : null}
     </main>
   );
+}
+
+export function App() {
+  const [preferences, setPreferences] = useState<PersistedPreferences | null | undefined>(undefined);
+  const [progress, setProgress] = useState<OnboardingProgress | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [screen, setScreen] = useState<"conversation" | "settings">("conversation");
+
+  useEffect(() => {
+    void Promise.all([preferencesService.load(), preferencesService.loadOnboarding()])
+      .then(([savedPreferences, savedProgress]) => { setPreferences(savedPreferences); setProgress(savedProgress); })
+      .catch(() => { setLoadError("Não foi possível abrir a configuração local deste aparelho."); setPreferences(null); });
+  }, []);
+
+  if (preferences === undefined) return <main className="onboarding-shell"><p className="waiting">Abrindo a Glicia…</p></main>;
+  if (loadError) return <main className="onboarding-shell"><p className="error-message" role="alert">{loadError}</p></main>;
+  if (preferences === null) return <Onboarding initialProgress={progress} onProgress={(next) => preferencesService.saveOnboarding(next)} onComplete={async (next, key) => { await preferencesService.save(next); await preferencesService.clearOnboarding(); setApiKey(key); setPreferences(next); }} />;
+  if (screen === "settings") return <Settings preferences={preferences} hasApiKey={apiKey !== null} onSetApiKey={setApiKey} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
+  return <ConversationApp preferences={preferences} apiKey={apiKey} onOpenSettings={() => setScreen("settings")} />;
 }

@@ -196,12 +196,12 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
 - Casos de domínio produzem os mesmos resultados em Python e TypeScript.
 - Estados de carregamento, erro e retomada são demonstráveis em viewport mobile.
 
-## `v0.4.0` — Onboarding, configuração e BYOK
+## `v0.4.0` — Onboarding, configuração e BYOK (concluído)
 
 ### Pacotes de trabalho
 
 1. **Persistência versionada**
-   - Criar schema IndexedDB com versão e migrações desde o primeiro release.
+   - Criar schema IndexedDB com versão desde o primeiro release. ✅
    - Separar credencial, configurações clínicas, preferências e progresso do onboarding.
    - Manter repositórios em memória para testes rápidos e determinísticos.
 
@@ -214,13 +214,13 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
    - Garantir exclusão de credenciais em histórico, exportações, erros e telemetria.
 
 3. **Onboarding retomável**
-   - Implementar apresentação e limites, chave, parâmetros, cinco RICs, modo e revisão.
-   - Salvar cada etapa válida e restaurar o ponto exato depois de fechar a aplicação.
+   - Implementar apresentação, chave transitória, cinco RICs, modo e revisão. ✅
+   - Salvar cada etapa válida e restaurar o ponto exato depois de fechar a aplicação. ✅
    - Validar números finitos e as mesmas invariantes da CLI.
    - Bloquear a conversa enquanto faltar requisito obrigatório.
 
 4. **Configurações visuais**
-   - Permitir consultar e editar os valores com resumo antes de salvar.
+   - Permitir consultar e editar RICs, modelo e modo. ✅
    - Permitir validar, substituir e remover a chave.
    - Permitir reiniciar o onboarding sem apagar histórico.
    - Substituir `/mode`, `/config` e `/edit` por controles visuais acessíveis.
@@ -233,10 +233,10 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
 
 ### Critério de saída
 
-- Uma pessoa sem terminal conclui a configuração obrigatória pelo celular.
-- A conversa só é liberada com estado válido e confirmado.
-- Atualizar ou fechar a página não perde o progresso já validado.
-- Nenhuma credencial aparece em DOM persistente, URL, logs, histórico ou exportações.
+- Uma pessoa sem terminal conclui a configuração obrigatória pelo celular. ✅
+- A conversa só é liberada com chave transitória e estado válido. ✅
+- Atualizar ou fechar a página não perde o progresso já validado; a chave é pedida novamente. ✅
+- Nenhuma credencial aparece em armazenamento persistente, URL, logs, histórico ou exportações. ✅
 
 ## `v0.5.0` — Paridade funcional com a CLI
 

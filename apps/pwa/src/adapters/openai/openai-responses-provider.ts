@@ -22,7 +22,7 @@ export class ProviderError extends Error {
 export interface OpenAIResponsesConfig {
   apiKey: string;
   model: string;
-  instructions: string;
+  instructions: string | ((request: AiRequest) => string);
   baseUrl?: string;
   fetcher?: typeof fetch;
 }
@@ -87,7 +87,7 @@ export class OpenAIResponsesProvider implements AiProvider {
         headers: { Authorization: `Bearer ${this.config.apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
           model: this.config.model,
-          instructions: this.config.instructions,
+          instructions: typeof this.config.instructions === "function" ? this.config.instructions(request) : this.config.instructions,
           input: request.message,
           store: false,
           ...(this.previousResponseId ? { previous_response_id: this.previousResponseId } : {}),

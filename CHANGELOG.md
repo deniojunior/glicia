@@ -2,6 +2,16 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.4.0-alpha] - 2026-08-30
+
+- Onboarding mobile retomável com chave OpenAI transitória, cinco RICs e modo de interação.
+- Preferências persistidas localmente em IndexedDB, sem gravar a credencial.
+- Área de Configurações para RICs, modo, modelo e chave da sessão.
+- Conversa bloqueada sem chave e conectada ao adaptador OpenAI quando ela está disponível.
+- Tela principal simplificada, orientada à próxima mensagem.
+
+Leia as [notas completas da v0.4.0-alpha](docs/releases/v0.4.0-alpha.md).
+
 ## [0.3.0-alpha] - 2026-08-30
 
 - PWA React mobile-first com manifesto, instalação e service worker.
