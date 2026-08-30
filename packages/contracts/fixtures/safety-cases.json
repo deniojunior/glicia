@@ -1,0 +1,36 @@
+{
+  "contract_version": 1,
+  "description": "Casos compartilhados para as travas de segurança.",
+  "cases": [
+    {
+      "id": "below-hypoglycemia-threshold-blocks-bolus",
+      "input": { "glucose": 69, "trend": "ESTAVEL", "hypoglycemia_threshold": 70 },
+      "expected": { "bolus_blocked": true, "rapid_fall_warning": false }
+    },
+    {
+      "id": "at-hypoglycemia-threshold-does-not-block",
+      "input": { "glucose": 70, "trend": "ESTAVEL", "hypoglycemia_threshold": 70 },
+      "expected": { "bolus_blocked": false, "rapid_fall_warning": false }
+    },
+    {
+      "id": "rapid-fall-below-100-warns",
+      "input": { "glucose": 99, "trend": "CAINDO_RAPIDO", "hypoglycemia_threshold": 70 },
+      "expected": { "bolus_blocked": false, "rapid_fall_warning": true }
+    },
+    {
+      "id": "rapid-fall-at-100-does-not-warn",
+      "input": { "glucose": 100, "trend": "CAINDO_RAPIDO", "hypoglycemia_threshold": 70 },
+      "expected": { "bolus_blocked": false, "rapid_fall_warning": false }
+    },
+    {
+      "id": "hypoglycemia-block-takes-priority-over-warning",
+      "input": { "glucose": 60, "trend": "CAINDO_RAPIDO", "hypoglycemia_threshold": 70 },
+      "expected": { "bolus_blocked": true, "rapid_fall_warning": false }
+    },
+    {
+      "id": "simple-fall-does-not-trigger-rapid-warning",
+      "input": { "glucose": 90, "trend": "CAINDO", "hypoglycemia_threshold": 70 },
+      "expected": { "bolus_blocked": false, "rapid_fall_warning": false }
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "contract_version": 1,
+  "description": "Casos compartilhados para ajustes de tendência.",
+  "cases": [
+    { "id": "rising-fast-below-25", "trend": "SUBINDO_RAPIDO", "correction_factor": 24.99, "expected": 2 },
+    { "id": "rising-fast-at-25", "trend": "SUBINDO_RAPIDO", "correction_factor": 25, "expected": 2 },
+    { "id": "rising-fast-at-50", "trend": "SUBINDO_RAPIDO", "correction_factor": 50, "expected": 1 },
+    { "id": "rising-fast-at-75", "trend": "SUBINDO_RAPIDO", "correction_factor": 75, "expected": 1 },
+    { "id": "rising-fast-above-75", "trend": "SUBINDO_RAPIDO", "correction_factor": 75.01, "expected": 1 },
+    { "id": "rising-simple-below-25", "trend": "SUBINDO", "correction_factor": 24.99, "expected": 1 },
+    { "id": "rising-simple-above-75", "trend": "SUBINDO", "correction_factor": 75.01, "expected": 0 },
+    { "id": "falling-fast-below-25", "trend": "CAINDO_RAPIDO", "correction_factor": 24.99, "expected": -2 },
+    { "id": "falling-fast-at-50", "trend": "CAINDO_RAPIDO", "correction_factor": 50, "expected": -1 },
+    { "id": "falling-fast-above-75", "trend": "CAINDO_RAPIDO", "correction_factor": 75.01, "expected": 0 },
+    { "id": "stable-is-neutral", "trend": "ESTAVEL", "correction_factor": 40, "expected": 0 },
+    { "id": "not-informed-is-neutral", "trend": "NAO_INFORMADA", "correction_factor": 40, "expected": 0 }
+  ]
+}

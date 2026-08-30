@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glicia.dev/contracts/v1/dose-calculation.schema.json",
+  "title": "DoseCalculation",
+  "description": "Resultado do cálculo determinístico compartilhado entre as aplicações.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "correction",
+    "carbohydrate_coverage",
+    "trend_adjustment",
+    "total",
+    "suggested"
+  ],
+  "properties": {
+    "correction": { "type": "number" },
+    "carbohydrate_coverage": { "type": "number", "minimum": 0 },
+    "trend_adjustment": { "type": "integer", "minimum": -2, "maximum": 2 },
+    "total": { "type": "number" },
+    "suggested": { "type": "integer", "minimum": 0 }
+  }
+}

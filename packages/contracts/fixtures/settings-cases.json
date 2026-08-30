@@ -1,0 +1,72 @@
+{
+  "contract_version": 1,
+  "description": "Casos compartilhados para configurações clínicas.",
+  "valid_cases": [
+    {
+      "id": "defaults",
+      "environment": {},
+      "expected": {
+        "target_glucose": 120,
+        "correction_factor": 40,
+        "carbohydrate_ratios": {
+          "CAFE_DA_MANHA": 8,
+          "ALMOCO": 6,
+          "CAFE_DA_TARDE": 8,
+          "JANTAR": 10,
+          "CEIA": 8
+        },
+        "basal_morning_units": 28,
+        "hypoglycemia_threshold": 70
+      }
+    },
+    {
+      "id": "custom-values",
+      "environment": {
+        "TARGET_GLUCOSE": "105",
+        "CORRECTION_FACTOR": "45",
+        "CARBOHYDRATE_RATIO_CAFE_DA_MANHA": "9",
+        "CARBOHYDRATE_RATIO_ALMOCO": "7",
+        "CARBOHYDRATE_RATIO_CAFE_DA_TARDE": "8.5",
+        "CARBOHYDRATE_RATIO_JANTAR": "11",
+        "CARBOHYDRATE_RATIO_CEIA": "9.5",
+        "BASAL_MORNING_UNITS": "24",
+        "HYPOGLYCEMIA_THRESHOLD": "75"
+      },
+      "expected": {
+        "target_glucose": 105,
+        "correction_factor": 45,
+        "carbohydrate_ratios": {
+          "CAFE_DA_MANHA": 9,
+          "ALMOCO": 7,
+          "CAFE_DA_TARDE": 8.5,
+          "JANTAR": 11,
+          "CEIA": 9.5
+        },
+        "basal_morning_units": 24,
+        "hypoglycemia_threshold": 75
+      }
+    }
+  ],
+  "invalid_cases": [
+    {
+      "id": "zero-correction-factor",
+      "environment": { "CORRECTION_FACTOR": "0" },
+      "error_contains": "Fator de correção"
+    },
+    {
+      "id": "negative-ratio",
+      "environment": { "CARBOHYDRATE_RATIO_JANTAR": "-1" },
+      "error_contains": "RIC"
+    },
+    {
+      "id": "negative-basal",
+      "environment": { "BASAL_MORNING_UNITS": "-1" },
+      "error_contains": "Basal"
+    },
+    {
+      "id": "non-finite-value",
+      "environment": { "TARGET_GLUCOSE": "nan" },
+      "error_contains": "finitos"
+    }
+  ]
+}

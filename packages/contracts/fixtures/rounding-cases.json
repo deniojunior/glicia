@@ -1,0 +1,11 @@
+{
+  "contract_version": 1,
+  "description": "Casos compartilhados para a regra de arredondamento.",
+  "cases": [
+    { "id": "positive-half", "input": 2.5, "expected": 3 },
+    { "id": "negative-half", "input": -2.5, "expected": -3 },
+    { "id": "positive-below-half", "input": 2.49, "expected": 2 },
+    { "id": "negative-below-half", "input": -2.49, "expected": -2 },
+    { "id": "zero", "input": 0, "expected": 0 }
+  ]
+}

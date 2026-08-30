@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glicia.dev/contracts/v1/safety-assessment.schema.json",
+  "title": "SafetyAssessment",
+  "description": "Resultado compartilhado da avaliação determinística de segurança.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["bolus_blocked", "rapid_fall_warning"],
+  "properties": {
+    "bolus_blocked": { "type": "boolean" },
+    "rapid_fall_warning": { "type": "boolean" }
+  }
+}

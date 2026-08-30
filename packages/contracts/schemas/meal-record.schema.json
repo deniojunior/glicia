@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glicia.dev/contracts/v1/meal-record.schema.json",
+  "title": "MealRecord",
+  "description": "Registro de refeição compartilhado entre as aplicações Glicia.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "created_at",
+    "meal_input",
+    "assistant_summary",
+    "interaction_mode",
+    "meal_type",
+    "carbohydrates",
+    "glucose",
+    "glucose_trend",
+    "target_glucose",
+    "correction_factor",
+    "carbohydrate_ratio",
+    "basal_morning_units",
+    "correction_dose",
+    "carbohydrate_dose",
+    "trend_adjustment",
+    "calculated_dose",
+    "suggested_dose",
+    "applied_dose"
+  ],
+  "properties": {
+    "created_at": { "type": "string", "format": "date-time" },
+    "meal_input": { "type": "string" },
+    "assistant_summary": { "type": "string" },
+    "interaction_mode": { "enum": ["preciso", "rapido"] },
+    "meal_type": {
+      "enum": ["CAFE_DA_MANHA", "ALMOCO", "CAFE_DA_TARDE", "JANTAR", "CEIA"]
+    },
+    "carbohydrates": { "type": "number", "minimum": 0 },
+    "glucose": { "type": "number", "exclusiveMinimum": 0 },
+    "glucose_trend": {
+      "enum": [
+        "SUBINDO_RAPIDO",
+        "SUBINDO",
+        "ESTAVEL",
+        "CAINDO",
+        "CAINDO_RAPIDO",
+        "NAO_INFORMADA"
+      ]
+    },
+    "target_glucose": { "type": "number", "exclusiveMinimum": 0 },
+    "correction_factor": { "type": "number", "exclusiveMinimum": 0 },
+    "carbohydrate_ratio": { "type": "number", "exclusiveMinimum": 0 },
+    "basal_morning_units": { "type": "number", "minimum": 0 },
+    "correction_dose": { "type": "number" },
+    "carbohydrate_dose": { "type": "number", "minimum": 0 },
+    "trend_adjustment": { "type": "integer", "minimum": -2, "maximum": 2 },
+    "calculated_dose": { "type": "number" },
+    "suggested_dose": { "type": "integer", "minimum": 0 },
+    "applied_dose": { "type": ["number", "null"], "minimum": 0 }
+  }
+}

@@ -32,7 +32,7 @@ Ajude a pessoa a instalar e configurar o Glicia no terminal, explicando cada eta
    cd glicia
    python3 -m venv .venv
    source .venv/bin/activate
-   python -m pip install -e ".[dev]"
+   python -m pip install -e "apps/cli[dev]"
    ```
 
 3. Peça que a própria pessoa defina a chave apenas no terminal local:

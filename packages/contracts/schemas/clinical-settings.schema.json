@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glicia.dev/contracts/v1/clinical-settings.schema.json",
+  "title": "ClinicalSettings",
+  "description": "Configuração clínica compartilhada entre as aplicações Glicia.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "target_glucose",
+    "correction_factor",
+    "carbohydrate_ratios",
+    "basal_morning_units",
+    "hypoglycemia_threshold"
+  ],
+  "properties": {
+    "target_glucose": { "type": "number", "exclusiveMinimum": 0 },
+    "correction_factor": { "type": "number", "exclusiveMinimum": 0 },
+    "carbohydrate_ratios": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "CAFE_DA_MANHA",
+        "ALMOCO",
+        "CAFE_DA_TARDE",
+        "JANTAR",
+        "CEIA"
+      ],
+      "properties": {
+        "CAFE_DA_MANHA": { "type": "number", "exclusiveMinimum": 0 },
+        "ALMOCO": { "type": "number", "exclusiveMinimum": 0 },
+        "CAFE_DA_TARDE": { "type": "number", "exclusiveMinimum": 0 },
+        "JANTAR": { "type": "number", "exclusiveMinimum": 0 },
+        "CEIA": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    },
+    "basal_morning_units": { "type": "number", "minimum": 0 },
+    "hypoglycemia_threshold": { "type": "number", "exclusiveMinimum": 0 }
+  }
+}

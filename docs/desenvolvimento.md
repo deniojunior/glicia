@@ -1,15 +1,41 @@
 # Desenvolvimento
 
-## Estrutura
+## Estrutura do monorepo
 
-O código de produção fica em `src/glicia` e os testes em `tests`. Não inclua
-lógica clínica na camada de terminal ou no prompt: mudanças de cálculo devem
-ficar em `insulin.py`, com testes unitários e documentação atualizada.
+```text
+apps/
+├── cli/                    # pacote e testes Python
+└── pwa/                    # projeto TypeScript/React
+packages/
+└── contracts/              # schemas e fixtures entre linguagens
+docs/                       # documentação
+```
+
+A CLI fica em `apps/cli/src/glicia` e seus testes em `apps/cli/tests`. Não inclua lógica clínica
+na camada de apresentação ou no prompt. Mudanças de cálculo devem ficar em
+`domain/insulin.py`; travas, em `domain/safety.py`. Ambas exigem testes unitários e documentação
+atualizada. O teste de arquitetura impede dependências das camadas internas para as externas.
+
+Os contratos independentes de linguagem ficam em `packages/contracts`. A CLI Python e a PWA
+TypeScript devem consumir as mesmas fixtures. Alterações incompatíveis exigem nova versão do
+contrato e não podem ser introduzidas como simples mudança de interface.
+
+```text
+packages/contracts/
+├── manifest.json
+├── schemas/
+└── fixtures/
+```
+
+Use somente dados fictícios nesses arquivos. O manifesto deve listar todo schema e fixture que
+faz parte da versão vigente.
 
 ## Rotina local
 
+Execute os comandos a partir da raiz do monorepo:
+
 ```bash
-python -m pip install -e ".[dev]"
+python -m pip install -e "apps/cli[dev]"
 pre-commit install
 ruff check .
 ruff format --check .
@@ -17,8 +43,11 @@ mypy
 pytest
 ```
 
+O `pyproject.toml` da raiz configura as verificações do monorepo. O manifesto publicável da CLI
+fica em `apps/cli/pyproject.toml`.
+
 ## Regras para mudanças clínicas
 
-Descreva a fonte primária, a população e as limitações. Preserve as travas
-existentes ou documente claramente qualquer alteração. Nunca use a IA para
-calcular a dose final e nunca adicione dados pessoais ou chaves aos testes.
+Descreva a fonte primária, a população e as limitações. Preserve as travas existentes ou
+documente claramente qualquer alteração. Nunca use a IA para calcular a dose final e nunca
+adicione dados pessoais ou chaves aos testes.

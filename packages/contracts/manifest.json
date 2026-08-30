@@ -1,0 +1,21 @@
+{
+  "contract_version": 1,
+  "repository_path": "packages/contracts",
+  "schema_dialect": "https://json-schema.org/draft/2020-12/schema",
+  "schemas": [
+    "schemas/clinical-settings.schema.json",
+    "schemas/conversation-turn.schema.json",
+    "schemas/dose-calculation.schema.json",
+    "schemas/meal-record.schema.json",
+    "schemas/provider-error.schema.json",
+    "schemas/safety-assessment.schema.json"
+  ],
+  "fixtures": [
+    "fixtures/dose-cases.json",
+    "fixtures/rounding-cases.json",
+    "fixtures/safety-cases.json",
+    "fixtures/settings-cases.json",
+    "fixtures/trend-adjustment-cases.json",
+    "fixtures/turn-cases.json"
+  ]
+}

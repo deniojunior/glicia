@@ -1,0 +1,56 @@
+{
+  "contract_version": 1,
+  "description": "Casos compartilhados para turnos da conversa.",
+  "cases": [
+    {
+      "id": "complete-turn",
+      "payload": {
+        "reply": "Resumo fictício.",
+        "total_carbohydrates": 42,
+        "glucose": 150,
+        "glucose_trend": "SUBINDO",
+        "meal_type": "ALMOCO",
+        "food_memory_updates": []
+      },
+      "expected_complete": true
+    },
+    {
+      "id": "missing-glucose",
+      "payload": {
+        "reply": "Qual é a glicemia?",
+        "total_carbohydrates": 42,
+        "glucose": null,
+        "glucose_trend": "ESTAVEL",
+        "meal_type": "ALMOCO",
+        "food_memory_updates": []
+      },
+      "expected_complete": false
+    },
+    {
+      "id": "zero-carbohydrates-is-complete",
+      "payload": {
+        "reply": "Resumo fictício sem carboidratos.",
+        "total_carbohydrates": 0,
+        "glucose": 110,
+        "glucose_trend": "NAO_INFORMADA",
+        "meal_type": "CEIA",
+        "food_memory_updates": []
+      },
+      "expected_complete": true
+    },
+    {
+      "id": "confirmed-food-memory",
+      "payload": {
+        "reply": "Preferência fictícia confirmada.",
+        "total_carbohydrates": null,
+        "glucose": null,
+        "glucose_trend": null,
+        "meal_type": null,
+        "food_memory_updates": [
+          { "food": "Alimento fictício", "usual_preparation": "preparo fictício" }
+        ]
+      },
+      "expected_complete": false
+    }
+  ]
+}

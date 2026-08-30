@@ -1,7 +1,11 @@
 version: 2
 updates:
   - package-ecosystem: pip
-    directory: /
+    directory: /apps/cli
+    schedule:
+      interval: monthly
+  - package-ecosystem: npm
+    directory: /apps/pwa
     schedule:
       interval: monthly
   - package-ecosystem: github-actions

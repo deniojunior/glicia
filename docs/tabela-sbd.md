@@ -1,6 +1,6 @@
 # Tabela de alimentos SBD
 
-A tabela padrão está em `src/glicia/data/foods-sbd.csv`. O prompt recebe apenas alimento, medida usual, referência em g/ml e CHO; calorias e página do manual não são transmitidas.
+A tabela padrão está em `apps/cli/src/glicia/data/foods-sbd.csv`. O prompt recebe apenas alimento, medida usual, referência em g/ml e CHO; calorias e página do manual não são transmitidas.
 
 ## Fonte e atribuição
 

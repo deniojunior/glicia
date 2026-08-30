@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glicia.dev/contracts/v1/provider-error.schema.json",
+  "title": "ProviderError",
+  "description": "Erro neutro de fornecedor de IA compartilhado entre as aplicações.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["code", "message", "retryable"],
+  "properties": {
+    "code": {
+      "enum": [
+        "authentication",
+        "rate_limit",
+        "model_unavailable",
+        "network",
+        "invalid_response",
+        "unknown"
+      ]
+    },
+    "message": { "type": "string", "minLength": 1 },
+    "retryable": { "type": "boolean" }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://glicia.dev/contracts/v1/conversation-turn.schema.json",
+  "title": "ConversationTurn",
+  "description": "Turno estruturado compartilhado entre as aplicações Glicia.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reply",
+    "total_carbohydrates",
+    "glucose",
+    "glucose_trend",
+    "meal_type",
+    "food_memory_updates"
+  ],
+  "properties": {
+    "reply": { "type": "string" },
+    "total_carbohydrates": { "type": ["number", "null"], "minimum": 0 },
+    "glucose": { "type": ["number", "null"], "exclusiveMinimum": 0 },
+    "glucose_trend": {
+      "type": ["string", "null"],
+      "enum": [
+        "SUBINDO_RAPIDO",
+        "SUBINDO",
+        "ESTAVEL",
+        "CAINDO",
+        "CAINDO_RAPIDO",
+        "NAO_INFORMADA",
+        null
+      ]
+    },
+    "meal_type": {
+      "type": ["string", "null"],
+      "enum": [
+        "CAFE_DA_MANHA",
+        "ALMOCO",
+        "CAFE_DA_TARDE",
+        "JANTAR",
+        "CEIA",
+        null
+      ]
+    },
+    "food_memory_updates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["food", "usual_preparation"],
+        "properties": {
+          "food": { "type": "string", "minLength": 1 },
+          "usual_preparation": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

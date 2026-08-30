@@ -1,7 +1,7 @@
 # Glicia
 
 [![Versão](https://img.shields.io/badge/version-0.1.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
-[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](pyproject.toml)
+[![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Local-first](https://img.shields.io/badge/data-local--first-2d3436?style=flat-square)](#privacidade-e-dados)
 
@@ -35,7 +35,7 @@ git clone https://github.com/deniojunior/glicia.git
 cd glicia
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e ".[dev]"
+python -m pip install -e "apps/cli[dev]"
 export OPENAI_API_KEY="sua-chave"
 glicia
 ```
@@ -120,7 +120,9 @@ Detalhes, precedência de valores e formato da tabela estão em [docs/configurac
 
 ## Roadmap
 
-O plano de releases e as futuras integrações de IA estão em [docs/roadmap.md](docs/roadmap.md).
+O plano de releases e as futuras integrações de IA estão no [roadmap](docs/roadmap.md). A ordem
+de implementação, os critérios de aceite e os portões de risco estão no
+[plano de execução](docs/plano-execucao.md).
 
 ## Contribuindo
 
@@ -137,4 +139,4 @@ Contribuições são bem-vindas. Mudanças no cálculo ou nas travas exigem font
 
 Não publique chaves, dados de saúde ou falhas que possam causar uma sugestão clínica perigosa. Reporte-as conforme [SECURITY.md](SECURITY.md).
 
-O código é distribuído sob a [licença MIT](LICENSE). A tabela nutricional possui condições e atribuição próprias em [data-notice.md](data-notice.md).
+O código é distribuído sob a [licença MIT](LICENSE). A tabela nutricional possui condições e atribuição próprias no [aviso sobre dados de terceiros](docs/aviso-dados.md).

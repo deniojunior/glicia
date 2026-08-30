@@ -1,0 +1,78 @@
+{
+  "contract_version": 1,
+  "description": "Casos compartilhados para o cálculo determinístico de dose.",
+  "cases": [
+    {
+      "id": "round-only-at-final-result",
+      "input": {
+        "glucose": 135,
+        "carbohydrates": 25,
+        "target_glucose": 120,
+        "correction_factor": 40,
+        "carbohydrate_ratio": 8,
+        "trend": "ESTAVEL"
+      },
+      "expected": {
+        "correction": 0.375,
+        "carbohydrate_coverage": 3.125,
+        "trend_adjustment": 0,
+        "total": 3.5,
+        "suggested": 4
+      }
+    },
+    {
+      "id": "rising-fast-adds-two-units",
+      "input": {
+        "glucose": 180,
+        "carbohydrates": 50,
+        "target_glucose": 100,
+        "correction_factor": 40,
+        "carbohydrate_ratio": 10,
+        "trend": "SUBINDO_RAPIDO"
+      },
+      "expected": {
+        "correction": 2,
+        "carbohydrate_coverage": 5,
+        "trend_adjustment": 2,
+        "total": 9,
+        "suggested": 9
+      }
+    },
+    {
+      "id": "negative-total-is-clamped-to-zero",
+      "input": {
+        "glucose": 80,
+        "carbohydrates": 0,
+        "target_glucose": 120,
+        "correction_factor": 40,
+        "carbohydrate_ratio": 10,
+        "trend": "CAINDO_RAPIDO"
+      },
+      "expected": {
+        "correction": -1,
+        "carbohydrate_coverage": 0,
+        "trend_adjustment": -2,
+        "total": -3,
+        "suggested": 0
+      }
+    },
+    {
+      "id": "not-informed-trend-is-neutral",
+      "input": {
+        "glucose": 120,
+        "carbohydrates": 40,
+        "target_glucose": 120,
+        "correction_factor": 40,
+        "carbohydrate_ratio": 10,
+        "trend": "NAO_INFORMADA"
+      },
+      "expected": {
+        "correction": 0,
+        "carbohydrate_coverage": 4,
+        "trend_adjustment": 0,
+        "total": 4,
+        "suggested": 4
+      }
+    }
+  ]
+}
