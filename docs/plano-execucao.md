@@ -238,26 +238,26 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
 - Atualizar ou fechar a página não perde o progresso já validado; a chave é pedida novamente. ✅
 - Nenhuma credencial aparece em armazenamento persistente, URL, logs, histórico ou exportações. ✅
 
-## `v0.5.0` — Paridade funcional com a CLI
+## `v0.5.0` — Paridade funcional com a CLI (concluído)
 
 ### Pacotes de trabalho
 
 1. **Confirmação e correção**
    - Mostrar os quatro campos estruturados independentemente do Markdown da IA.
-   - Exigir ação explícita para confirmar; uma negativa abre correção e retorna à coleta.
+   - Exigir ação explícita para confirmar; uma negativa abre correção e retorna à coleta. ✅
    - Impedir duplo envio, confirmação duplicada e cálculo com resposta antiga.
 
 2. **Segurança e cálculo**
-   - Bloquear cálculo abaixo do limite de hipoglicemia.
-   - Mostrar o alerta específico de queda rápida abaixo de 100 mg/dL.
-   - Calcular somente após confirmação e arredondar somente no resultado final.
+   - Bloquear cálculo abaixo do limite de hipoglicemia. ✅
+   - Mostrar o alerta específico de queda rápida abaixo de 100 mg/dL. ✅
+   - Calcular somente após confirmação e arredondar somente no resultado final. ✅
    - Exibir entradas, RIC aplicado, ajuste da tendência, dose bruta e sugestão.
 
 3. **Memória e histórico**
    - Persistir apenas atualizações alimentares explicitamente informadas ou confirmadas.
    - Criar registro imutável da refeição confirmada, parâmetros usados, modelo/provedor,
      resultado calculado e dose aplicada opcional.
-   - Usar identificadores estáveis para permitir futura importação e deduplicação.
+   - Usar identificadores estáveis para permitir futura importação e deduplicação. ✅
 
 4. **Fluxo completo e falhas**
    - Reiniciar o contexto do provedor ao concluir ou bloquear uma refeição.

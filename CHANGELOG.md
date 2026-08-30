@@ -2,6 +2,14 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.5.0-alpha] - 2026-08-30
+
+- Confirmação agora executa travas de segurança e cálculo local determinístico.
+- Hipoglicemia bloqueia a sugestão; queda rápida tem aviso específico.
+- Memória alimentar confirmada e histórico de refeições persistem em IndexedDB.
+- Registro imutável guarda parâmetros, componentes do cálculo e dose aplicada opcional.
+- Tela de Histórico para consultar refeições confirmadas.
+
 ## [0.4.0-alpha] - 2026-08-30
 
 - Onboarding mobile retomável com chave OpenAI transitória, cinco RICs e modo de interação.

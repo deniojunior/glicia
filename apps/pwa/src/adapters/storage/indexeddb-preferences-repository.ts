@@ -44,8 +44,8 @@ export class IndexedDbPreferencesRepository implements PreferencesRepository {
 
   private open(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DATABASE_NAME, 1);
-      request.onupgradeneeded = () => request.result.createObjectStore(STORE_NAME);
+      const request = indexedDB.open(DATABASE_NAME, 2);
+      request.onupgradeneeded = () => { if (!request.result.objectStoreNames.contains(STORE_NAME)) request.result.createObjectStore(STORE_NAME); if (!request.result.objectStoreNames.contains("meals")) request.result.createObjectStore("meals"); };
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error ?? new Error("Não foi possível abrir os dados locais."));
     });

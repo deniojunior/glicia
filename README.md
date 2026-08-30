@@ -1,6 +1,6 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.4.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/version-0.5.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Local-first](https://img.shields.io/badge/data-local--first-2d3436?style=flat-square)](#privacidade-e-dados)
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.4.0-alpha` · CLI Python utilizável · PWA com onboarding e configuração local
+**Status:** `v0.5.0-alpha` · CLI Python utilizável · PWA com cálculo local e histórico
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -22,11 +22,10 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
 
 - **CLI:** interface funcional e instalável, preservada como referência de comportamento.
 - **PWA:** fluxo conversacional mobile-first, instalável e demonstrável com provedor local; inclui
-  adaptador OpenAI, resposta estruturada, onboarding e configurações locais. Cálculo de dose
-  ainda não está disponível na web.
+  adaptador OpenAI, resposta estruturada, onboarding, cálculo local e histórico no aparelho.
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** paridade funcional com a CLI em `v0.5.0`.
+- **Próximo marco:** portabilidade, backup e instalação em `v0.6.0`.
 
 Leia as [notas da v0.4.0-alpha](docs/releases/v0.4.0-alpha.md) para conhecer as mudanças, os
 impactos para contribuidores e as limitações atuais.

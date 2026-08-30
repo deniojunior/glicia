@@ -23,7 +23,9 @@
     "trend_adjustment",
     "calculated_dose",
     "suggested_dose",
-    "applied_dose"
+    "applied_dose",
+    "provider",
+    "model"
   ],
   "properties": {
     "created_at": { "type": "string", "format": "date-time" },
@@ -54,6 +56,8 @@
     "trend_adjustment": { "type": "integer", "minimum": -2, "maximum": 2 },
     "calculated_dose": { "type": "number" },
     "suggested_dose": { "type": "integer", "minimum": 0 },
-    "applied_dose": { "type": ["number", "null"], "minimum": 0 }
+    "applied_dose": { "type": ["number", "null"], "minimum": 0 },
+    "provider": { "type": "string", "minLength": 1 },
+    "model": { "type": "string", "minLength": 1 }
   }
 }
