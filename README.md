@@ -1,20 +1,33 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.1.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/version-0.2.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Local-first](https://img.shields.io/badge/data-local--first-2d3436?style=flat-square)](#privacidade-e-dados)
 
-> Uma CLI open source para organizar a contagem de carboidratos e aplicar localmente uma fórmula de bolus já definida com a equipe de saúde.
+> Um utilitário open source para organizar a contagem de carboidratos e aplicar localmente uma fórmula de bolus já definida com a equipe de saúde.
 
-O Glicia conversa em português para reunir os dados de uma refeição — carboidratos, glicemia, tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é executado localmente em Python. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
+O Glicia conversa em português para reunir os dados de uma refeição — carboidratos, glicemia,
+tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
+executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.1.0` · alpha · Python 3.12+
+**Status:** `v0.2.0-alpha` · CLI Python utilizável · PWA em desenvolvimento
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
 > [!WARNING]
 > Glicia é um utilitário educacional, não um dispositivo médico. Não substitui acompanhamento profissional, plano individual ou a avaliação de sintomas e insulina ativa. Use somente parâmetros definidos com sua equipe de saúde e confirme todos os dados antes de aplicar insulina.
+
+## Estado do projeto
+
+- **CLI:** interface funcional e instalável, preservada como referência de comportamento.
+- **PWA:** estrutura inicial criada; ainda não existe uma interface web utilizável nesta versão.
+- **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
+  configuração, conversa e segurança.
+- **Próximo marco:** protótipo mobile-first da conversa em `v0.3.0`.
+
+Leia as [notas da v0.2.0-alpha](docs/releases/v0.2.0-alpha.md) para conhecer as mudanças, os
+impactos para contribuidores e as limitações atuais.
 
 ## Instale com ajuda de uma IA
 
@@ -35,7 +48,7 @@ git clone https://github.com/deniojunior/glicia.git
 cd glicia
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -e "apps/cli[dev]"
+python -m pip install -e apps/cli
 export OPENAI_API_KEY="sua-chave"
 glicia
 ```
@@ -123,6 +136,20 @@ Detalhes, precedência de valores e formato da tabela estão em [docs/configurac
 O plano de releases e as futuras integrações de IA estão no [roadmap](docs/roadmap.md). A ordem
 de implementação, os critérios de aceite e os portões de risco estão no
 [plano de execução](docs/plano-execucao.md).
+
+## Estrutura do monorepo
+
+```text
+apps/
+├── cli/                    # pacote e testes Python
+└── pwa/                    # futura interface mobile-first
+packages/
+└── contracts/              # schemas e fixtures compartilhados
+docs/                       # produto, arquitetura e planejamento
+```
+
+A CLI e a PWA implementam seus domínios em linguagens diferentes. A equivalência é protegida
+pelos casos em `packages/contracts`, sem exigir backend ou runtime compartilhado.
 
 ## Contribuindo
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "glicia"
-version = "0.1.0"
+version = "0.2.0a1"
 description = "CLI para contagem de carboidratos assistida por IA e cálculo determinístico de bolus."
 readme = { text = "Glicia CLI: interface de terminal para contagem de carboidratos assistida por IA e cálculo determinístico local.", content-type = "text/plain" }
 requires-python = ">=3.12"

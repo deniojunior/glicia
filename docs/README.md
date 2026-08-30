@@ -10,3 +10,4 @@
 - [Tabela SBD](tabela-sbd.md): uso da base nutricional.
 - [Aviso sobre dados de terceiros](aviso-dados.md): atribuição e condições da tabela.
 - [Documentação DM1](documentacao_DM1.md): fundamentos clínicos e referências.
+- [Release v0.2.0-alpha](releases/v0.2.0-alpha.md): mudanças, compatibilidade e limitações.
