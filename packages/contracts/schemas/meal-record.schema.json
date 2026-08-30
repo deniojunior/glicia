@@ -6,6 +6,7 @@
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "id",
     "created_at",
     "meal_input",
     "assistant_summary",
@@ -28,6 +29,7 @@
     "model"
   ],
   "properties": {
+    "id": { "type": "string", "minLength": 1 },
     "created_at": { "type": "string", "format": "date-time" },
     "meal_input": { "type": "string" },
     "assistant_summary": { "type": "string" },

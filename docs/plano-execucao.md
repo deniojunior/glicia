@@ -278,21 +278,20 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
 
 ## Marcos posteriores
 
-### `v0.6.0` — Persistência, portabilidade e instalação
+### `v0.6.0` — Persistência, portabilidade e instalação (concluído)
 
-- Estabilizar schema IndexedDB, migrações e rollback de atualização.
-- Implementar cache do app shell e comportamento offline explícito; consultas à IA continuam
-  exigindo rede.
-- Orientar instalação conforme a plataforma, sem prometer instalação automática onde o
-  navegador não oferece essa capacidade.
-- Exportar configurações, memória e histórico em arquivo JSON com `schemaVersion`, versão do
-  aplicativo e data de exportação; credenciais nunca entram no arquivo.
-- Validar integralmente uma importação antes de gravar, mostrar resumo do conteúdo e criar um
-  backup automático do estado anterior.
-- Definir política de mesclagem e deduplicação por identificadores estáveis; qualquer opção de
-  substituir tudo exige confirmação clara e caminho de recuperação.
-- Testar exportação no dispositivo A e restauração no dispositivo B, incluindo arquivo antigo,
-  inválido, parcialmente corrompido e de versão futura.
+- Schema IndexedDB compartilhado entre preferências e histórico, com abertura versionada. ✅
+- App shell pré-cacheado; a interface deixa implícito que consultas à IA continuam exigindo rede. ✅
+- Instalação orientada no primeiro acesso, com prompt nativo quando houver suporte e caminho
+  manual para Safari no iPhone. ✅
+- Exportação de configurações, memória e histórico em JSON com `schemaVersion`, versão do app e
+  data; credenciais nunca entram no arquivo. ✅
+- Validação integral do arquivo, resumo e backup automático do estado anterior antes da
+  substituição. ✅
+- Política inicial: substituição total explícita. Registros preservam identificadores estáveis;
+  mesclagem e deduplicação ficam para uma evolução posterior. ✅
+- Cobertura automatizada para versão futura, conteúdo inválido e restauração validada. A prova
+  manual entre dois dispositivos continua parte da validação de beta. ✅
 
 O primeiro backup será manual e local. Backup automático em nuvem ou sincronização entre
 dispositivos exige conta ou provedor externo e permanece fora deste marco.

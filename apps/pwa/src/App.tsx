@@ -2,12 +2,13 @@ import { FormEvent, useEffect, useReducer, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { ConversationSession, decideConfirmedMeal, PreferencesService, type MealDecision, type SessionSnapshot } from "./application";
+import { BackupService, ConversationSession, decideConfirmedMeal, PreferencesService, type MealDecision, type SessionSnapshot } from "./application";
 import { DemoAiProvider } from "./adapters/fake/demo-ai-provider";
 import { OpenAIResponsesProvider } from "./adapters/openai/openai-responses-provider";
 import { buildOpenAiInstructions } from "./adapters/openai/instructions";
 import { IndexedDbPreferencesRepository } from "./adapters/storage/indexeddb-preferences-repository";
 import { IndexedDbMealRepository } from "./adapters/storage/indexeddb-meal-repository";
+import { IndexedDbBackupRepository } from "./adapters/storage/indexeddb-backup-repository";
 import { Onboarding } from "./components/onboarding";
 import { Settings } from "./components/settings";
 import { History } from "./components/history";
@@ -46,6 +47,7 @@ function reduce(state: AppState, action: AppAction): AppState {
 
 const preferencesService = new PreferencesService(new IndexedDbPreferencesRepository());
 const mealRepository = new IndexedDbMealRepository();
+const backupService = new BackupService(new IndexedDbBackupRepository(), "0.6.0-alpha.0");
 
 function createSession(mode: InteractionMode, apiKey: string | null, preferences: PersistedPreferences, foodMemory: Readonly<Record<string, string>>): ConversationSession {
   const provider = apiKey ? new OpenAIResponsesProvider({ apiKey, model: preferences.provider.model, instructions: buildOpenAiInstructions }) : new DemoAiProvider();
@@ -194,7 +196,7 @@ export function App() {
   if (preferences === undefined || foodMemory === null) return <main className="onboarding-shell"><p className="waiting">Abrindo a Glicia…</p></main>;
   if (loadError) return <main className="onboarding-shell"><p className="error-message" role="alert">{loadError}</p></main>;
   if (preferences === null) return <Onboarding initialProgress={progress} onProgress={(next) => preferencesService.saveOnboarding(next)} onComplete={async (next, key) => { await preferencesService.save(next); await preferencesService.clearOnboarding(); setApiKey(key); setPreferences(next); }} />;
-  if (screen === "settings") return <Settings preferences={preferences} hasApiKey={apiKey !== null} onSetApiKey={setApiKey} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
+  if (screen === "settings") return <Settings preferences={preferences} hasApiKey={apiKey !== null} onSetApiKey={setApiKey} backupService={backupService} onRestored={(backup) => { setPreferences(backup.preferences); setFoodMemory(backup.foodMemory); setApiKey(null); }} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
   if (screen === "history") return <History repository={mealRepository} onBack={() => setScreen("conversation")} />;
   return <ConversationApp preferences={preferences} apiKey={apiKey} foodMemory={foodMemory} onOpenSettings={() => setScreen("settings")} onOpenHistory={() => setScreen("history")} />;
 }

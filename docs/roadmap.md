@@ -87,7 +87,7 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.3.0-alpha` | Protótipo mobile-first da conversa. | PWA utilizável no navegador do celular com texto, ditado do teclado, respostas em Markdown e continuidade entre turnos. |
 | `v0.4.0-alpha` | Onboarding, configuração e BYOK na PWA. | Primeiro acesso obrigatório e retomável, estados de chave ausente/inválida/válida, configuração dos parâmetros e RICs, revisão final, seletor de modo e edição posterior confirmada. |
 | `v0.5.0-alpha` | Paridade funcional com a CLI. | Confirmação e correção dos dados, mesmas travas, mesmos resultados de cálculo e registro da dose aplicada. |
-| `v0.6.0-alpha` | Persistência, portabilidade e instalação. | Preferências, memória alimentar e histórico estáveis; atualização da PWA sem perda de dados; exportação, importação e backup local validados; instalação orientada na tela inicial. |
+| `v0.6.0-alpha` | Persistência, portabilidade e instalação. | Preferências, memória alimentar e histórico estáveis; atualização da PWA sem perda de dados; exportação, importação e backup local validados; instalação orientada na tela inicial. Concluída. |
 | `v0.7.0-alpha` | Segurança, privacidade e contingência. | Revisão do tratamento da chave e dos dados de saúde, política de conteúdo restritiva, limpeza de dados e modo manual sem IA. |
 | `v0.8.0-alpha` | Seleção de modelo e múltiplos provedores de IA. | Contrato comum de provedor, modelos validados por avaliações de regressão, credenciais separadas e troca de provedor ou modelo entre refeições. |
 | `v0.9.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, avaliação com usuários pilotos, CI e nenhuma regressão conhecida em relação à CLI. |

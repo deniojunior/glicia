@@ -2,6 +2,16 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.6.0-alpha] - 2026-08-30
+
+- Backup manual local com arquivo JSON versionado contendo preferências, memória alimentar e histórico.
+- Importação validada integralmente, resumo antes da confirmação e cópia automática do estado anterior.
+- Credenciais continuam fora do armazenamento persistente e de todos os arquivos de backup.
+- Instalação orientada no primeiro acesso: prompt nativo onde suportado e instruções específicas para Safari no iPhone.
+- Schema de backup compartilhado e validação automatizada para versão futura e dados inválidos.
+
+Leia as [notas completas da v0.6.0-alpha](docs/releases/v0.6.0-alpha.md).
+
 ## [0.5.0-alpha] - 2026-08-30
 
 - Confirmação agora executa travas de segurança e cálculo local determinístico.
