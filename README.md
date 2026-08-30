@@ -11,6 +11,8 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 
 **Status:** `v0.1.0` · alpha · Python 3.12+
 
+![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
+
 > [!WARNING]
 > Glicia é um utilitário educacional, não um dispositivo médico. Não substitui acompanhamento profissional, plano individual ou a avaliação de sintomas e insulina ativa. Use somente parâmetros definidos com sua equipe de saúde e confirme todos os dados antes de aplicar insulina.
 
@@ -47,14 +49,6 @@ Você: Vou tomar café da manhã: um pão francês com manteiga e café sem aç�
 Glicia: Qual é sua glicemia atual e a seta do sensor?
 Você: 160, seta subindo.
 ```
-
-## Demonstração
-
-<!-- Substitua este bloco pelo GIF real quando ele estiver disponível.
-![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
--->
-
-*Em breve: GIF de uma sessão real do terminal, usando dados fictícios.*
 
 ## O que a CLI faz
 
