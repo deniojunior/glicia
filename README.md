@@ -1,6 +1,6 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.2.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/version-0.3.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Local-first](https://img.shields.io/badge/data-local--first-2d3436?style=flat-square)](#privacidade-e-dados)
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.2.0-alpha` · CLI Python utilizável · PWA em desenvolvimento
+**Status:** `v0.3.0-alpha` · CLI Python utilizável · protótipo PWA mobile-first disponível
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -21,12 +21,14 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
 ## Estado do projeto
 
 - **CLI:** interface funcional e instalável, preservada como referência de comportamento.
-- **PWA:** estrutura inicial criada; ainda não existe uma interface web utilizável nesta versão.
+- **PWA:** fluxo conversacional mobile-first, instalável e demonstrável com provedor local; inclui
+  adaptador OpenAI isolado, resposta estruturada e Markdown seguro. Onboarding, configuração e
+  cálculo de dose ainda não estão disponíveis na web.
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** protótipo mobile-first da conversa em `v0.3.0`.
+- **Próximo marco:** onboarding, configuração clínica e BYOK em `v0.4.0`.
 
-Leia as [notas da v0.2.0-alpha](docs/releases/v0.2.0-alpha.md) para conhecer as mudanças, os
+Leia as [notas da v0.3.0-alpha](docs/releases/v0.3.0-alpha.md) para conhecer as mudanças, os
 impactos para contribuidores e as limitações atuais.
 
 ## Instale com ajuda de uma IA

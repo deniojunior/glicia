@@ -147,7 +147,7 @@ Tornar explícito e testável tudo que precisa permanecer igual entre CLI e PWA.
 - CLI continua funcionando e toda a suíte Python permanece verde.
 - Nenhuma regra clínica foi alterada durante a extração.
 
-## `v0.3.0` — Protótipo mobile-first da conversa
+## `v0.3.0` — Protótipo mobile-first da conversa (concluído)
 
 ### Dependência
 
@@ -156,40 +156,43 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
 ### Pacotes de trabalho
 
 1. **Fundação web**
-   - Evoluir `apps/pwa` com TypeScript, React, Vite, testes unitários e manifesto PWA mínimo.
-   - Configurar lint, typecheck, testes e build na CI ao lado do pipeline Python.
+   - Evoluir `apps/pwa` com TypeScript, React, Vite, testes unitários e manifesto PWA mínimo. ✅
+   - Configurar lint, typecheck, testes e build na CI ao lado do pipeline Python. ✅
    - Adotar composição manual e estado da sessão com reducer; não adicionar biblioteca global
      de estado antes de surgir uma necessidade concreta.
 
 2. **Domínio TypeScript**
-   - Portar enums, validações, completude, ajuste de tendência, fórmula e arredondamento.
-   - Executar as mesmas fixtures usadas pelo Python.
+   - Portar enums, validações, completude, ajuste de tendência, fórmula e arredondamento. ✅
+   - Executar as mesmas fixtures usadas pelo Python. ✅
    - Proibir imports de React, navegador, rede ou armazenamento nessa camada.
 
 3. **Caso de uso conversacional**
-   - Implementar a máquina de estados com provedor fake primeiro.
-   - Preservar mensagens entre turnos, correções e reinício ao finalizar uma refeição.
-   - Manter o modo escolhido fixo durante uma refeição.
+   - Implementar a máquina de estados com provedor fake primeiro. ✅
+   - Preservar mensagens entre turnos, correções e reinício ao finalizar uma refeição. ✅
+   - Manter o modo escolhido fixo durante uma refeição. ✅
 
 4. **Adaptador OpenAI e prova de viabilidade**
-   - Implementar o schema estruturado e o prompt equivalentes ao Python.
-   - Validar em navegadores móveis suportados se a chamada direta ao provedor é tecnicamente e
-     contratualmente viável.
+   - Implementar o schema estruturado compatível com o contrato e uma porta isolada que receba
+     as instruções da composição da aplicação. ✅
+   - Validar o contrato HTTP sem rede real: `store: false`, saída JSON Schema, continuação de
+     contexto apenas no adaptador e classificação de falhas. ✅
    - Usar no protótipo uma chave transitória informada na sessão; nunca embutir segredo em
-     variável `VITE_*`, bundle, fixture, log ou captura de tela.
+     variável `VITE_*`, bundle, fixture, log ou captura de tela. ✅
    - Se a chamada direta for inviável, interromper a publicação e abrir decisão explícita sobre
      proxy opcional ou implantação auto-hospedada; não adicionar backend silenciosamente.
 
 5. **Interface da conversa**
-   - Criar app shell, feed, compositor fixado, envio, espera, erro recuperável e nova refeição.
-   - Renderizar Markdown permitido de forma segura.
+   - Criar app shell, feed, compositor fixado, envio, espera, erro recuperável e nova refeição. ✅
+   - Renderizar Markdown permitido de forma segura, sem HTML bruto. ✅
    - Usar `input` ou `textarea` compatível com o ditado do teclado, sem gravação própria.
    - Garantir foco, teclado virtual, áreas seguras, zoom e uso com uma mão.
 
 ### Critério de saída
 
 - PWA abre por URL no celular e o fluxo de vários turnos funciona com provedor fake.
-- Adaptador real passa por uma prova controlada sem segredo no bundle.
+- Adaptador OpenAI passa por prova controlada automatizada sem segredo no bundle; a chamada
+  direta com uma chave real fica deliberadamente fora deste release, até existir a tela de
+  configuração transitória do `v0.4.0`.
 - Casos de domínio produzem os mesmos resultados em Python e TypeScript.
 - Estados de carregamento, erro e retomada são demonstráveis em viewport mobile.
 

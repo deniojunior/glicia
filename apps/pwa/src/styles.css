@@ -1,0 +1,77 @@
+:root {
+  color: #113b45;
+  background: #eef7f5;
+  font-family: Avenir Next, Avenir, Montserrat, Corbel, "URW Gothic", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+
+html { min-width: 320px; background: #eef7f5; }
+
+body { min-width: 320px; min-height: 100vh; min-height: 100svh; margin: 0; }
+
+button, textarea { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid #e6b148; outline-offset: 3px; }
+button:disabled { cursor: not-allowed; }
+
+.app-shell { width: min(100%, 48rem); min-height: 100vh; min-height: 100svh; margin: 0 auto; padding: max(1rem, env(safe-area-inset-top)) 1rem calc(8.5rem + env(safe-area-inset-bottom)); }
+.app-header { display: flex; align-items: center; justify-content: space-between; min-height: 3.25rem; }
+.brand { display: inline-flex; align-items: center; gap: 0.5rem; color: #074255; font-size: 1.25rem; font-weight: 750; letter-spacing: -0.04em; text-decoration: none; }
+.brand img { width: 2.75rem; height: 2.75rem; border-radius: 0.8rem; }
+.demo-badge { border: 1px solid #9bcfc6; border-radius: 99rem; padding: 0.32rem 0.58rem; color: #27675f; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; }
+
+.conversation { padding-top: clamp(2.75rem, 10vh, 5.75rem); }
+.conversation-intro { max-width: 36rem; }
+.eyebrow { margin: 0 0 0.55rem; color: #198d82; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.13em; text-transform: uppercase; }
+.conversation h1, .confirmation-card h2, .confirmed-card h2 { margin: 0; color: #073e4d; font-size: clamp(2.25rem, 10vw, 4rem); font-weight: 720; letter-spacing: -0.06em; line-height: 0.98; }
+.conversation-intro > p:not(.eyebrow) { max-width: 43ch; margin: 1.25rem 0 0; color: #47636a; font-size: 1.05rem; line-height: 1.55; }
+
+.mode-selector { display: inline-flex; gap: 0.25rem; margin: 2rem 0 1.4rem; padding: 0.25rem; border: 1px solid #c6e1dc; border-radius: 0.8rem; background: #e1f0ed; }
+.mode-selector button { border: 0; border-radius: 0.58rem; padding: 0.55rem 0.88rem; background: transparent; color: #3b676a; font-size: 0.86rem; font-weight: 700; }
+.mode-selector button.selected { background: #fff; box-shadow: 0 2px 8px rgb(8 64 70 / 10%); color: #074255; }
+.mode-selector button:disabled { color: #567277; }
+
+.message-feed { display: grid; gap: 1rem; }
+.welcome-message, .message { padding: 1rem 1.1rem; border-radius: 1rem; }
+.welcome-message, .assistant-message { border: 1px solid #cde5e0; background: #f9fffd; }
+.message-label { display: block; margin-bottom: 0.35rem; color: #197f76; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.welcome-message p, .message p { margin: 0; color: #294e56; line-height: 1.5; }
+.exchange { display: grid; gap: 0.6rem; }
+.user-message { justify-self: end; max-width: 88%; background: #075365; }
+.user-message .message-label, .user-message p { color: #e7fbf5; }
+.assistant-message { max-width: 92%; }
+.assistant-markdown > :first-child { margin-top: 0; }
+.assistant-markdown > :last-child { margin-bottom: 0; }
+.assistant-markdown p, .assistant-markdown ul, .assistant-markdown ol { color: #294e56; line-height: 1.5; }
+.assistant-markdown ul, .assistant-markdown ol { margin: 0.6rem 0; padding-left: 1.25rem; }
+.assistant-markdown strong { color: #073e4d; }
+.waiting { margin: 0; color: #427075; font-size: 0.9rem; font-style: italic; }
+.error-message { margin: 0; border-left: 0.25rem solid #c55344; padding: 0.75rem 0.9rem; background: #fff2ee; color: #882f24; line-height: 1.4; }
+
+.confirmation-card, .confirmed-card { margin-top: 1.5rem; border-radius: 1.25rem; padding: 1.35rem; background: #0a5663; color: #e7fbf5; box-shadow: 0 1rem 2.25rem rgb(5 63 74 / 17%); }
+.confirmation-card .eyebrow, .confirmed-card .eyebrow { color: #8ce4cd; }
+.confirmation-card h2, .confirmed-card h2 { color: #fff; font-size: 1.85rem; letter-spacing: -0.045em; }
+.confirmation-card dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0.75rem; margin: 1.45rem 0; }
+.confirmation-card dl div { min-width: 0; }
+.confirmation-card dt { color: #a9d9d1; font-size: 0.75rem; }
+.confirmation-card dd { margin: 0.22rem 0 0; color: #fff; font-size: 1rem; font-weight: 700; text-transform: capitalize; }
+.primary-action, .secondary-action { width: 100%; border: 0; border-radius: 0.85rem; padding: 0.9rem 1rem; font-weight: 800; }
+.primary-action { background: #d8f178; color: #16444b; }
+.card-note, .confirmed-card > p:not(.eyebrow) { margin: 0.8rem 0 0; color: #c0e5dc; font-size: 0.84rem; line-height: 1.45; }
+.secondary-action { margin-top: 1.25rem; border: 1px solid #91d0c2; background: transparent; color: #fff; }
+
+.composer { position: fixed; z-index: 1; right: max(0.75rem, env(safe-area-inset-right)); bottom: max(0.75rem, env(safe-area-inset-bottom)); left: max(0.75rem, env(safe-area-inset-left)); width: min(calc(100% - 1.5rem), 46rem); margin: auto; border: 1px solid #bcded7; border-radius: 1rem; padding: 0.75rem; background: rgb(255 255 255 / 96%); box-shadow: 0 0.8rem 2rem rgb(14 67 73 / 16%); backdrop-filter: blur(12px); }
+.composer > label { display: block; margin: 0 0 0.45rem 0.2rem; color: #285b62; font-size: 0.8rem; font-weight: 750; }
+.composer-row { display: flex; align-items: end; gap: 0.5rem; }
+.composer textarea { width: 100%; min-height: 3rem; resize: none; border: 0; border-radius: 0.65rem; padding: 0.65rem; background: #eff8f6; color: #173e46; line-height: 1.35; }
+.composer textarea::placeholder { color: #6b8589; }
+.send-button { display: grid; flex: 0 0 3rem; width: 3rem; height: 3rem; place-items: center; border: 0; border-radius: 0.7rem; background: #0b5e6b; color: #fff; font-size: 1.5rem; font-weight: 400; }
+.send-button:disabled { background: #a8c8c5; }
+.composer > p { margin: 0.5rem 0.2rem 0; color: #5d777c; font-size: 0.7rem; line-height: 1.35; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (min-width: 48rem) { .app-shell { padding-right: 1.5rem; padding-left: 1.5rem; } .conversation { padding-top: 5rem; } }
+@media (prefers-reduced-motion: no-preference) { .conversation, .composer { animation: arrive 380ms ease-out both; } @keyframes arrive { from { opacity: 0; transform: translateY(0.45rem); } to { opacity: 1; transform: translateY(0); } } }

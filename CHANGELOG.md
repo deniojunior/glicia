@@ -2,6 +2,19 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.3.0-alpha] - 2026-08-30
+
+- PWA React mobile-first com manifesto, instalação e service worker.
+- Conversa de vários turnos: refeição, glicemia, tendência e tipo na primeira mensagem,
+  correções, confirmação e reinício local.
+- Domínio TypeScript validado pelas mesmas fixtures de contrato da CLI.
+- Adaptador OpenAI Responses isolado com saída JSON Schema, `store: false`, continuidade de
+  contexto no adaptador e classificação de falhas recuperáveis.
+- Renderização segura de Markdown nas mensagens da IA, sem interpretação de HTML bruto.
+- Documentação de teste manual em celular e limitações explícitas do alpha.
+
+Leia as [notas completas da v0.3.0-alpha](docs/releases/v0.3.0-alpha.md).
+
 ## [0.2.0-alpha] - 2026-08-30
 
 - Reorganização do repositório como monorepo com CLI, PWA e contratos separados.
