@@ -10,13 +10,15 @@ glicia/
 │   └── pwa/                    # aplicação mobile-first em TypeScript
 ├── packages/
 │   └── contracts/              # schemas e fixtures compartilhados
+├── supabase/                   # migrations, Edge Functions e testes de infraestrutura
 ├── docs/                       # documentação do produto e da engenharia
 └── pyproject.toml              # configuração de qualidade do monorepo
 ```
 
 Não existe um `core` executável compartilhado entre Python e TypeScript. As duas implementações
-compartilham o contrato, os casos de conformidade e as mesmas decisões arquiteturais. Isso mantém
-a PWA estática e evita introduzir um servidor ou uma ponte entre runtimes.
+compartilham o contrato, os casos de conformidade e as mesmas decisões arquiteturais. A arquitetura
+alvo da PWA a partir da `v0.7.0` usa Supabase como backend gerenciado; isso não introduz uma ponte
+de runtime com a CLI.
 
 ## CLI Python
 
@@ -57,11 +59,29 @@ As dependências apontam para dentro:
 A IA apenas extrai e explica os dados da refeição. O cálculo final e as travas de segurança são
 executados localmente, depois da confirmação da pessoa.
 
-## PWA e contratos
+## PWA, Supabase e contratos
 
-`apps/pwa` repetirá as fronteiras de domínio, aplicação e adaptadores em TypeScript, sem depender
-do runtime Python. O diretório já possui um manifesto mínimo, mas o scaffold React será criado no
-marco `v0.3.0`.
+`apps/pwa` mantém as fronteiras de domínio, aplicação e adaptadores em TypeScript, sem depender
+do runtime Python. A partir da `v0.7.0`, ela autentica a pessoa por Supabase Auth e chama somente
+Edge Functions para ações sensíveis e para a conversa com IA.
+
+```text
+PWA ── sessão Supabase Auth ──> Edge Functions ──> OpenAI
+       │                               │
+       └───────────────> PostgreSQL <──┴── Vault (credenciais cifradas)
+```
+
+- PostgreSQL é a fonte de verdade de preferências, memória alimentar e histórico. Backups são
+  responsabilidade operacional da infraestrutura, não uma funcionalidade da PWA.
+- Cada registro pertence a um `user_id`; RLS é aplicado e testado em toda tabela exposta.
+- A chave OpenAI chega a uma Edge Function autenticada, é validada e cifrada no Vault em uma
+  transação curta com os metadados da conexão. O RPC de persistência pode ser executado somente
+  pelo `service_role`; `anon` e `authenticated` não têm permissão. A PWA recebe apenas o estado da
+  conexão, nunca o valor da chave.
+- O adaptador OpenAI e detalhes como `previous_response_id` vivem no backend. O cálculo e as
+  travas determinísticos continuam no domínio TypeScript e não são delegados à IA.
+- Infraestrutura vive em `supabase/`: `config.toml`, migrations, Edge Functions, seeds fictícios
+  e testes de isolamento. Segredos e chaves de serviço não pertencem ao repositório.
 
 Os arquivos em `packages/contracts/` são a fronteira compartilhada. Eles fixam schemas e casos
 esperados que devem ser executados pelas suítes Python e TypeScript. Uma divergência de resultado

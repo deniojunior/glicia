@@ -1,0 +1,28 @@
+project_id = "snsdnxlwdhadrehksati"
+
+[api]
+enabled = true
+
+[db]
+major_version = 17
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/**"]
+
+[auth.email]
+enable_signup = true
+enable_confirmations = true
+max_frequency = "1m"
+otp_length = 8
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[functions.ai-chat]
+verify_jwt = true
+
+[functions.store-ai-connection]
+verify_jwt = true

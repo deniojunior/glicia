@@ -1,6 +1,6 @@
 {
   "name": "@glicia/pwa",
-  "version": "0.6.0-alpha.0",
+  "version": "0.7.0-alpha.0",
   "private": true,
   "description": "PWA mobile-first da Glicia.",
   "type": "module",
@@ -11,9 +11,15 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "supabase:start": "supabase start --workdir ../..",
+    "supabase:stop": "supabase stop --workdir ../..",
+    "supabase:status": "supabase status --workdir ../..",
+    "supabase:reset": "supabase db reset --local --workdir ../..",
+    "supabase:test": "supabase test db --workdir ../.."
   },
   "dependencies": {
+    "@supabase/supabase-js": "2.57.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-markdown": "^10.1.0",
@@ -31,6 +37,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "supabase": "2.116.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0",
     "vite": "^7.1.3",

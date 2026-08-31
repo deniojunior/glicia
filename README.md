@@ -1,9 +1,9 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.6.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/version-0.7.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
-[![Local-first](https://img.shields.io/badge/data-local--first-2d3436?style=flat-square)](#privacidade-e-dados)
+[![Supabase](https://img.shields.io/badge/PWA-Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](#privacidade-e-dados)
 
 > Um utilitário open source para organizar a contagem de carboidratos e aplicar localmente uma fórmula de bolus já definida com a equipe de saúde.
 
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.6.0-alpha` · CLI Python utilizável · PWA com cálculo local, histórico e backup local
+**Status:** `v0.7.0-alpha` · CLI Python utilizável · PWA com conta, dados sincronizados e BYOK cifrado
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -21,13 +21,13 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
 ## Estado do projeto
 
 - **CLI:** interface funcional e instalável, preservada como referência de comportamento.
-- **PWA:** fluxo conversacional mobile-first, instalável pelo navegador; inclui adaptador OpenAI,
-  resposta estruturada, onboarding, cálculo local, histórico e backup local no aparelho.
+- **PWA:** fluxo conversacional mobile-first, instalável pelo navegador; usa Supabase Auth,
+  PostgreSQL com RLS, Edge Functions e Vault para manter dados e conexão de IA por conta.
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** segurança, privacidade e contingência em `v0.7.0`.
+- **Próximo marco:** segurança, privacidade, exclusão de conta e contingência na `v0.8.0-alpha`.
 
-Leia as [notas da v0.6.0-alpha](docs/releases/v0.6.0-alpha.md) para conhecer as mudanças, os
+Leia as [notas da v0.7.0-alpha](docs/releases/v0.7.0-alpha.md) para conhecer as mudanças, os
 impactos para contribuidores e as limitações atuais.
 
 ## PWA no celular
@@ -37,9 +37,9 @@ Abra a PWA pelo navegador. No Android e em navegadores compatíveis, a Glicia of
 escolha **Adicionar à Tela de Início**. A instalação é opcional; ela não altera a forma de
 configurar ou usar a Glicia.
 
-Em **Configurações → Seus dados**, é possível baixar um arquivo JSON com configurações, memória
-alimentar e histórico. A chave OpenAI nunca é exportada. Ao importar, a Glicia valida o arquivo,
-mostra o resumo e baixa uma cópia automática dos dados atuais antes de substituí-los.
+No primeiro acesso, entre por e-mail e conclua o onboarding. Preferências, memória alimentar e
+histórico ficam associados à conta. Em **Configurações**, conecte sua chave OpenAI; ela é enviada
+por HTTPS à Edge Function, validada e cifrada no Supabase Vault. A chave não fica no navegador.
 
 ## Instale com ajuda de uma IA
 
@@ -118,9 +118,14 @@ Leia [cálculo e segurança](docs/documentacao_DM1.md) para conhecer as travas, 
 
 ## Privacidade e dados
 
-O Glicia não possui conta, login, backend próprio ou banco de dados remoto. Preferências são salvas em `~/.glicia/preferences.json` e o histórico de refeições confirmadas em `~/.glicia/history.sqlite3`. A chave da API não é gravada pelo programa.
+A CLI continua local: preferências ficam em `~/.glicia/preferences.json` e o histórico em
+`~/.glicia/history.sqlite3`. Na PWA, Supabase Auth identifica a conta e PostgreSQL armazena
+preferências, memória alimentar e refeições; políticas RLS isolam os registros por pessoa.
 
-Ao usar o provedor de IA atual, a conversa enviada — que pode incluir refeição, glicemia e contexto alimentar — é transmitida diretamente à API configurada. Avalie a política do provedor antes de usar dados pessoais ou de saúde. Não use dados reais em testes, issues, logs ou demonstrações públicas.
+A chave OpenAI da PWA é validada no backend e cifrada no Supabase Vault. A conversa — que pode
+incluir refeição, glicemia e contexto alimentar — segue da Edge Function para a OpenAI e não
+diretamente do navegador. Avalie as políticas dos serviços envolvidos e não use dados reais em
+testes, issues, logs ou demonstrações públicas.
 
 ## Configuração
 
@@ -154,14 +159,15 @@ de implementação, os critérios de aceite e os portões de risco estão no
 ```text
 apps/
 ├── cli/                    # pacote e testes Python
-└── pwa/                    # futura interface mobile-first
+└── pwa/                    # interface mobile-first React/TypeScript
 packages/
 └── contracts/              # schemas e fixtures compartilhados
+supabase/                    # migrations, Edge Functions e testes de RLS
 docs/                       # produto, arquitetura e planejamento
 ```
 
 A CLI e a PWA implementam seus domínios em linguagens diferentes. A equivalência é protegida
-pelos casos em `packages/contracts`, sem exigir backend ou runtime compartilhado.
+pelos casos em `packages/contracts`; a PWA usa Supabase, enquanto a CLI permanece independente.
 
 ## Contribuindo
 

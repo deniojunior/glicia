@@ -1,0 +1,2 @@
+-- Dados de conta permanecem fora do seed global.
+-- Os testes pgTAP criam contas e registros fictícios dentro de uma transação revertida ao final.

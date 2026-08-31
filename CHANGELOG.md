@@ -2,6 +2,18 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.7.0-alpha] - 2026-08-31
+
+- Supabase Auth por link mágico antes do onboarding e dados associados à conta.
+- PostgreSQL como fonte principal de preferências, memória alimentar e histórico, com RLS e
+  testes de isolamento entre contas.
+- Chave OpenAI validada e cifrada no Vault exclusivamente por Edge Function autenticada, sem RPC
+  público de credenciais e sem segredo no navegador.
+- Conversa encaminhada por `ai-chat`; o navegador deixa de chamar a OpenAI diretamente.
+- Infraestrutura reproduzível em migrations, configuração local, seed fictício e testes pgTAP.
+
+Leia as [notas completas da v0.7.0-alpha](docs/releases/v0.7.0-alpha.md).
+
 ## [0.6.0-alpha] - 2026-08-30
 
 - Backup manual local com arquivo JSON versionado contendo preferências, memória alimentar e histórico.

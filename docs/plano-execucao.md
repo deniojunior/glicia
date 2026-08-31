@@ -1,19 +1,26 @@
 # Plano de execução da PWA
 
 Este documento transforma o [roadmap](roadmap.md) em uma sequência de trabalho. Ele detalha
-`v0.2.0` a `v0.5.0` e mantém os marcos posteriores em nível progressivamente mais amplo. Não é
+`v0.2.0` a `v0.7.0` e mantém os marcos posteriores em nível progressivamente mais amplo. Não é
 um compromisso de prazo: cada versão avança somente quando seu critério de saída estiver
 atendido.
 
 ## Decisões confirmadas
 
 - PWA mobile-first em TypeScript, React e Vite.
-- Aplicação estática e client-side, sem backend, conta ou sincronização obrigatórios.
+- PWA autenticada, com Supabase Auth, PostgreSQL, Vault e Edge Functions como plataforma backend.
 - CLI em Python preservada como produto utilizável e referência de comportamento.
 - Desenvolvimento visual `code-first`: primeiro um fluxo navegável, depois refinamento visual.
-- OpenAI com BYOK na primeira versão; outros modelos e provedores entram depois da paridade.
+- OpenAI com BYOK na primeira versão remota; a chave é cifrada no Vault e usada somente por Edge Functions.
 - Dados informados manualmente; sem integração com LibreLink, LibreView ou o sensor.
-- Exportação, importação e backup manual dos dados locais no marco `v0.6.0`.
+- Backup local entregue em `v0.6.0`; a partir de `v0.7.0`, os dados pertencem à conta e a
+  recuperação do banco é responsabilidade operacional da infraestrutura.
+
+### Replanejamento de arquitetura
+
+A decisão original de PWA estática com chamada direta ao provedor foi superada após a validação
+real no navegador. A partir da `v0.7.0`, Supabase é a plataforma de conta, PostgreSQL, Vault e
+Edge Functions. A CLI continua local e não depende desse backend.
 
 ## Estratégia de entrega
 
@@ -26,7 +33,7 @@ desativar a CLI e sem reescrever cálculo e segurança ao mesmo tempo que a inte
 3. Implementar o mesmo contrato em TypeScript.
 4. Construir a conversa mobile sobre adaptadores substituíveis.
 5. Adicionar onboarding e persistência antes de liberar o cálculo completo.
-6. Atingir paridade e só então ampliar instalação, portabilidade, segurança e provedores.
+6. Atingir paridade, introduzir a plataforma autenticada e só então ampliar segurança e provedores.
 
 Mudanças intencionais nas regras atuais devem ter documentação, caso de conformidade e revisão
 próprios. Não devem entrar escondidas em uma tarefa de porte.
@@ -34,14 +41,14 @@ próprios. Não devem entrar escondidas em uma tarefa de porte.
 ## Arquitetura-alvo mínima
 
 ```text
-React/PWA ──> casos de uso da sessão ──> domínio puro
+React/PWA ──> Supabase Auth ──> Edge Functions ──> casos de uso ──> domínio puro
                  │                         ├─ configuração e validação
                  │                         ├─ turno e completude
                  │                         ├─ regras de segurança
                  │                         └─ cálculo determinístico
                  │
-                 ├─ porta de IA ───────> adaptador OpenAI
-                 └─ portas de dados ───> adaptadores IndexedDB/armazenamento seguro possível
+                 ├─ porta de IA ───────> adaptador OpenAI no backend
+                 └─ portas de dados ───> adaptadores PostgreSQL/Vault
 
 CLI/Rich ──> aplicação Python equivalente ──> domínio Python atual
                          │
@@ -136,7 +143,8 @@ Tornar explícito e testável tudo que precisa permanecer igual entre CLI e PWA.
    - Fazer a suíte Python consumir as fixtures compartilhadas.
 
 5. **Decisões registradas**
-   - ADR: PWA estática e BYOK sem backend obrigatório.
+   - ADR: PWA estática e BYOK sem backend obrigatório (substituída pela arquitetura Supabase na
+     `v0.7.0`).
    - ADR: duas implementações de domínio verificadas por contrato.
    - Registrar como riscos abertos o armazenamento da chave e chamadas diretas ao provedor.
 
@@ -257,7 +265,7 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
    - Persistir apenas atualizações alimentares explicitamente informadas ou confirmadas.
    - Criar registro imutável da refeição confirmada, parâmetros usados, modelo/provedor,
      resultado calculado e dose aplicada opcional.
-   - Usar identificadores estáveis para permitir futura importação e deduplicação. ✅
+   - Usar identificadores estáveis para permitir futura sincronização e deduplicação. ✅
 
 4. **Fluxo completo e falhas**
    - Reiniciar o contexto do provedor ao concluir ou bloquear uma refeição.
@@ -296,31 +304,66 @@ Começa somente depois que os contratos de `v0.2.0` estiverem estáveis.
 O primeiro backup será manual e local. Backup automático em nuvem ou sincronização entre
 dispositivos exige conta ou provedor externo e permanece fora deste marco.
 
-### `v0.7.0` — Segurança, privacidade e contingência
+### `v0.7.0` — Plataforma Supabase, conta e BYOK seguro (concluído)
 
-- Revisão independente do tratamento de credenciais e dados de saúde.
-- Política de conteúdo, dependências e CSP restritivas; verificação de que logs e relatórios não
-  carregam dados sensíveis.
-- Exclusão seletiva e total de dados, com confirmação e explicação do que permanece.
-- Modo manual sem IA para inserir carboidratos, glicemia, tendência e refeição diretamente.
-- Documentação de privacidade e riscos revisada para navegador e PWA instalada.
+1. **Infraestrutura como código**
+   - Criar `supabase/config.toml`, migrations SQL imperativas, Edge Functions, dados fictícios de
+     desenvolvimento e testes de RLS no repositório. ✅
+   - Vincular o projeto vazio `snsdnxlwdhadrehksati` somente pela CLI; usar `db push --dry-run`
+     antes de toda aplicação remota. ✅
+   - Manter URL pública, chaves de publicação e segredos em variáveis de ambiente; nunca em
+     migrations, bundle ou Git. ✅
 
-### `v0.8.0` — Modelos e múltiplos provedores
+2. **Conta e dados por pessoa**
+   - Integrar Supabase Auth por link ou código mágico e exigir sessão válida antes do onboarding. ✅
+   - Persistir preferências, memória e refeições em PostgreSQL com `user_id`, RLS,
+     índices de acesso por pessoa e testes explícitos de permitir/negar. ✅
 
-- Transformar a porta já existente em registro de provedores, sem alterar domínio ou casos de
-  uso.
-- Credenciais isoladas por provedor e troca somente entre refeições.
-- Lista curta de modelos aprovados, identificador avançado não validado e registro técnico do
-  modelo usado.
-- Avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória, recusas de
-  cálculo e situações de segurança.
+3. **Conexão BYOK e proxy de IA**
+   - Criar a conexão OpenAI por Edge Function: validar chave, cifrar no Vault, guardar apenas
+     metadados visíveis e permitir sua substituição. A remoção fica no marco de privacidade da
+     `v0.8.0`. ✅
+   - Mover o adaptador Responses para a Edge Function e retirar a chamada direta da PWA. ✅
+   - Validar JWT no servidor e nunca confiar em `user_id` enviado no corpo da requisição. ✅
 
-### `v0.9.0` / RC — Beta fechada
+4. **PWA e transição**
+   - Substituir IndexedDB como fonte principal por adaptadores HTTP autenticados; manter apenas
+     rascunho efêmero quando fizer sentido. ✅
+   - Converter onboarding, configurações e histórico para os endpoints autenticados. ✅
+   - Manter a CLI independente e local; não migrar automaticamente os seus dados. ✅
+
+### Critério de saída
+
+- Uma pessoa entra por e-mail, conecta a própria chave e conversa sem chamada direta do navegador
+  à OpenAI.
+- Dados de duas contas não podem ser lidos ou alterados entre si em testes de RLS.
+- Uma instalação `supabase db reset` reproduz o banco e as funções com dados fictícios.
+- Migrations e restauração operacional são reproduzíveis em ambiente isolado, sem incluir credenciais.
+
+### `v0.8.0` — Segurança, privacidade e contingência
+
+- Revisar modelo de ameaça, Vault, rotação/remoção de credenciais, RLS, CSP, dependências e logs.
+- Implementar exclusão seletiva e total por conta, política de retenção e procedimento testado de
+  recuperação operacional.
+- Criar modo manual sem IA para inserir carboidratos, glicemia, tendência e refeição diretamente.
+- Documentar recuperação de conta, indisponibilidade do provedor, falha de rede e limites da
+  sincronização.
+
+### `v0.9.0` — Modelos e múltiplos provedores
+
+- Transformar a porta de IA em registro de provedores sem alterar domínio ou casos de uso.
+- Isolar credenciais por provedor no Vault e aplicar troca somente entre refeições.
+- Oferecer lista curta de modelos aprovados, identificador avançado não validado e registro técnico
+  do modelo usado.
+- Executar avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória,
+  recusas de cálculo e situações de segurança.
+
+### `v0.10.0` / Beta fechada
 
 - Matriz real de Android/iOS e navegadores suportados.
 - Auditoria de acessibilidade, teclado, leitor de tela, contraste, zoom e redução de movimento.
 - Rodadas observadas com usuários pilotos usando somente dados apropriados para teste.
-- Correções de instalação, migração, importação e atualização encontradas na beta.
+- Correções de instalação, autenticação, persistência e atualização encontradas na beta.
 - Congelamento de contratos e checklist de release candidate.
 
 ### `v1.0.0` — PWA estável
@@ -357,7 +400,9 @@ documentação afetada.
 | Domínio web | Vitest | Regras puras e máquina de estados |
 | Componentes | Testing Library | Formulários, foco, erros e semântica |
 | Fluxo | Playwright com provedor fake | Onboarding e refeição completa no navegador |
-| Integração | Smoke test controlado | Adaptador real sem chave em CI ou logs |
+| Banco e autorização | Supabase CLI + testes SQL de RLS | Migrations reproduzíveis e isolamento absoluto por `user_id` |
+| Edge Functions | Deno/Supabase CLI com OpenAI fake | JWT, classificação de erros e ausência de chave em logs |
+| Integração | Smoke test controlado | Caminho PWA → Edge Function sem chave real em CI ou logs |
 | Qualidade | lint, typecheck e build | Falhas de compilação, tipos e bundle |
 
 Testes de interface e documentação usam dados fictícios. Testes do provedor real não fazem
@@ -367,11 +412,11 @@ parte da CI de forks e nunca recebem credenciais de contribuidores automaticamen
 
 | Portão | Deve estar resolvido antes de | Evidência esperada |
 | --- | --- | --- |
-| Chamada direta ao provedor no navegador | uso real da `v0.3.0` | spike em navegadores suportados e decisão registrada |
-| Armazenamento da chave | persistência em `v0.4.0` | modelo de ameaça, UX de consentimento e revisão |
+| Chamada ao provedor | `v0.7.0` | Edge Function autenticada, sem CORS e sem chave no navegador |
+| Credencial BYOK | `v0.7.0` | Vault, remoção/rotação, modelo de ameaça e revisão |
+| Isolamento por conta | `v0.7.0` | RLS com casos explícitos de permitir/negar para todas as tabelas |
 | Licença da tabela SBD | publicação pública da PWA | autorização ou estratégia de distribuição alternativa |
-| Migração sem perda | `v0.6.0` | testes com todas as versões de schema suportadas |
-| Exportação/importação | `v0.6.0` | formato versionado, validação e restauração demonstrada |
+| Persistência e recuperação | `v0.8.0` | migrations reproduzíveis e restauração operacional testada em ambiente isolado |
 | Privacidade e enquadramento | ampliação além do piloto | documentação e avaliação apropriadas |
 | Compatibilidade móvel | RC | matriz real de dispositivos e navegadores |
 

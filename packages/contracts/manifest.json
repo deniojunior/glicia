@@ -6,7 +6,6 @@
     "schemas/clinical-settings.schema.json",
     "schemas/conversation-turn.schema.json",
     "schemas/dose-calculation.schema.json",
-    "schemas/backup.schema.json",
     "schemas/meal-record.schema.json",
     "schemas/provider-error.schema.json",
     "schemas/safety-assessment.schema.json"
