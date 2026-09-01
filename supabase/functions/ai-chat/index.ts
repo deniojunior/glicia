@@ -1,5 +1,7 @@
-import { createClient } from "npm:@supabase/supabase-js@2.57.0";
 import postgres from "npm:postgres@3.4.7";
+
+import { authenticateApprovedUser, type AuthenticatedClients } from "../_shared/auth.ts";
+import { HttpError } from "../_shared/http.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -30,17 +32,14 @@ Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return json({ error: "Método não permitido." }, 405);
 
-  const authorization = request.headers.get("Authorization");
-  if (!authorization?.startsWith("Bearer ")) return json({ error: "Sessão autenticada obrigatória." }, 401);
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!,
-    { global: { headers: { Authorization: authorization } } }
-  );
-  const admin = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) return json({ error: "Sessão autenticada obrigatória." }, 401);
+  let authenticated: AuthenticatedClients;
+  try {
+    authenticated = await authenticateApprovedUser(request);
+  } catch (error) {
+    if (error instanceof HttpError) return json({ error: error.message }, error.status);
+    return json({ error: "Não foi possível verificar o acesso." }, 500);
+  }
+  const { user, admin } = authenticated;
 
   const payload = await request.json() as Partial<ChatRequest>;
   if (!Array.isArray(payload.messages) || payload.messages.length === 0 || payload.messages.length > 30 || typeof payload.instructions !== "string" || payload.instructions.length > 250_000) {

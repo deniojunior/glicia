@@ -15,8 +15,9 @@ body { min-width: 320px; min-height: 100vh; min-height: 100svh; margin: 0; }
 button, textarea { font: inherit; }
 input { font: inherit; }
 button { cursor: pointer; }
-button:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid #e6b148; outline-offset: 3px; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid #e6b148; outline-offset: 3px; }
 button:disabled { cursor: not-allowed; }
+::selection { background: #cde95f; color: #123e45; }
 
 .app-shell { width: min(100%, 48rem); min-height: 100vh; min-height: 100svh; margin: 0 auto; padding: max(1rem, env(safe-area-inset-top)) 1rem calc(8.5rem + env(safe-area-inset-bottom)); }
 .app-header { display: flex; align-items: center; justify-content: space-between; min-height: 3rem; }
@@ -51,7 +52,7 @@ button:disabled { cursor: not-allowed; }
 .assistant-markdown ul, .assistant-markdown ol { margin: 0.6rem 0; padding-left: 1.25rem; }
 .assistant-markdown strong { color: #073e4d; }
 .waiting { margin: 0; color: #427075; font-size: 0.9rem; font-style: italic; }
-.error-message { margin: 0; border-left: 0.25rem solid #c55344; padding: 0.75rem 0.9rem; background: #fff2ee; color: #882f24; line-height: 1.4; }
+.error-message { margin: 0; border: 1px solid #e8b9b1; border-radius: 0.75rem; padding: 0.75rem 0.9rem; background: #fff2ee; color: #882f24; line-height: 1.4; }
 
 .confirmation-card, .confirmed-card { margin-top: 1.5rem; border-radius: 1.25rem; padding: 1.35rem; background: #0a5663; color: #e7fbf5; box-shadow: 0 1rem 2.25rem rgb(5 63 74 / 17%); }
 .confirmation-card .eyebrow, .confirmed-card .eyebrow { color: #8ce4cd; }
@@ -116,6 +117,11 @@ button:disabled { cursor: not-allowed; }
 .key-row .secondary-action { margin: 0; padding: 0.7rem 0.85rem; color: #075365; }
 @media (min-width: 32rem) { .key-row { grid-template-columns: minmax(0, 1fr) auto auto; } }
 .status-message { margin: 1rem 0 0; color: #27675f; font-weight: 700; }
+.auth-content { padding-bottom: 2rem; }
+.auth-mode { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; margin: 0 0 1.35rem; border: 1px solid #b8dcd5; border-radius: 0.9rem; padding: 0.25rem; background: #e1f0ed; }
+.auth-mode button { min-height: 2.9rem; border: 0; border-radius: 0.68rem; padding: 0.65rem 0.75rem; background: transparent; color: #3d686c; font-size: 0.82rem; font-weight: 750; }
+.auth-mode button.selected { background: #fff; box-shadow: 0 0.25rem 0.8rem rgb(8 64 70 / 10%); color: #074255; }
+.auth-note { max-width: 44ch; margin: 1.25rem 0 0 !important; color: #5d777c !important; font-size: 0.78rem; line-height: 1.5 !important; }
 .auth-success { display: grid; justify-items: start; gap: 0.8rem; margin-top: 1rem; border-radius: 0.85rem; padding: 1rem; background: #dfeeea; }
 .auth-success p { margin: 0; color: #285b62; line-height: 1.5; }
 .mailpit-link { display: inline-flex; min-height: 2.75rem; align-items: center; border-radius: 0.75rem; padding: 0.7rem 0.95rem; background: #075365; color: #fff; font-size: 0.88rem; font-weight: 800; text-decoration: none; }
@@ -126,6 +132,30 @@ button:disabled { cursor: not-allowed; }
 .history-list li { display: grid; gap: 0.2rem; border-bottom: 1px solid #cde5e0; padding: 1rem 0; color: #47636a; font-size: 0.9rem; }
 .history-list time { color: #27675f; font-size: 0.78rem; font-weight: 700; }
 .history-list strong { color: #073e4d; font-size: 1rem; font-weight: 750; text-transform: capitalize; }
+.compact-action { width: auto; min-height: 3rem; padding-right: 1.25rem; padding-left: 1.25rem; }
+
+.admin-shell { width: min(100%, 56rem); min-height: 100vh; min-height: 100svh; margin: 0 auto; padding: max(1rem, env(safe-area-inset-top)) 1rem calc(2.5rem + env(safe-area-inset-bottom)); }
+.admin-content { padding-top: clamp(2.5rem, 8vh, 5rem); }
+.admin-heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; }
+.admin-heading h1 { max-width: 12ch; margin: 0; color: #073e4d; font-size: clamp(2.15rem, 8vw, 3.6rem); font-weight: 720; letter-spacing: -0.04em; line-height: 1; }
+.admin-heading p { margin: 0.75rem 0 0; color: #47636a; line-height: 1.5; }
+.refresh-action { min-height: 2.75rem; border: 1px solid #9dcfc6; border-radius: 0.75rem; padding: 0.65rem 0.9rem; background: transparent; color: #075365; font-weight: 750; }
+.admin-empty { border-top: 1px solid #cde5e0; border-bottom: 1px solid #cde5e0; padding: 1.25rem 0; color: #47636a; }
+.access-request-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid #bdded8; }
+.access-request-list li { display: grid; gap: 0.55rem; border-bottom: 1px solid #bdded8; padding: 1.1rem 0; }
+.access-request-list li.highlighted { margin: 0 -0.75rem; border-radius: 0.9rem; padding-right: 0.75rem; padding-left: 0.75rem; background: #e1f0ed; box-shadow: 0 0.65rem 1.5rem rgb(12 74 77 / 8%); }
+.request-main { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+.request-main strong { min-width: 0; overflow-wrap: anywhere; color: #073e4d; font-size: 1rem; }
+.access-request-list li > p { margin: 0; color: #5a7478; font-size: 0.8rem; }
+.request-status { flex: 0 0 auto; border-radius: 99rem; padding: 0.3rem 0.55rem; background: #dfeeea; color: #285b62; font-size: 0.7rem; font-weight: 800; }
+.request-status.approved { background: #dff0bd; color: #365315; }
+.request-status.rejected { background: #f7dfdb; color: #7b352c; }
+.review-actions { display: flex; gap: 0.55rem; margin-top: 0.25rem; }
+.review-actions button { min-height: 2.75rem; border-radius: 0.75rem; padding: 0.65rem 0.95rem; font-weight: 800; }
+.approve-action { border: 0; background: #0a5965; color: #fff; }
+.reject-action { border: 1px solid #d8a8a0; background: transparent; color: #7b352c; }
+.review-actions button:disabled { opacity: 0.6; }
 
 @media (min-width: 48rem) { .app-shell { padding-right: 1.5rem; padding-left: 1.5rem; } .conversation { padding-top: 5rem; } }
+@media (max-width: 34rem) { .admin-heading { align-items: start; flex-direction: column; } .request-main { align-items: start; flex-direction: column; } .review-actions { display: grid; grid-template-columns: 1fr 1fr; } }
 @media (prefers-reduced-motion: no-preference) { .conversation, .composer { animation: arrive 380ms ease-out both; } @keyframes arrive { from { opacity: 0; transform: translateY(0.45rem); } to { opacity: 1; transform: translateY(0); } } }

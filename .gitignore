@@ -12,5 +12,7 @@ dist/
 .env
 .env.*
 !.env.example
+!.env.staging.example
 supabase/.temp/
+.vercel/
 .impeccable

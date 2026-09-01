@@ -20,3 +20,28 @@ As RICs representam gramas de carboidrato cobertas por uma unidade de insulina. 
 O modo, a memória alimentar e os parâmetros alterados pelo comando `/config` são armazenados em `~/.glicia/preferences.json`. O arquivo não contém glicemias, conversas ou a chave da OpenAI.
 
 Os valores editados pelo terminal têm prioridade sobre os padrões e as variáveis de ambiente nas próximas execuções. A edição exige uma confirmação explícita e aceita apenas números finitos; RIC, fator de correção, meta e limite de hipoglicemia devem ser maiores que zero, enquanto a basal pode ser zero ou positiva.
+
+## PWA e notificações de acesso
+
+A PWA usa `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e
+`VITE_GLICIA_ADMIN_EMAIL` no navegador. Este último apenas identifica a conta que pode abrir a
+tela de revisão; não concede permissão, que continua sendo validada por `app_admins`. Nunca
+publique `service_role`, a chave secreta do projeto, a chave OpenAI de uma pessoa ou a chave do
+serviço de e-mail em uma variável `VITE_*`.
+
+As Edge Functions de admissão usam:
+
+| Variável | Ambiente | Finalidade |
+| --- | --- | --- |
+| `PUBLIC_APP_URL` | staging e produção | URL usada nos links de revisão e entrada. |
+| `GLICIA_ADMIN_EMAIL` | staging e produção | Destinatário das novas solicitações; usa o e-mail do autor por padrão. |
+| `GLICIA_EMAIL_FROM` | staging e produção | Remetente pertencente a um domínio verificado. |
+| `RESEND_API_KEY` | staging e produção | Credencial do adaptador de e-mail transacional. |
+| `MAILPIT_API_URL` | local, opcional | API do Mailpit quando a porta padrão não puder ser usada. |
+
+`VITE_GLICIA_ADMIN_EMAIL` e `GLICIA_ADMIN_EMAIL` devem apontar para a mesma conta. O primeiro
+orienta a tela de login administrativo; o segundo define quem recebe as notificações.
+
+O desenvolvimento local seleciona Mailpit automaticamente. Produção falha de forma segura se o
+Resend ou o remetente não estiverem configurados; as chaves devem ser gravadas com o mecanismo de
+secrets do Supabase, nunca em migrations ou no Git.

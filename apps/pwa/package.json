@@ -1,12 +1,14 @@
 {
   "name": "@glicia/pwa",
-  "version": "0.7.0-alpha.0",
+  "version": "0.8.0-alpha.0",
   "private": true,
   "description": "PWA mobile-first da Glicia.",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:staging": "vite --mode staging",
     "build": "tsc --noEmit && vite build",
+    "build:staging": "tsc --noEmit && vite build --mode staging",
     "preview": "vite preview",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
@@ -16,7 +18,12 @@
     "supabase:stop": "supabase stop --workdir ../..",
     "supabase:status": "supabase status --workdir ../..",
     "supabase:reset": "supabase db reset --local --workdir ../..",
-    "supabase:test": "supabase test db --workdir ../.."
+    "supabase:test": "supabase test db --workdir ../..",
+    "staging:check": "supabase migration list --linked --workdir ../.. && supabase db push --dry-run --linked --workdir ../..",
+    "staging:deploy:db": "supabase db push --linked --workdir ../..",
+    "staging:deploy:functions": "supabase functions deploy --project-ref snsdnxlwdhadrehksati --workdir ../..",
+    "staging:deploy:config": "supabase config push --project-ref snsdnxlwdhadrehksati --workdir ../..",
+    "staging:advisors": "supabase db advisors --linked --type all --level warn --workdir ../.."
   },
   "dependencies": {
     "@supabase/supabase-js": "2.57.0",

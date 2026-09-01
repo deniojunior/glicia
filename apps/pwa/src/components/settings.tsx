@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 
 import { createClinicalSettings, type InteractionMode, type PersistedPreferences } from "../domain";
+import { gliciaIconUrl } from "../config/app-urls";
 
 interface SettingsProps {
   preferences: PersistedPreferences;
@@ -50,7 +51,7 @@ export function Settings({ preferences, hasAiConnection, onSave, onSetApiKey, on
   }
 
   return <main className="onboarding-shell">
-    <header className="app-header"><span className="brand"><img src="/icons/glicia-192.png" width="44" height="44" alt="" /><span>Glicia</span></span><button className="text-action" type="button" onClick={onBack}>Voltar</button></header>
+    <header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span><button className="text-action" type="button" onClick={onBack}>Voltar</button></header>
     <section className="setup-content" aria-labelledby="settings-title">
       <h1 id="settings-title">Configurações</h1><p>Altere somente os valores definidos pela sua equipe de saúde.</p>
       <form onSubmit={save}>

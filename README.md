@@ -1,6 +1,6 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.7.0--alpha-8b5cf6?style=flat-square)](CHANGELOG.md)
+[![Versão](https://img.shields.io/badge/version-0.8.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.8.0-alpha.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Supabase](https://img.shields.io/badge/PWA-Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](#privacidade-e-dados)
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.7.0-alpha` · CLI Python utilizável · PWA com conta, dados sincronizados e BYOK cifrado
+**Status:** `v0.8.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado e BYOK cifrado
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -22,12 +22,15 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
 
 - **CLI:** interface funcional e instalável, preservada como referência de comportamento.
 - **PWA:** fluxo conversacional mobile-first, instalável pelo navegador; usa Supabase Auth,
-  PostgreSQL com RLS, Edge Functions e Vault para manter dados e conexão de IA por conta.
+  PostgreSQL com RLS, Edge Functions e Vault para manter dados e conexão de IA por conta. Durante
+  o experimento, novas contas dependem de aprovação do autor.
+- **Staging:** backend hospedado no Supabase e publicação da PWA preparada para Vercel; veja
+  o [guia de staging](docs/staging.md).
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** segurança, privacidade, exclusão de conta e contingência na `v0.8.0-alpha`.
+- **Próximo marco:** segurança, privacidade, exclusão de conta e contingência na `v0.9.0-alpha`.
 
-Leia as [notas da v0.7.0-alpha](docs/releases/v0.7.0-alpha.md) para conhecer as mudanças, os
+Leia as [notas da v0.8.0-alpha](docs/releases/v0.8.0-alpha.md) para conhecer as mudanças, os
 impactos para contribuidores e as limitações atuais.
 
 ## PWA no celular
@@ -37,8 +40,9 @@ Abra a PWA pelo navegador. No Android e em navegadores compatíveis, a Glicia of
 escolha **Adicionar à Tela de Início**. A instalação é opcional; ela não altera a forma de
 configurar ou usar a Glicia.
 
-No primeiro acesso, entre por e-mail e conclua o onboarding. Preferências, memória alimentar e
-histórico ficam associados à conta. Em **Configurações**, conecte sua chave OpenAI; ela é enviada
+No primeiro acesso, solicite participação com seu e-mail. Depois da aprovação, escolha **Já fui
+aprovado**, abra o magic link e conclua o onboarding. Preferências, memória alimentar e histórico
+ficam associados à conta. Em **Configurações**, conecte sua chave OpenAI; ela é enviada
 por HTTPS à Edge Function, validada e cifrada no Supabase Vault. A chave não fica no navegador.
 
 ## Instale com ajuda de uma IA

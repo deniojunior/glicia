@@ -5,6 +5,7 @@ import {
   type OnboardingProgress,
   type PersistedPreferences
 } from "../domain";
+import { gliciaIconUrl } from "../config/app-urls";
 import { InstallGlicia } from "./install-glicia";
 
 interface OnboardingProps {
@@ -56,7 +57,7 @@ export function Onboarding({ initialProgress, onProgress, onComplete }: Onboardi
   }
 
   return <main className="onboarding-shell">
-    <header className="app-header"><span className="brand"><img src="/icons/glicia-192.png" width="44" height="44" alt="" /><span>Glicia</span></span><span className="setup-progress">Configuração {stepNumber(progress.step)} de 4</span></header>
+    <header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span><span className="setup-progress">Configuração {stepNumber(progress.step)} de 4</span></header>
     <section className="setup-content" aria-labelledby="setup-title">
       {progress.step === "welcome" ? <><h1 id="setup-title">Vamos deixar a Glicia pronta para você.</h1><p>Você vai informar sua chave de IA e os parâmetros já definidos com sua equipe de saúde. Leva poucos minutos.</p><InstallGlicia /><button className="primary-action" type="button" onClick={() => move("provider")}>Começar configuração</button></> : null}
       {progress.step === "provider" ? <form onSubmit={(event) => { event.preventDefault(); if (!apiKey.trim()) { setError("Cole sua chave da OpenAI para continuar."); return; } move("carbohydrate_ratios"); }}><h1 id="setup-title">Conecte sua OpenAI.</h1><p>A chave será validada e guardada de forma cifrada na sua conta. Ela nunca volta para o navegador. Crie uma em platform.openai.com/api-keys.</p><label htmlFor="api-key">Chave da OpenAI</label><div className="key-row"><input id="api-key" type={showApiKey ? "text" : "password"} autoComplete="current-password" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={apiKey} onChange={(event) => setApiKey(event.target.value)} placeholder="sk-..." /><button className="secondary-action" type="button" onClick={() => setShowApiKey((current) => !current)}>{showApiKey ? "Ocultar" : "Mostrar"}</button></div><div className="setup-actions"><button className="secondary-action" type="button" onClick={() => move("welcome")}>Voltar</button><button className="primary-action" type="submit">Continuar</button></div></form> : null}

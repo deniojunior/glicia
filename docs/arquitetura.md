@@ -71,6 +71,10 @@ PWA ── sessão Supabase Auth ──> Edge Functions ──> OpenAI
        └───────────────> PostgreSQL <──┴── Vault (credenciais cifradas)
 ```
 
+- A criação de conta é fechada: `request-access` registra a solicitação sem criar usuário, uma
+  pessoa administradora decide em `review-access-request` e o hook `Before User Created` permite
+  somente e-mails aprovados. Depois do primeiro login, a concessão passa a ser vinculada ao
+  `user_id` e integra as políticas RLS.
 - PostgreSQL é a fonte de verdade de preferências, memória alimentar e histórico. Backups são
   responsabilidade operacional da infraestrutura, não uma funcionalidade da PWA.
 - Cada registro pertence a um `user_id`; RLS é aplicado e testado em toda tabela exposta.
@@ -82,6 +86,9 @@ PWA ── sessão Supabase Auth ──> Edge Functions ──> OpenAI
   travas determinísticos continuam no domínio TypeScript e não são delegados à IA.
 - Infraestrutura vive em `supabase/`: `config.toml`, migrations, Edge Functions, seeds fictícios
   e testes de isolamento. Segredos e chaves de serviço não pertencem ao repositório.
+- Notificações usam uma porta comum: Mailpit no ambiente local e Resend, com remetente verificado,
+  no ambiente hospedado. Links administrativos apenas abrem a revisão; decisões exigem uma
+  requisição autenticada explícita.
 
 Os arquivos em `packages/contracts/` são a fronteira compartilhada. Eles fixam schemas e casos
 esperados que devem ser executados pelas suítes Python e TypeScript. Uma divergência de resultado

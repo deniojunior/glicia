@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
+  base: "/",
   plugins: [
     react(),
     VitePWA({
@@ -13,6 +14,7 @@ export default defineConfig({
         description: "Contagem de carboidratos com confirmação humana e cálculo local.",
         lang: "pt-BR",
         start_url: "/",
+        scope: "/",
         display: "standalone",
         background_color: "#f7fbfa",
         theme_color: "#075365",

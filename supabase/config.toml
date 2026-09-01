@@ -8,14 +8,18 @@ major_version = 17
 
 [auth]
 enabled = true
-site_url = "http://localhost:5173"
-additional_redirect_urls = ["http://localhost:5173/**"]
+site_url = "https://glicia-ten.vercel.app/"
+additional_redirect_urls = ["https://glicia-ten.vercel.app/**", "http://localhost:5173/**", "http://127.0.0.1:5173/**"]
 
 [auth.email]
 enable_signup = true
 enable_confirmations = true
 max_frequency = "1m"
 otp_length = 8
+
+[auth.hook.before_user_created]
+enabled = true
+uri = "pg-functions://postgres/private/before_user_created"
 
 [auth.mfa.totp]
 enroll_enabled = true
@@ -25,4 +29,10 @@ verify_enabled = true
 verify_jwt = true
 
 [functions.store-ai-connection]
+verify_jwt = true
+
+[functions.request-access]
+verify_jwt = false
+
+[functions.review-access-request]
 verify_jwt = true

@@ -8,9 +8,9 @@ web
 
 ## Stack
 
-TypeScript, React e Vite, com suporte a PWA e hospedagem estática. A aplicação principal
-será executada no navegador, sem backend, conta ou sincronização obrigatórios. A CLI em
-Python permanece disponível e serve como referência de comportamento durante o porte.
+TypeScript, React e Vite, com suporte a PWA e hospedagem estática. Supabase Auth, PostgreSQL,
+Vault e Edge Functions fornecem conta, sincronização, proteção das credenciais e integração com
+IA. A CLI em Python permanece disponível e serve como referência de comportamento durante o porte.
 
 ## Users
 
@@ -37,9 +37,11 @@ calcula ou recomenda a dose.
 - A glicemia e a seta do FreeStyle Libre são informadas manualmente; não há integração nativa
   com o sensor.
 - A pessoa pode digitar ou usar o ditado do teclado do celular para descrever a refeição.
-- O primeiro acesso exige chave do provedor de IA, parâmetros clínicos, cinco RICs, modo de
-  interação e revisão final.
-- Configurações, memória alimentar e histórico permanecem no dispositivo.
+- Durante o experimento fechado, a pessoa solicita acesso por e-mail e somente contas aprovadas
+  pelo autor podem iniciar o onboarding.
+- O primeiro acesso aprovado exige chave do provedor de IA, parâmetros clínicos, cinco RICs,
+  modo de interação e revisão final.
+- Configurações, memória alimentar e histórico ficam associados à conta no PostgreSQL.
 - O projeto é open source, sem fins lucrativos e deve ser simples para pessoas sem experiência
   técnica configurarem e instalarem.
 
@@ -48,15 +50,12 @@ calcula ou recomenda a dose.
 - Preservar paridade com o comportamento validado na CLI antes de adicionar capacidades.
 - Oferecer conversa, confirmação e correção, modos Preciso e Rápido, memória alimentar,
   histórico e registro da dose realmente aplicada.
-- Permitir exportar, importar e criar backups manuais dos dados locais em um formato
-  versionado, sem incluir credenciais de provedores de IA.
 - Funcionar por URL e poder ser instalado na tela inicial como PWA, sem publicação em lojas.
 - Usar inicialmente BYOK com OpenAI e evoluir para modelos e provedores intercambiáveis.
 - Manter cálculo, arredondamento e travas de segurança determinísticos e locais.
 - Não calcular insulina ativa, prescrever parâmetros, automatizar aplicação ou se apresentar
   como substituto da equipe de saúde.
-- A estratégia de armazenamento da chave e o envio de dados de saúde ao provedor ainda exigem
-  revisão de segurança antes da publicação pública.
+- Manter a chave do provedor cifrada no Vault e usá-la somente em Edge Functions autenticadas.
 
 ## Evidence on Hand
 
@@ -71,7 +70,7 @@ calcula ou recomenda a dose.
 
 - A pessoa confirma; a IA não decide.
 - O mesmo caso produz o mesmo cálculo, independentemente da interface ou do modelo de IA.
-- O fluxo essencial funciona localmente e sem conta própria da Glicia.
+- A CLI funciona localmente sem conta; a PWA exige conta aprovada e sincroniza dados no backend.
 - A configuração clínica é explícita, validada e revisável.
 - A evolução começa simples e adiciona abstrações somente quando houver uma segunda necessidade
   real.

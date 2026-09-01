@@ -23,8 +23,9 @@ fonte principal dos dados de saúde.
 7. Preferências, memória alimentar e histórico pertencem à conta da pessoa e ficam sincronizados.
 
 No celular, os comandos do terminal serão substituídos por controles visuais. O modo Preciso ou
-Rápido será um seletor acessível na conversa e nas configurações. Parâmetros clínicos, conexão
-com o provedor de IA, memória alimentar e histórico ficarão em áreas próprias.
+Rápido será um seletor acessível na conversa e nas configurações. Parâmetros clínicos, memória
+alimentar e histórico ficarão em áreas próprias. A conexão com o provedor de IA será uma
+configuração operacional do backend, sem chave ou seletor de modelo na interface da pessoa.
 
 O usuário continuará informando manualmente a glicemia e a seta exibidas pelo FreeStyle Libre. Não está prevista integração direta com o sensor, LibreLink ou LibreView.
 
@@ -37,9 +38,11 @@ O usuário continuará informando manualmente a glicemia e a seta exibidas pelo 
 - **Confirmação humana obrigatória:** nenhum cálculo será apresentado antes da revisão explícita dos dados.
 - **Conta e sincronização:** a pessoa entra por e-mail com link ou código mágico; PostgreSQL é a
   fonte principal de configurações, memória e histórico.
-- **Credencial sob controle da pessoa:** cada conexão de IA usa a própria chave da pessoa, cifrada
-  no servidor e usada somente pela API; ela nunca volta ao navegador nem entra em logs ou backups
-  operacionais.
+- **Acesso experimental controlado:** enquanto a Glicia estiver em validação, somente endereços
+  aprovados pelo autor poderão criar uma conta e usar a aplicação.
+- **Credencial central no backend:** durante o piloto fechado, a Glicia usa uma chave do projeto,
+  armazenada somente nos secrets das Edge Functions. A credencial não pertence à pessoa usuária,
+  não chega ao navegador e não entra em banco, logs ou backups operacionais.
 - **Instalação opcional:** a aplicação funcionará por URL e poderá ser adicionada à tela inicial.
 - **Acessibilidade:** alvos de toque, contraste, tamanho de texto, navegação por teclado e leitores de tela farão parte dos critérios de conclusão.
 
@@ -49,44 +52,44 @@ A navegação principal da PWA será organizada em três áreas:
 
 - **Conversa:** diálogo com a Glicia, estado da consulta, confirmação e resultado.
 - **Histórico:** refeições confirmadas e doses aplicadas da conta.
-- **Configurações:** conexão com provedor de IA, parâmetros clínicos, RICs, modo de interação,
-  memória alimentar e controles da conta.
+- **Configurações:** parâmetros clínicos, RICs, modo de interação, memória alimentar e controles
+  da conta. Provedor, modelo e credenciais são administrados no backend.
 
 ### Primeiro acesso e onboarding obrigatório
 
-Na primeira abertura, a PWA deverá iniciar um onboarding obrigatório antes de liberar a conversa. A instalação na tela inicial será oferecida antes da configuração sempre que a plataforma permitir, evitando que dados preenchidos no navegador precisem ser informados novamente na aplicação instalada.
+Na primeira abertura, a PWA deverá verificar se a pessoa já possui acesso. Quem ainda não tiver
+uma conta aprovada poderá cadastrar o e-mail para solicitar participação no experimento. O
+onboarding obrigatório começará somente depois da aprovação e da autenticação. A instalação na
+tela inicial será oferecida antes da configuração sempre que a plataforma permitir, evitando que
+dados preenchidos no navegador precisem ser informados novamente na aplicação instalada.
 
 O onboarding será curto, retomável e dividido em etapas:
 
 1. **Apresentação e limites:** explicar a finalidade da Glicia, a confirmação humana e as limitações, incluindo a ausência de cálculo de insulina ativa.
 2. **Conta:** entrar por e-mail usando link ou código mágico; não haverá senha própria.
-3. **Provedor de IA:** orientar a criação da chave, enviá-la uma vez por HTTPS para validação e conexão cifrada na API.
-4. **Parâmetros pessoais:** solicitar glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal.
-5. **RICs:** solicitar separadamente os valores de café da manhã, almoço, café da tarde, jantar e ceia.
-6. **Modo de interação:** escolher entre Preciso e Rápido, apresentando a diferença entre eles.
-7. **Revisão:** mostrar todos os parâmetros e exigir confirmação de que foram definidos com a equipe de saúde.
+3. **Parâmetros pessoais:** solicitar glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal.
+4. **RICs:** solicitar separadamente os valores de café da manhã, almoço, café da tarde, jantar e ceia.
+5. **Modo de interação:** escolher entre Preciso e Rápido, apresentando a diferença entre eles.
+6. **Revisão:** mostrar todos os parâmetros e exigir confirmação de que foram definidos com a equipe de saúde.
 
-Não será possível pular a conta, a conexão de provedor, os parâmetros de cálculo, os cinco RICs
-ou a revisão final. Cada valor numérico deverá ser finito e obedecer às mesmas validações da CLI.
-O progresso será associado à conta para que possa ser retomado em outro aparelho.
+Não será possível pular a conta, os parâmetros de cálculo, os cinco RICs ou a revisão final. Cada
+valor numérico deverá ser finito e obedecer às mesmas validações da CLI. O progresso será
+associado à conta para que possa ser retomado em outro aparelho.
 
-A conversa será liberada somente quando o onboarding estiver completo. Se a conexão for removida,
-tornar-se inválida ou algum parâmetro obrigatório estiver ausente após uma atualização, a
-aplicação bloqueará novas consultas e direcionará a pessoa para corrigir a configuração, sem
-apagar os demais dados válidos.
+A conversa será liberada somente quando o onboarding estiver completo. Se o provedor estiver
+indisponível, a aplicação deverá informar uma falha operacional sem pedir uma chave à pessoa. Se
+algum parâmetro obrigatório estiver ausente após uma atualização, novas consultas serão bloqueadas
+até a correção, sem apagar os demais dados válidos.
 
 Depois do primeiro acesso, todos esses valores poderão ser consultados e alterados na aba **Configurações**, com resumo e confirmação antes de salvar. A pessoa também poderá reiniciar o onboarding sem apagar o histórico.
 
-A tela da OpenAI oferecerá instruções para criar uma chave, campo protegido para colá-la, validação, substituição e remoção.
-
-A chave pertence à pessoa usuária e nunca deverá ser incluída em conversas, histórico,
-telemetria, logs ou backups operacionais. Ela será cifrada no Supabase Vault e poderá ser lida somente por
-uma Edge Function autenticada; o navegador recebe apenas o estado da conexão, nunca o segredo.
+Não haverá tela de chave da OpenAI. A chave central será configurada e rotacionada pelo autor nos
+secrets das Edge Functions e lida somente pelo adaptador do provedor no backend.
 
 ## Versionamento e caminho para a v1
 
 Enquanto faltar uma parte essencial do fluxo de uso real no celular, as versões usam o sufixo
-`alpha`. Isto inclui onboarding, parâmetros clínicos obrigatórios, autenticação, conexão BYOK,
+`alpha`. Isto inclui onboarding, parâmetros clínicos obrigatórios, autenticação, integração de IA no backend,
 cálculo local, persistência remota, migração e recuperação de dados.
 
 Uma versão `beta` começa quando o fluxo está completo para os pilotos: não faltam etapas do
@@ -95,7 +98,7 @@ erros, autenticação e recuperação operacional têm uma decisão implementada
 uma alegação de dispositivo médico nem substitui a conferência humana.
 
 Use sufixos de correção para releases intermediárias, por exemplo `v0.3.0-alpha.1` e
-`v0.10.0-beta.1`. A versão `v1.0.0` só será publicada após uma beta sem problemas críticos e com
+`v0.12.0-beta.1`. A versão `v1.0.0` só será publicada após uma beta sem problemas críticos e com
 o fluxo principal, instalação e recuperação estáveis.
 
 | Versão | Foco | Critério de avanço |
@@ -107,9 +110,11 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.5.0-alpha` | Paridade funcional com a CLI. | Confirmação e correção dos dados, mesmas travas, mesmos resultados de cálculo e registro da dose aplicada. |
 | `v0.6.0-alpha` | Persistência, portabilidade e instalação. | Preferências, memória alimentar e histórico estáveis; atualização da PWA sem perda de dados; exportação, importação e backup local validados; instalação orientada na tela inicial. Concluída. |
 | `v0.7.0-alpha` | Plataforma Supabase, conta e BYOK seguro. | Infraestrutura versionada, autenticação por e-mail, PostgreSQL/RLS, conexão OpenAI cifrada e proxy em Edge Function. Concluída. |
-| `v0.8.0-alpha` | Segurança, privacidade e contingência. | Exclusão por conta, auditoria de RLS/CSP/logs, rotação/remoção de credenciais, recuperação operacional e modo manual sem IA. |
-| `v0.9.0-alpha` | Seleção de modelo e múltiplos provedores de IA. | Registro de provedores, modelos validados, credenciais isoladas e troca entre refeições. |
-| `v0.10.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
+| `v0.8.0-alpha` | Acesso experimental controlado. | Solicitação pública, revisão administrativa autenticada, criação de conta bloqueada para e-mails não aprovados, notificações e login por magic link. Concluída. |
+| `v0.9.0-alpha` | Credencial central, segurança, privacidade e contingência. | BYOK removido da experiência, chave do projeto nos secrets do backend, exclusão por conta, auditoria de RLS/CSP/logs, recuperação operacional e modo manual sem IA. |
+| `v0.10.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
+| `v0.11.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
+| `v0.12.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
 | `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
 
 ## Contratos e testes
@@ -137,28 +142,28 @@ A implementação web deverá produzir os mesmos resultados da implementação P
 
 ## Integrações de IA
 
-Inicialmente, a PWA manterá o princípio **traga sua própria chave** e o contrato estruturado já
-utilizado com a API Responses da OpenAI. A pessoa conecta a chave na interface, mas a PWA a envia
-somente à Edge Function autenticada: ela é validada, cifrada no Vault e usada no backend. Não há
-chamada direta do navegador para a OpenAI.
+Durante o piloto fechado, a PWA usará uma credencial central do projeto para a API Responses da
+OpenAI. A chave será armazenada nos secrets das Edge Functions, lida somente no backend e não será
+persistida no PostgreSQL ou no Vault por pessoa. Não haverá chamada direta do navegador para a
+OpenAI nem configuração BYOK na interface.
 
 A camada de aplicação não deverá depender de conceitos exclusivos da OpenAI, como `previous_response_id`. Ela consumirá um contrato comum de provedor responsável por:
 
 - receber as instruções, a mensagem atual e o estado necessário da conversa;
-- autenticar usando a credencial configurada para aquele provedor;
+- autenticar usando a credencial central configurada para aquele provedor no backend;
 - converter a resposta para o mesmo schema estruturado de turno;
 - classificar erros de autenticação, limite, modelo indisponível, rede e resposta inválida;
-- informar quais modelos estão disponíveis e foram validados pela Glicia.
+- usar o modelo selecionado administrativamente entre os validados pela Glicia.
 
-A aba **Configurações** deverá permitir escolher o provedor, conectar ou remover a credencial e
-selecionar um modelo. Cada provedor manterá sua própria configuração, sem reutilizar chaves entre
-serviços. A troca de provedor ou modelo será aplicada apenas à próxima refeição, nunca no meio de
-uma conversa já iniciada.
+Provedor, modelo e credenciais não serão configuráveis pela pessoa usuária. Cada provedor manterá
+sua própria credencial central no backend, sem reutilizar segredos entre serviços. Uma alteração
+administrativa de provedor ou modelo será aplicada apenas à próxima refeição, nunca no meio de uma
+conversa já iniciada.
 
 Ordem preferencial de evolução:
 
-1. API Responses da OpenAI, com seleção entre modelos previamente validados.
-2. Endpoint compatível com a API OpenAI, disponível em configurações avançadas.
+1. API Responses da OpenAI, com modelo previamente validado e configurado no backend.
+2. Registro administrativo de modelos e provedores.
 3. Adaptadores para outros provedores de IA, priorizados conforme demanda.
 4. Modo manual, sem IA, para contingência e uso totalmente local.
 5. Modelos locais, conforme viabilidade no navegador ou em uma instalação auto-hospedada.
@@ -173,14 +178,38 @@ Modelos menores, rápidos ou classificados pelo fornecedor como *flash* poderão
 - recusa em calcular ou recomendar insulina;
 - comportamento esperado em glicemia baixa e demais situações de segurança.
 
-A interface mostrará primeiro uma lista curta de modelos aprovados. Um identificador de modelo personalizado poderá existir em configurações avançadas, acompanhado do aviso de que não foi validado pelo projeto. Provedor e modelo usados serão registrados junto ao histórico técnico da interação para permitir diagnóstico e reprodução, sem armazenar a chave.
+O backend manterá uma lista curta de modelos aprovados. Provedor e modelo usados serão registrados
+junto ao histórico técnico da interação para permitir diagnóstico e reprodução, sem armazenar a
+chave.
 
 Todo provedor deverá devolver os mesmos dados estruturados. A confirmação humana e o cálculo determinístico local permanecem independentes do modelo usado.
+
+### Limites de uso e guardrails futuros
+
+O piloto fechado começará sem quotas próprias da aplicação, classificação de intenção ou proteção
+específica contra prompt injection. O risco é aceito temporariamente porque somente pessoas
+próximas e aprovadas pelo autor poderão usar o sistema. Autenticação, aprovação de acesso e o
+isolamento da chave no backend continuam obrigatórios; eles não serão tratados como substitutos
+permanentes para controles de consumo e abuso.
+
+Antes de ampliar o piloto, a Glicia deverá implementar e validar:
+
+- limites diários de requisições e tokens por pessoa, além de um limite global de custo;
+- limite de concorrência, suspensão administrativa e mecanismo de interrupção emergencial;
+- instruções confiáveis definidas no backend e proteção contra prompt injection;
+- recusa de solicitações fora da contagem de carboidratos e do fluxo previsto da Glicia;
+- limites de tamanho de entrada e saída e validação do schema retornado;
+- métricas de consumo, latência e falhas sem registrar refeição, glicemia ou conteúdo sensível;
+- testes repetíveis de abuso, desvio de finalidade e regressão dos guardrails.
+
+Esses controles pertencem à API e aos adaptadores de infraestrutura. O domínio continuará
+responsável apenas pelas regras determinísticas, confirmação humana e travas clínicas já
+existentes. O marco não introduzirá microserviços, CQRS ou event sourcing.
 
 ## Decisões que antecedem a publicação pública
 
 - Validar a compatibilidade da PWA com os navegadores móveis suportados.
-- Validar migrations, RLS, Edge Functions e o modelo de ameaça para chaves cifradas no Supabase Vault.
+- Validar migrations, RLS, Edge Functions e o modelo de ameaça para a credencial central nos secrets do backend.
 - Confirmar que nenhuma chave ou dado de saúde seja incluído em logs, relatórios de erro ou backups operacionais.
 - Definir migrações para preferências e histórico sem perda de dados.
 - Definir e testar a recuperação operacional do banco em ambiente isolado, sem expor credenciais.

@@ -1,4 +1,5 @@
-import { createClient } from "npm:@supabase/supabase-js@2.57.0";
+import { authenticateApprovedUser, type AuthenticatedClients } from "../_shared/auth.ts";
+import { HttpError } from "../_shared/http.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -9,13 +10,14 @@ const corsHeaders = {
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return reply({ error: "Método não permitido." }, 405);
-  const authorization = request.headers.get("Authorization");
-  if (!authorization?.startsWith("Bearer ")) return reply({ error: "Sessão autenticada obrigatória." }, 401);
-  const client = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!, {
-    global: { headers: { Authorization: authorization } }
-  });
-  const { data: { user }, error: userError } = await client.auth.getUser();
-  if (userError || !user) return reply({ error: "Sessão autenticada obrigatória." }, 401);
+  let authenticated: AuthenticatedClients;
+  try {
+    authenticated = await authenticateApprovedUser(request);
+  } catch (error) {
+    if (error instanceof HttpError) return reply({ error: error.message, code: error.code }, error.status);
+    return reply({ error: "Não foi possível verificar o acesso." }, 500);
+  }
+  const { user, admin } = authenticated;
   let payload: { provider?: string; model?: string; apiKey?: string };
   try {
     payload = await request.json();
@@ -37,10 +39,6 @@ Deno.serve(async (request) => {
     return reply({ code: "openai_unavailable", error: "Não foi possível validar a chave na OpenAI." }, 502);
   }
 
-  const admin = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-  );
   const { data, error } = await admin.rpc("store_ai_connection_from_edge", {
     p_user_id: user.id,
     p_provider: payload.provider,

@@ -7,13 +7,16 @@ import { ConversationSession, decideConfirmedMeal, PreferencesService, type Food
 import { DemoAiProvider } from "./adapters/fake/demo-ai-provider";
 import { buildOpenAiInstructions } from "./adapters/openai/instructions";
 import { createSupabaseClient } from "./adapters/supabase/client";
+import { SupabaseAccessService } from "./adapters/supabase/supabase-access-service";
 import { SupabasePreferencesRepository } from "./adapters/supabase/supabase-preferences-repository";
 import { SupabaseMealRepository } from "./adapters/supabase/supabase-meal-repository";
 import { hasOpenAiConnection, storeOpenAiConnection, SupabaseAiProvider } from "./adapters/supabase/supabase-ai-provider";
 import { Onboarding } from "./components/onboarding";
 import { Settings } from "./components/settings";
 import { History } from "./components/history";
-import { Auth, MissingSupabaseConfiguration } from "./components/auth";
+import { AccessNotApproved, Auth, MissingSupabaseConfiguration } from "./components/auth";
+import { AdminAccessRequests } from "./components/admin-access-requests";
+import { appPath, gliciaIconUrl } from "./config/app-urls";
 import type { InteractionMode, OnboardingProgress, PersistedPreferences } from "./domain";
 import { carbohydrateRatioFor } from "./domain";
 import { createMealRecord, type MealRecord } from "./application";
@@ -48,6 +51,8 @@ function reduce(state: AppState, action: AppAction): AppState {
 }
 
 const supabase = createSupabaseClient();
+const accessService = supabase ? new SupabaseAccessService(supabase) : null;
+const adminEmail = import.meta.env.VITE_GLICIA_ADMIN_EMAIL || "deniofriacamoreirajr@gmail.com";
 
 function createSession(mode: InteractionMode, hasAiConnection: boolean, client: SupabaseClient, foodMemory: Readonly<Record<string, string>>): ConversationSession {
   const provider = hasAiConnection ? new SupabaseAiProvider(client, buildOpenAiInstructions) : new DemoAiProvider();
@@ -153,7 +158,7 @@ function ConversationApp({ preferences, hasAiConnection, client, foodMemory, mea
     <main className="app-shell">
       <header className="app-header">
         <a className="brand" href="#conversation" aria-label="Glicia, ir para a conversa">
-          <img src="/icons/glicia-192.png" width="44" height="44" alt="" />
+          <img src={gliciaIconUrl} width="44" height="44" alt="" />
           <span>Glicia</span>
         </a>
         <div className="header-actions"><button className="text-action" type="button" onClick={onOpenHistory}>Histórico</button><button className="text-action" type="button" onClick={onOpenSettings}>Configurações</button></div>
@@ -205,6 +210,9 @@ function AuthenticatedApp({ client, user }: { client: SupabaseClient; user: User
 
 export function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined);
+  const [hasApprovedAccess, setHasApprovedAccess] = useState<boolean | undefined>(undefined);
+  const isAdminRoute = window.location.pathname.startsWith(appPath("admin/access-requests"));
+  const adminRedirectTo = `${window.location.origin}${window.location.pathname}${window.location.search}`;
 
   useEffect(() => {
     if (!supabase) return;
@@ -213,8 +221,22 @@ export function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  if (!supabase) return <MissingSupabaseConfiguration />;
+  useEffect(() => {
+    if (!user || !accessService) {
+      setHasApprovedAccess(undefined);
+      return;
+    }
+    setHasApprovedAccess(undefined);
+    void accessService.hasApprovedAccess(user.id)
+      .then(setHasApprovedAccess)
+      .catch(() => setHasApprovedAccess(false));
+  }, [user]);
+
+  if (!supabase || !accessService) return <MissingSupabaseConfiguration />;
   if (user === undefined) return <main className="onboarding-shell"><p className="waiting">Verificando seu acesso…</p></main>;
-  if (user === null) return <Auth client={supabase} />;
+  if (user === null) return <Auth service={accessService} adminLogin={isAdminRoute ? { email: adminEmail, redirectTo: adminRedirectTo } : undefined} />;
+  if (hasApprovedAccess === undefined) return <main className="onboarding-shell"><p className="waiting">Verificando sua aprovação…</p></main>;
+  if (!hasApprovedAccess) return <AccessNotApproved onSignOut={async () => { await supabase.auth.signOut(); }} />;
+  if (isAdminRoute) return <AdminAccessRequests service={accessService} onSignOut={async () => { await supabase.auth.signOut(); }} />;
   return <AuthenticatedApp client={supabase} user={user} />;
 }

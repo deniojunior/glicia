@@ -1,20 +1,23 @@
 # Plano de execução da PWA
 
 Este documento transforma o [roadmap](roadmap.md) em uma sequência de trabalho. Ele detalha
-`v0.2.0` a `v0.7.0` e mantém os marcos posteriores em nível progressivamente mais amplo. Não é
+`v0.2.0` a `v0.8.0` e mantém os marcos posteriores em nível progressivamente mais amplo. Não é
 um compromisso de prazo: cada versão avança somente quando seu critério de saída estiver
 atendido.
 
 ## Decisões confirmadas
 
 - PWA mobile-first em TypeScript, React e Vite.
-- PWA autenticada, com Supabase Auth, PostgreSQL, Vault e Edge Functions como plataforma backend.
+- PWA autenticada, com Supabase Auth, PostgreSQL e Edge Functions como plataforma backend.
 - CLI em Python preservada como produto utilizável e referência de comportamento.
 - Desenvolvimento visual `code-first`: primeiro um fluxo navegável, depois refinamento visual.
-- OpenAI com BYOK na primeira versão remota; a chave é cifrada no Vault e usada somente por Edge Functions.
+- O BYOK entregue na primeira versão remota será substituído por uma chave central do projeto,
+  armazenada somente nos secrets das Edge Functions e administrada pelo autor.
 - Dados informados manualmente; sem integração com LibreLink, LibreView ou o sensor.
 - Backup local entregue em `v0.6.0`; a partir de `v0.7.0`, os dados pertencem à conta e a
   recuperação do banco é responsabilidade operacional da infraestrutura.
+- Acesso inicialmente fechado: a solicitação é pública, mas somente e-mails aprovados pelo autor
+  podem criar uma conta e autenticar na aplicação.
 
 ### Replanejamento de arquitetura
 
@@ -48,7 +51,7 @@ React/PWA ──> Supabase Auth ──> Edge Functions ──> casos de uso ─�
                  │                         └─ cálculo determinístico
                  │
                  ├─ porta de IA ───────> adaptador OpenAI no backend
-                 └─ portas de dados ───> adaptadores PostgreSQL/Vault
+                 └─ portas de dados ───> adaptadores PostgreSQL
 
 CLI/Rich ──> aplicação Python equivalente ──> domínio Python atual
                          │
@@ -340,25 +343,125 @@ dispositivos exige conta ou provedor externo e permanece fora deste marco.
 - Uma instalação `supabase db reset` reproduz o banco e as funções com dados fictícios.
 - Migrations e restauração operacional são reproduzíveis em ambiente isolado, sem incluir credenciais.
 
-### `v0.8.0` — Segurança, privacidade e contingência
+### `v0.8.0` — Acesso experimental controlado (concluído)
 
-- Revisar modelo de ameaça, Vault, rotação/remoção de credenciais, RLS, CSP, dependências e logs.
+#### Objetivo
+
+Permitir que uma pessoa solicite participação na Glicia sem criar uma conta automaticamente e
+que o autor aprove ou rejeite essa solicitação em um fluxo autenticado, auditável e reproduzível
+no ambiente local.
+
+#### Pacotes de trabalho
+
+1. **Solicitação pública**
+   - Criar `access_requests` com e-mail normalizado, estado `pending`, `approved` ou `rejected`,
+     datas de solicitação e revisão, responsável pela decisão e vínculo posterior ao usuário.
+   - Habilitar RLS e impedir acesso direto de `anon` e `authenticated`; a entrada pública passa
+     somente pela Edge Function `request-access`.
+   - Validar, normalizar, deduplicar e limitar solicitações repetidas, respondendo de forma neutra
+     para não revelar quais endereços já existem.
+
+2. **Revisão administrativa**
+   - Criar `app_admins`, inicialmente com a conta do autor, sem usar `user_metadata` como fonte de
+     autorização.
+   - Enviar a nova solicitação para `deniofriacamoreirajr@gmail.com` com link para uma página
+     administrativa autenticada.
+   - O link apenas abre a revisão; aprovação e rejeição exigem ação explícita por `POST`, evitando
+     decisões acidentais causadas por scanners de e-mail.
+   - Registrar decisão, responsável e horário, com operações idempotentes para cliques e novas
+     tentativas repetidas.
+
+3. **Bloqueio e concessão de acesso**
+   - Configurar o hook `Before User Created` do Supabase Auth para permitir novas contas somente
+     quando o e-mail normalizado estiver aprovado.
+   - Vincular a aprovação ao `user_id` estável depois do primeiro login e exigir essa concessão
+     nas políticas de acesso aos dados, além da sessão autenticada.
+   - Auditar as contas já existentes antes de habilitar o bloqueio, pois o hook protege somente
+     novas criações.
+   - Manter o login sem senha por magic link ou OTP e liberar o onboarding apenas depois da
+     autenticação e da verificação da concessão.
+
+4. **Notificações por e-mail**
+   - Definir uma porta de notificação independente do provedor.
+   - Usar Mailpit no ambiente local e um adaptador transacional, inicialmente Resend, em produção.
+   - Enviar ao usuário a aprovação com um caminho claro para entrar; uma rejeição poderá ser
+     notificada conforme a política definida antes da implementação.
+   - Manter chaves do provedor de e-mail somente nos secrets das Edge Functions e nunca no bundle,
+     banco, logs ou migrations.
+
+5. **Interface e testes**
+   - Separar visualmente “Solicitar acesso” de “Já tenho acesso”, com estados de envio, espera,
+     aprovação pendente e erro recuperável.
+   - Cobrir solicitação nova e repetida, aprovação, rejeição, revisão sem privilégio, scanner que
+     abre o link, login aprovado, bloqueio não aprovado e repetição idempotente.
+   - Executar os fluxos localmente com Supabase CLI e Mailpit e testar RLS com duas contas e um
+     usuário anônimo.
+
+#### Arquitetura mínima do fluxo
+
+```text
+PWA pública ──> request-access ──> AccessRequest ──> PostgreSQL
+                                      │
+                                      └─ NotificationPort ──> Mailpit | Resend
+
+Administrador autenticado ──> review-access-request ──> aprovar/rejeitar
+                                                            │
+Usuário ──> Supabase Auth ──> Before User Created Hook ─────┘
+                  │
+                  └─ concessão aprovada por user_id ──> onboarding e dados da conta
+```
+
+Os casos de uso serão `RequestAccess`, `ReviewAccessRequest`, `CheckApprovedAccess` e
+`SendLoginLink`. PostgreSQL, Supabase Auth e o serviço de e-mail serão adaptadores; não serão
+introduzidos CQRS, event sourcing ou microserviços para esse fluxo.
+
+#### Critério de saída
+
+- Uma pessoa não aprovada consegue apenas solicitar acesso e não consegue criar conta, entrar no
+  onboarding ou acessar dados protegidos.
+- O autor recebe a solicitação, autentica-se, revisa e toma uma decisão explícita e auditável.
+- Uma pessoa aprovada recebe a liberação, entra por e-mail e prossegue para o onboarding.
+- Repetições e falhas parciais não duplicam solicitações, decisões, contas ou notificações.
+- O fluxo completo funciona localmente com Docker Compose/Supabase CLI e Mailpit, e em produção
+  sem expor chaves administrativas ou do provedor de e-mail.
+
+### `v0.9.0` — Credencial central, segurança, privacidade e contingência
+
+- Substituir o BYOK pela chave central da OpenAI nos secrets das Edge Functions.
+- Remover chave, provedor e modelo do onboarding e das configurações da pessoa.
+- Manter a porta de IA neutra e selecionar provedor e modelo na composição do backend.
+- Após validar a transição, remover conexões BYOK e segredos individuais sem alterar o histórico
+  técnico de provedor e modelo das refeições já registradas.
+- Revisar modelo de ameaça, rotação da credencial central, RLS, CSP, dependências e logs.
 - Implementar exclusão seletiva e total por conta, política de retenção e procedimento testado de
   recuperação operacional.
 - Criar modo manual sem IA para inserir carboidratos, glicemia, tendência e refeição diretamente.
 - Documentar recuperação de conta, indisponibilidade do provedor, falha de rede e limites da
   sincronização.
 
-### `v0.9.0` — Modelos e múltiplos provedores
+Limites próprios de consumo, classificação de intenção e guardrails contra prompt injection não
+fazem parte deste marco. O piloto aceita temporariamente esse risco porque o acesso permanece
+restrito a pessoas próximas aprovadas pelo autor.
+
+### `v0.10.0` — Limites de uso e guardrails de IA
+
+- Implementar quotas diárias por pessoa, limite global de custo e limite de concorrência.
+- Adicionar suspensão administrativa e mecanismo de interrupção emergencial.
+- Tornar as instruções do sistema autoritativas no backend e mitigar prompt injection.
+- Restringir o uso ao fluxo de contagem de carboidratos e rejeitar desvio de finalidade.
+- Limitar entrada e saída, validar o schema no backend e registrar somente métricas não sensíveis.
+- Manter uma suíte de avaliações de abuso e regressão antes de ampliar o piloto.
+
+### `v0.11.0` — Modelos e múltiplos provedores
 
 - Transformar a porta de IA em registro de provedores sem alterar domínio ou casos de uso.
-- Isolar credenciais por provedor no Vault e aplicar troca somente entre refeições.
-- Oferecer lista curta de modelos aprovados, identificador avançado não validado e registro técnico
-  do modelo usado.
+- Isolar as credenciais centrais por provedor nos secrets do backend e aplicar troca somente entre
+  refeições.
+- Oferecer uma lista administrativa de modelos aprovados e registrar tecnicamente o modelo usado.
 - Executar avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória,
   recusas de cálculo e situações de segurança.
 
-### `v0.10.0` / Beta fechada
+### `v0.12.0` / Beta fechada
 
 - Matriz real de Android/iOS e navegadores suportados.
 - Auditoria de acessibilidade, teclado, leitor de tela, contraste, zoom e redução de movimento.
@@ -415,8 +518,11 @@ parte da CI de forks e nunca recebem credenciais de contribuidores automaticamen
 | Chamada ao provedor | `v0.7.0` | Edge Function autenticada, sem CORS e sem chave no navegador |
 | Credencial BYOK | `v0.7.0` | Vault, remoção/rotação, modelo de ameaça e revisão |
 | Isolamento por conta | `v0.7.0` | RLS com casos explícitos de permitir/negar para todas as tabelas |
+| Admissão controlada | `v0.8.0` | hook de criação, revisão administrativa autenticada e concessão por `user_id` testados localmente |
+| Credencial central | `v0.9.0` | secret apenas no backend, BYOK removido da experiência e migração verificada |
+| Limites e guardrails | ampliação do piloto | quotas, interrupção emergencial e avaliações de abuso aprovadas |
 | Licença da tabela SBD | publicação pública da PWA | autorização ou estratégia de distribuição alternativa |
-| Persistência e recuperação | `v0.8.0` | migrations reproduzíveis e restauração operacional testada em ambiente isolado |
+| Persistência e recuperação | `v0.9.0` | migrations reproduzíveis e restauração operacional testada em ambiente isolado |
 | Privacidade e enquadramento | ampliação além do piloto | documentação e avaliação apropriadas |
 | Compatibilidade móvel | RC | matriz real de dispositivos e navegadores |
 
@@ -435,12 +541,8 @@ Uma tarefa só está concluída quando:
 
 ## Próximo incremento recomendado
 
-`v0.2.0` está em andamento. O manifesto, os schemas e as fixtures de cálculo, arredondamento,
-tendência, configuração, turnos e segurança já possuem um consumidor Python. A avaliação das
-travas foi extraída de `presentation/cli.py`, e o coordenador de sessão cobre coleta, correção, confirmação,
-memória alimentar, nova tentativa e reinício. A CLI já consome esse coordenador pelo adaptador
-`OpenAIResponsesClient`, enquanto os testes usam um provedor fake.
-
-O próximo incremento deve levar o pós-confirmação para a camada de aplicação: avaliar segurança,
-calcular, receber a dose aplicada e persistir um registro por uma porta de histórico fake. O
-scaffold React continua aguardando a conclusão desse fluxo testável sem terminal, rede ou SQLite.
+A `v0.8.0-alpha` concluiu o acesso experimental aprovado. O próximo incremento é a
+`v0.9.0-alpha`: substituir BYOK pela credencial central no backend, simplificar onboarding e
+configurações, excluir dados por conta, auditar RLS/CSP/logs, validar recuperação operacional e
+criar o modo manual sem IA. Limites de uso e guardrails ficam mapeados para a `v0.10.0-alpha` e
+não bloqueiam o piloto fechado atual.

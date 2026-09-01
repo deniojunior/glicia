@@ -58,6 +58,10 @@ A chave OpenAI é enviada somente à Edge Function autenticada `store-ai-connect
 cifrada no Vault. A conversa chama `ai-chat`; o navegador não recebe a chave nem chama a OpenAI
 diretamente. O cálculo e as travas continuam locais e determinísticos após a confirmação.
 
+Na `v0.8.0-alpha`, `request-access` recebe solicitações públicas sem criar conta e
+`review-access-request` exige uma conta presente em `app_admins`. O hook de Auth bloqueia novas
+contas sem aprovação e todas as Edge Functions autenticadas verificam também uma concessão ativa.
+
 ```bash
 cd apps/pwa
 npm ci
@@ -67,9 +71,10 @@ npm run supabase:test
 npm run dev
 ```
 
-Copie `.env.example` para `.env.local` e informe `VITE_SUPABASE_URL` e
-`VITE_SUPABASE_PUBLISHABLE_KEY`. A chave publicável pode ficar no navegador porque o acesso aos
-dados depende da sessão e das políticas RLS. Nunca use uma chave `secret` ou `service_role` na PWA.
+Copie `.env.example` para `.env.local` e informe `VITE_SUPABASE_URL`,
+`VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_GLICIA_ADMIN_EMAIL`. A chave publicável pode ficar no
+navegador porque o acesso aos dados depende da sessão e das políticas RLS. Nunca use uma chave
+`secret` ou `service_role` na PWA.
 Os comandos Supabase exigem Docker ativo. Obtenha os valores locais com
 `npm run supabase:status`: use `API URL` e `Publishable key`, nunca os campos privilegiados.
 
@@ -77,11 +82,21 @@ O `npm run supabase:start` usa os containers gerenciados pela Supabase CLI — P
 Data API, Edge Functions, Studio e Mailpit — e não acessa o projeto remoto. No fluxo local, abra
 `http://127.0.0.1:54324` para ler o magic link interceptado pelo Mailpit. Use
 `npm run supabase:stop` quando terminar; os dados locais são preservados.
+As notificações de solicitação e decisão também chegam ao Mailpit pela API HTTP local. Em
+produção, copie `supabase/.env.example`, configure URL pública, remetente verificado e chave
+Resend, e envie esses valores como secrets das Edge Functions.
 Cadastre a URL pública da PWA e a URL local de desenvolvimento na lista de Redirect URLs do
 Supabase Auth; o magic link só retorna para endereços permitidos pelo projeto.
-O `supabase/config.toml` já versiona `http://localhost:5173`; quando existir uma hospedagem,
-substitua `auth.site_url`, acrescente o domínio a `auth.additional_redirect_urls` e revise o diff
-de `npx supabase config push` antes de confirmar.
+O `supabase/config.toml` usa `https://glicia-ten.vercel.app/` como Site URL de staging e
+mantém `localhost` e `127.0.0.1` na lista de Redirect URLs para desenvolvimento híbrido. Revise o
+diff de `npm run staging:deploy:config` antes de confirmar mudanças de Auth.
+
+O link de revisão exige a conta definida em `VITE_GLICIA_ADMIN_EMAIL`, não o e-mail da pessoa que
+solicitou acesso. Depois do magic link, o navegador retorna à mesma solicitação administrativa.
+
+Para trabalhar sem Docker contra o backend hospedado, copie `.env.staging.example` para
+`.env.staging.local` e execute `npm run dev:staging`. O procedimento completo de deploy e teste
+está em [staging.md](staging.md).
 
 Antes de abrir uma alteração na PWA, execute:
 
