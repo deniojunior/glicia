@@ -425,19 +425,28 @@ introduzidos CQRS, event sourcing ou microserviços para esse fluxo.
 - O fluxo completo funciona localmente com Docker Compose/Supabase CLI e Mailpit, e em produção
   sem expor chaves administrativas ou do provedor de e-mail.
 
-### `v0.9.0` — Credencial central, segurança, privacidade e contingência
+### `v0.9.0` — Credencial central, segurança, CI/CD, privacidade e contingência
 
-- Substituir o BYOK pela chave central da OpenAI nos secrets das Edge Functions.
-- Remover chave, provedor e modelo do onboarding e das configurações da pessoa.
-- Manter a porta de IA neutra e selecionar provedor e modelo na composição do backend.
+- Substituir o BYOK pela chave central da OpenAI nos secrets das Edge Functions. ✅
+- Remover chave, provedor e modelo do onboarding e das configurações da pessoa. ✅
+- Manter a porta de IA neutra e selecionar provedor e modelo na composição do backend. ✅
+- Ler a credencial e o modelo dos secrets de `ai-chat`, devolvendo metadados técnicos para o
+  histórico sem expor a chave. ✅
 - Após validar a transição, remover conexões BYOK e segredos individuais sem alterar o histórico
-  técnico de provedor e modelo das refeições já registradas.
-- Revisar modelo de ameaça, rotação da credencial central, RLS, CSP, dependências e logs.
+  técnico de provedor e modelo das refeições já registradas. ✅
+- Revisar modelo de ameaça, rotação da credencial central, RLS, CSP, dependências e logs. ✅
 - Implementar exclusão seletiva e total por conta, política de retenção e procedimento testado de
-  recuperação operacional.
-- Criar modo manual sem IA para inserir carboidratos, glicemia, tendência e refeição diretamente.
+  recuperação operacional. ✅
+- Criar modo manual sem IA para inserir carboidratos, glicemia, tendência e refeição diretamente. ✅
 - Documentar recuperação de conta, indisponibilidade do provedor, falha de rede e limites da
-  sincronização.
+  sincronização. ✅
+- Evoluir o GitHub Actions de CI para validar CLI, PWA, contratos, migrations, RLS e Edge Functions
+  em pull requests e na branch principal. ✅
+- Criar CD para publicar automaticamente o Supabase e a PWA em staging somente depois da CI. ✅
+- Configurar promoção para produção por tag em um GitHub Environment protegido por aprovação
+  manual, sem compartilhar credenciais entre ambientes. ✅
+- Garantir permissões mínimas, isolamento de secrets e nenhuma credencial de deploy disponível em
+  workflows executados a partir de forks. ✅
 
 Limites próprios de consumo, classificação de intenção e guardrails contra prompt injection não
 fazem parte deste marco. O piloto aceita temporariamente esse risco porque o acesso permanece
@@ -520,6 +529,7 @@ parte da CI de forks e nunca recebem credenciais de contribuidores automaticamen
 | Isolamento por conta | `v0.7.0` | RLS com casos explícitos de permitir/negar para todas as tabelas |
 | Admissão controlada | `v0.8.0` | hook de criação, revisão administrativa autenticada e concessão por `user_id` testados localmente |
 | Credencial central | `v0.9.0` | secret apenas no backend, BYOK removido da experiência e migração verificada |
+| CI/CD | `v0.9.0` | PR sem secrets, CI completa, staging automático e produção com aprovação manual |
 | Limites e guardrails | ampliação do piloto | quotas, interrupção emergencial e avaliações de abuso aprovadas |
 | Licença da tabela SBD | publicação pública da PWA | autorização ou estratégia de distribuição alternativa |
 | Persistência e recuperação | `v0.9.0` | migrations reproduzíveis e restauração operacional testada em ambiente isolado |
@@ -541,8 +551,7 @@ Uma tarefa só está concluída quando:
 
 ## Próximo incremento recomendado
 
-A `v0.8.0-alpha` concluiu o acesso experimental aprovado. O próximo incremento é a
-`v0.9.0-alpha`: substituir BYOK pela credencial central no backend, simplificar onboarding e
-configurações, excluir dados por conta, auditar RLS/CSP/logs, validar recuperação operacional e
-criar o modo manual sem IA. Limites de uso e guardrails ficam mapeados para a `v0.10.0-alpha` e
-não bloqueiam o piloto fechado atual.
+A `v0.9.0-alpha` concluiu a credencial central, privacidade, contingência e CI/CD. O próximo
+incremento é a `v0.10.0-alpha`: adicionar quotas por pessoa, limite global de custo, suspensão
+administrativa, restrição de finalidade e proteção contra prompt injection antes de ampliar o
+piloto fechado.

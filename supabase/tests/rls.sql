@@ -1,5 +1,5 @@
 begin;
-select plan(32);
+select plan(33);
 
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.profiles'::regclass),
@@ -18,10 +18,6 @@ select ok(
   'meal_records tem RLS habilitado'
 );
 select ok(
-  (select relrowsecurity from pg_class where oid = 'public.ai_connections'::regclass),
-  'ai_connections tem RLS habilitado'
-);
-select ok(
   (select relrowsecurity from pg_class where oid = 'public.access_requests'::regclass),
   'access_requests tem RLS habilitado'
 );
@@ -35,19 +31,24 @@ select ok(
 );
 
 select ok(
-  (select count(*) >= 7 from pg_policies where schemaname = 'public' and tablename in ('profiles', 'user_preferences', 'food_memory', 'meal_records', 'ai_connections', 'app_admins', 'app_access_grants')),
+  (select count(*) >= 6 from pg_policies where schemaname = 'public' and tablename in ('profiles', 'user_preferences', 'food_memory', 'meal_records', 'app_admins', 'app_access_grants')),
   'as tabelas expostas têm políticas explícitas'
 );
 
 select ok(
-  to_regprocedure('public.store_ai_connection(text,text,text)') is null,
-  'a gravação BYOK não fica exposta como RPC na Data API'
+  to_regclass('public.ai_connections') is null
+  and to_regprocedure('public.store_ai_connection(text,text,text)') is null
+  and to_regprocedure('public.store_ai_connection_from_edge(uuid,text,text,text)') is null,
+  'estruturas e operações BYOK foram removidas'
 );
 select ok(
-  has_function_privilege('service_role', 'public.store_ai_connection_from_edge(uuid,text,text,text)', 'EXECUTE')
-  and not has_function_privilege('authenticated', 'public.store_ai_connection_from_edge(uuid,text,text,text)', 'EXECUTE')
-  and not has_function_privilege('anon', 'public.store_ai_connection_from_edge(uuid,text,text,text)', 'EXECUTE'),
-  'somente service_role executa a gravação BYOK interna'
+  not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'user_preferences'
+      and column_name in ('provider', 'model')
+  ),
+  'preferências não armazenam provedor ou modelo administrado pelo backend'
 );
 select ok(
   has_function_privilege('service_role', 'public.submit_access_request_from_edge(text)', 'EXECUTE')
@@ -146,27 +147,11 @@ select is(
 reset role;
 
 insert into public.user_preferences (
-  user_id, clinical_settings, interaction_mode, provider, model
+  user_id, clinical_settings, interaction_mode
 )
 values
-  ('11111111-1111-4111-8111-111111111111', '{"target_glucose": 110}'::jsonb, 'preciso', 'openai', 'modelo-a'),
-  ('22222222-2222-4222-8222-222222222222', '{"target_glucose": 120}'::jsonb, 'rapido', 'openai', 'modelo-b');
-
-set local role service_role;
-select lives_ok(
-  $$select * from public.store_ai_connection_from_edge('11111111-1111-4111-8111-111111111111', 'openai', 'gpt-4o-mini', 'diagnostic-value-first-not-real')$$,
-  'a Edge Function pode criar uma conexão BYOK'
-);
-select lives_ok(
-  $$select * from public.store_ai_connection_from_edge('11111111-1111-4111-8111-111111111111', 'openai', 'gpt-4o-mini', 'diagnostic-value-second-not-real')$$,
-  'a Edge Function pode rotacionar uma conexão BYOK'
-);
-reset role;
-select is(
-  (select decrypted_secret from vault.decrypted_secrets join public.ai_connections on id = vault_secret_id where user_id = '11111111-1111-4111-8111-111111111111'),
-  'diagnostic-value-second-not-real',
-  'a rotação substitui o segredo cifrado existente'
-);
+  ('11111111-1111-4111-8111-111111111111', '{"target_glucose": 110}'::jsonb, 'preciso'),
+  ('22222222-2222-4222-8222-222222222222', '{"target_glucose": 120}'::jsonb, 'rapido');
 
 set local role authenticated;
 select set_config(
@@ -181,8 +166,8 @@ select is(
   'a conta autenticada lê somente as próprias preferências'
 );
 select is(
-  (select model from public.user_preferences),
-  'modelo-a',
+  (select interaction_mode from public.user_preferences),
+  'preciso',
   'a conta autenticada não recebe dados da outra conta'
 );
 select is(
@@ -196,13 +181,6 @@ select throws_ok(
   null,
   'a conta autenticada não grava dados para outra pessoa'
 );
-select throws_ok(
-  $$insert into public.ai_connections (user_id, provider, model, vault_secret_id) values ('11111111-1111-4111-8111-111111111111', 'openai', 'modelo-a', '33333333-3333-4333-8333-333333333333')$$,
-  '42501',
-  null,
-  'a conta autenticada não grava metadados BYOK diretamente'
-);
-
 reset role;
 
 set local role authenticated;
@@ -212,10 +190,51 @@ select set_config(
   true
 );
 select throws_ok(
-  $$insert into public.user_preferences (user_id, clinical_settings, interaction_mode, provider, model) values ('33333333-3333-4333-8333-333333333333', '{"target_glucose": 100}'::jsonb, 'preciso', 'openai', 'modelo-bloqueado')$$,
+  $$insert into public.user_preferences (user_id, clinical_settings, interaction_mode) values ('33333333-3333-4333-8333-333333333333', '{"target_glucose": 100}'::jsonb, 'preciso')$$,
   '42501',
   null,
   'uma conta sem concessão não grava nem os próprios dados'
+);
+reset role;
+
+delete from auth.users where id = '22222222-2222-4222-8222-222222222222';
+
+select is(
+  (select count(*) from public.user_preferences where user_id = '22222222-2222-4222-8222-222222222222'),
+  0::bigint,
+  'excluir a conta remove os dados de saúde por cascata'
+);
+select is(
+  (select count(*) from public.app_access_grants where user_id = '22222222-2222-4222-8222-222222222222'),
+  0::bigint,
+  'excluir a conta remove a concessão de acesso'
+);
+select is(
+  (select count(*) from public.access_requests where email_normalized = 'conta-b@example.test'),
+  0::bigint,
+  'excluir a conta remove também o e-mail da fila de acesso'
+);
+select is(
+  (select status from public.access_requests where email_normalized = 'glicia.app@gmail.com'),
+  'approved',
+  'a conta institucional permanece pré-aprovada para assumir a administração'
+);
+
+insert into public.access_requests (email_normalized, status, last_requested_at)
+values ('expirada@example.test', 'pending', now() - interval '91 days');
+
+select ok(
+  has_function_privilege('service_role', 'private.purge_expired_access_requests()', 'EXECUTE')
+  and not has_function_privilege('authenticated', 'private.purge_expired_access_requests()', 'EXECUTE')
+  and not has_function_privilege('anon', 'private.purge_expired_access_requests()', 'EXECUTE'),
+  'somente service_role pode executar a retenção da fila'
+);
+
+set local role service_role;
+select is(
+  private.purge_expired_access_requests(),
+  1,
+  'a retenção remove solicitações sem conta após 90 dias'
 );
 reset role;
 

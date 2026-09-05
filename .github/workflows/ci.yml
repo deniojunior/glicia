@@ -1,5 +1,12 @@
 name: CI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [main]
@@ -33,4 +40,32 @@ jobs:
       - run: npm test
         working-directory: apps/pwa
       - run: npm run build
+        working-directory: apps/pwa
+
+  supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/pwa/package-lock.json
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: npm ci
+        working-directory: apps/pwa
+      - name: Check Edge Functions
+        run: deno check functions/ai-chat/index.ts functions/delete-account/index.ts functions/request-access/index.ts functions/review-access-request/index.ts
+        working-directory: supabase
+      - name: Start local Supabase
+        run: npm run supabase:start
+        working-directory: apps/pwa
+      - name: Test migrations and RLS
+        run: npm run supabase:test
+        working-directory: apps/pwa
+      - name: Stop local Supabase
+        if: always()
+        run: npm run supabase:stop
         working-directory: apps/pwa

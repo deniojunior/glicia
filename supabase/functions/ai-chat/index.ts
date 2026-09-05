@@ -1,6 +1,4 @@
-import postgres from "npm:postgres@3.4.7";
-
-import { authenticateApprovedUser, type AuthenticatedClients } from "../_shared/auth.ts";
+import { authenticateApprovedUser } from "../_shared/auth.ts";
 import { HttpError } from "../_shared/http.ts";
 
 const corsHeaders = {
@@ -32,49 +30,28 @@ Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (request.method !== "POST") return json({ error: "Método não permitido." }, 405);
 
-  let authenticated: AuthenticatedClients;
   try {
-    authenticated = await authenticateApprovedUser(request);
+    await authenticateApprovedUser(request);
   } catch (error) {
     if (error instanceof HttpError) return json({ error: error.message }, error.status);
     return json({ error: "Não foi possível verificar o acesso." }, 500);
   }
-  const { user, admin } = authenticated;
-
   const payload = await request.json() as Partial<ChatRequest>;
   if (!Array.isArray(payload.messages) || payload.messages.length === 0 || payload.messages.length > 30 || typeof payload.instructions !== "string" || payload.instructions.length > 250_000) {
     return json({ error: "Solicitação de conversa inválida." }, 400);
   }
 
-  const { data: connection, error: connectionError } = await admin
-    .from("ai_connections")
-    .select("provider, vault_secret_id")
-    .eq("user_id", user.id)
-    .eq("provider", "openai")
-    .maybeSingle();
-  if (connectionError || !connection) return json({ error: "Nenhum provedor de IA configurado." }, 409);
-  const { data: preferences, error: preferencesError } = await admin
-    .from("user_preferences")
-    .select("model")
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (preferencesError || !preferences?.model) return json({ error: "Modelo de IA não configurado." }, 409);
-
-  const sql = postgres(Deno.env.get("SUPABASE_DB_URL")!, { prepare: false, max: 1 });
-  const [secret] = await sql<{ decrypted_secret: string }[]>`
-    select decrypted_secret
-    from vault.decrypted_secrets
-    where id = ${connection.vault_secret_id}
-    limit 1
-  `;
-  await sql.end({ timeout: 2 });
-  if (!secret?.decrypted_secret) return json({ error: "Não foi possível acessar a conexão de IA." }, 502);
+  const apiKey = Deno.env.get("OPENAI_API_KEY")?.trim();
+  const model = Deno.env.get("OPENAI_MODEL")?.trim();
+  if (!apiKey || !model) {
+    return json({ error: "O provedor de IA está temporariamente indisponível." }, 503);
+  }
 
   const openAiResponse = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
-    headers: { Authorization: `Bearer ${secret.decrypted_secret}`, "Content-Type": "application/json" },
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: preferences.model,
+      model,
       instructions: payload.instructions,
       input: payload.messages,
       store: false,
@@ -85,7 +62,8 @@ Deno.serve(async (request) => {
   const openAiPayload = await openAiResponse.json() as Record<string, unknown>;
   const outputText = extractOutputText(openAiPayload);
   if (!outputText) return json({ error: "O provedor de IA devolveu uma resposta inválida." }, 502);
-  return new Response(JSON.stringify({ id: openAiPayload.id, output_text: outputText }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  const resolvedModel = typeof openAiPayload.model === "string" ? openAiPayload.model : model;
+  return new Response(JSON.stringify({ id: openAiPayload.id, output_text: outputText, provider: "openai", model: resolvedModel }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 });
 
 function json(body: Record<string, string>, status = 200): Response {

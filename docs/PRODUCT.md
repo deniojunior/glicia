@@ -9,8 +9,9 @@ web
 ## Stack
 
 TypeScript, React e Vite, com suporte a PWA e hospedagem estática. Supabase Auth, PostgreSQL,
-Vault e Edge Functions fornecem conta, sincronização, proteção das credenciais e integração com
-IA. A CLI em Python permanece disponível e serve como referência de comportamento durante o porte.
+secrets e Edge Functions fornecem conta, sincronização, proteção da credencial central e
+integração com IA. A CLI em Python permanece disponível e serve como referência de comportamento
+durante o porte.
 
 ## Users
 
@@ -39,8 +40,8 @@ calcula ou recomenda a dose.
 - A pessoa pode digitar ou usar o ditado do teclado do celular para descrever a refeição.
 - Durante o experimento fechado, a pessoa solicita acesso por e-mail e somente contas aprovadas
   pelo autor podem iniciar o onboarding.
-- O primeiro acesso aprovado exige chave do provedor de IA, parâmetros clínicos, cinco RICs,
-  modo de interação e revisão final.
+- O primeiro acesso aprovado exige parâmetros clínicos, cinco RICs, modo de interação e revisão
+  final; a pessoa não configura credenciais nem escolhe o modelo de IA.
 - Configurações, memória alimentar e histórico ficam associados à conta no PostgreSQL.
 - O projeto é open source, sem fins lucrativos e deve ser simples para pessoas sem experiência
   técnica configurarem e instalarem.
@@ -51,11 +52,12 @@ calcula ou recomenda a dose.
 - Oferecer conversa, confirmação e correção, modos Preciso e Rápido, memória alimentar,
   histórico e registro da dose realmente aplicada.
 - Funcionar por URL e poder ser instalado na tela inicial como PWA, sem publicação em lojas.
-- Usar inicialmente BYOK com OpenAI e evoluir para modelos e provedores intercambiáveis.
+- Usar inicialmente uma credencial OpenAI central e evoluir para modelos e provedores
+  intercambiáveis administrados no backend.
 - Manter cálculo, arredondamento e travas de segurança determinísticos e locais.
 - Não calcular insulina ativa, prescrever parâmetros, automatizar aplicação ou se apresentar
   como substituto da equipe de saúde.
-- Manter a chave do provedor cifrada no Vault e usá-la somente em Edge Functions autenticadas.
+- Manter a chave do provedor somente nos secrets e usá-la em Edge Functions autenticadas.
 
 ## Evidence on Hand
 

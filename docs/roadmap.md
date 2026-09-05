@@ -111,7 +111,7 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.6.0-alpha` | Persistência, portabilidade e instalação. | Preferências, memória alimentar e histórico estáveis; atualização da PWA sem perda de dados; exportação, importação e backup local validados; instalação orientada na tela inicial. Concluída. |
 | `v0.7.0-alpha` | Plataforma Supabase, conta e BYOK seguro. | Infraestrutura versionada, autenticação por e-mail, PostgreSQL/RLS, conexão OpenAI cifrada e proxy em Edge Function. Concluída. |
 | `v0.8.0-alpha` | Acesso experimental controlado. | Solicitação pública, revisão administrativa autenticada, criação de conta bloqueada para e-mails não aprovados, notificações e login por magic link. Concluída. |
-| `v0.9.0-alpha` | Credencial central, segurança, privacidade e contingência. | BYOK removido da experiência, chave do projeto nos secrets do backend, exclusão por conta, auditoria de RLS/CSP/logs, recuperação operacional e modo manual sem IA. |
+| `v0.9.0-alpha` | Credencial central, segurança, CI/CD, privacidade e contingência. | BYOK removido da experiência, chave do projeto nos secrets do backend, CI obrigatória, deploy automatizado em staging, promoção protegida para produção, exclusão por conta, recuperação operacional e modo manual sem IA. Concluída. |
 | `v0.10.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
 | `v0.11.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
 | `v0.12.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
@@ -206,11 +206,34 @@ Esses controles pertencem à API e aos adaptadores de infraestrutura. O domínio
 responsável apenas pelas regras determinísticas, confirmação humana e travas clínicas já
 existentes. O marco não introduzirá microserviços, CQRS ou event sourcing.
 
+## Esteira de CI/CD
+
+A `v0.9.0-alpha` evoluiu o workflow de CI e adicionou entrega contínua com GitHub Actions. Pull
+requests e alterações na branch principal validam CLI, PWA, contratos, migrations, RLS e Edge
+Functions antes de permitir publicação.
+
+O fluxo implementado é:
+
+1. **Pull request:** lint, formatação, tipos, testes Python e TypeScript, build da PWA e testes
+   locais do Supabase, sem acesso a secrets de deploy.
+2. **Branch principal:** repetir as verificações e, depois de aprovadas, aplicar migrations e Edge
+   Functions no Supabase de staging e publicar a PWA de staging na Vercel.
+3. **Produção:** promover uma versão identificada por tag por meio de um GitHub Environment
+   protegido, com aprovação manual e os mesmos artefatos ou commit já validados em staging.
+
+Tokens da Vercel, Supabase e demais serviços ficarão somente nos secrets dos GitHub Environments,
+com permissões mínimas e separação entre staging e produção. Workflows originados de forks não
+receberão esses segredos. Falhas interromperão a entrega antes da etapa seguinte, e migrations
+deverão permanecer compatíveis com a versão anterior durante a publicação para evitar que backend
+e PWA fiquem temporariamente incompatíveis.
+
 ## Decisões que antecedem a publicação pública
 
 - Validar a compatibilidade da PWA com os navegadores móveis suportados.
 - Validar migrations, RLS, Edge Functions e o modelo de ameaça para a credencial central nos secrets do backend.
 - Confirmar que nenhuma chave ou dado de saúde seja incluído em logs, relatórios de erro ou backups operacionais.
+- Validar a esteira de staging, a promoção protegida para produção e a ausência de secrets em
+  workflows de pull requests externos.
 - Definir migrações para preferências e histórico sem perda de dados.
 - Definir e testar a recuperação operacional do banco em ambiente isolado, sem expor credenciais.
 - Confirmar as condições para redistribuição da tabela de alimentos.

@@ -68,7 +68,7 @@ Edge Functions para ações sensíveis e para a conversa com IA.
 ```text
 PWA ── sessão Supabase Auth ──> Edge Functions ──> OpenAI
        │                               │
-       └───────────────> PostgreSQL <──┴── Vault (credenciais cifradas)
+       └───────────────> PostgreSQL    └── secrets centrais
 ```
 
 - A criação de conta é fechada: `request-access` registra a solicitação sem criar usuário, uma
@@ -78,12 +78,16 @@ PWA ── sessão Supabase Auth ──> Edge Functions ──> OpenAI
 - PostgreSQL é a fonte de verdade de preferências, memória alimentar e histórico. Backups são
   responsabilidade operacional da infraestrutura, não uma funcionalidade da PWA.
 - Cada registro pertence a um `user_id`; RLS é aplicado e testado em toda tabela exposta.
-- A chave OpenAI chega a uma Edge Function autenticada, é validada e cifrada no Vault em uma
-  transação curta com os metadados da conexão. O RPC de persistência pode ser executado somente
-  pelo `service_role`; `anon` e `authenticated` não têm permissão. A PWA recebe apenas o estado da
-  conexão, nunca o valor da chave.
+- A chave OpenAI é configurada pelo operador em `OPENAI_API_KEY`, nos secrets das Edge Functions.
+  `ai-chat` usa a credencial somente depois de autenticar e validar a concessão da conta; a PWA
+  recebe o provedor e o modelo usados para auditoria, nunca o valor da chave. A migration da
+  `v0.9.0` remove as estruturas BYOK e os segredos individuais da `v0.7.0`.
 - O adaptador OpenAI e detalhes como `previous_response_id` vivem no backend. O cálculo e as
   travas determinísticos continuam no domínio TypeScript e não são delegados à IA.
+- O modo manual estrutura os quatro campos na camada de aplicação e entra na mesma máquina de
+  estados, confirmação, cálculo e persistência; não cria uma segunda implementação clínica.
+- A exclusão total entra por uma porta de conta, é adaptada por `delete-account` e usa a remoção
+  do usuário Auth como raiz da cascata transacional no PostgreSQL.
 - Infraestrutura vive em `supabase/`: `config.toml`, migrations, Edge Functions, seeds fictícios
   e testes de isolamento. Segredos e chaves de serviço não pertencem ao repositório.
 - Notificações usam uma porta comum: Mailpit no ambiente local e Resend, com remetente verificado,

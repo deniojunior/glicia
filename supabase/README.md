@@ -2,17 +2,18 @@
 
 Esta pasta contém a infraestrutura versionada da PWA a partir da `v0.7.0-alpha`.
 
-- `migrations/` cria as tabelas da conta, índices e RLS; a gravação de credenciais usa um RPC
-  interno com execução concedida exclusivamente ao `service_role` da Edge Function.
-- `functions/ai-chat/` faz o proxy autenticado para a OpenAI; a chave é lida do Vault e nunca enviada ao navegador.
-- `functions/store-ai-connection/` valida a sessão e a chave e grava Vault/metadados em uma
-  transação curta, sem aceitar `user_id` do navegador.
+- `migrations/` cria as tabelas da conta, índices e RLS. A migration da `v0.9.0` remove as
+  estruturas e os segredos BYOK depois da adoção da credencial central.
+- `functions/ai-chat/` faz o proxy autenticado para a OpenAI; a chave e o modelo são lidos dos
+  secrets centrais `OPENAI_API_KEY` e `OPENAI_MODEL` e nunca enviados ao navegador.
+- `functions/delete-account/` exclui a conta autenticada e aciona a limpeza transacional dos
+  dados associados.
 - `functions/request-access/` registra participação sem criar conta e notifica o administrador.
 - `functions/review-access-request/` lista e decide solicitações somente para administradores.
 - `functions/_shared/` concentra autenticação, verificação da concessão, HTTP e adaptadores de
   e-mail para Mailpit e Resend.
 - `tests/rls.sql` verifica RLS, isolamento entre contas, hook de criação, privilégios da fila,
-  aprovação idempotente e criação/rotação fictícia no Vault dentro de uma transação revertida.
+  aprovação idempotente, remoção do BYOK e exclusão por cascata dentro de uma transação revertida.
 
 ## Desenvolvimento
 
@@ -30,13 +31,18 @@ npm run supabase:status
 Runtime, Studio e Mailpit. A PWA local deve usar `http://127.0.0.1:54321` e a chave publicável
 mostrada por `npm run supabase:status`; nunca use a chave `secret` ou `service_role` no navegador.
 
+Para testar a conversa local, copie `supabase/functions/.env.example` para
+`supabase/functions/.env` e preencha `OPENAI_API_KEY`. A CLI do Supabase carrega esse arquivo
+automaticamente nas Edge Functions locais. Não reutilize a credencial de staging.
+
 Os magic links locais não enviam e-mail real. Abra o Mailpit em `http://127.0.0.1:54324`, escolha
 a mensagem recebida e clique no link. Solicitações e decisões também são entregues ali. Para
 encerrar os containers preservando os volumes, use
 `npm run supabase:stop`.
 
 No ambiente hospedado, configure os valores de `supabase/.env.example` como Edge Function
-secrets. O domínio usado em `GLICIA_EMAIL_FROM` precisa estar verificado no Resend.
+secrets. `OPENAI_API_KEY` e `OPENAI_MODEL` são obrigatórios para a conversa. O domínio usado em
+`GLICIA_EMAIL_FROM` precisa estar verificado no Resend.
 
 O projeto hospedado `snsdnxlwdhadrehksati` é o ambiente de staging. A PWA correspondente é
 preparada para `https://glicia-ten.vercel.app/`; consulte `docs/staging.md` para o fluxo de

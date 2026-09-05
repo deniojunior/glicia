@@ -1,21 +1,23 @@
-import { FormEvent, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { FormEvent, type KeyboardEvent, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { ConversationSession, decideConfirmedMeal, PreferencesService, type FoodMemoryRepository, type MealDecision, type MealHistoryRepository, type SessionSnapshot } from "./application";
-import { DemoAiProvider } from "./adapters/fake/demo-ai-provider";
 import { buildOpenAiInstructions } from "./adapters/openai/instructions";
 import { createSupabaseClient } from "./adapters/supabase/client";
 import { SupabaseAccessService } from "./adapters/supabase/supabase-access-service";
 import { SupabasePreferencesRepository } from "./adapters/supabase/supabase-preferences-repository";
 import { SupabaseMealRepository } from "./adapters/supabase/supabase-meal-repository";
-import { hasOpenAiConnection, storeOpenAiConnection, SupabaseAiProvider } from "./adapters/supabase/supabase-ai-provider";
+import { SupabaseAiProvider } from "./adapters/supabase/supabase-ai-provider";
+import { SupabaseAccountService } from "./adapters/supabase/supabase-account-service";
 import { Onboarding } from "./components/onboarding";
 import { Settings } from "./components/settings";
 import { History } from "./components/history";
 import { AccessNotApproved, Auth, MissingSupabaseConfiguration } from "./components/auth";
 import { AdminAccessRequests } from "./components/admin-access-requests";
+import { ManualMealForm } from "./components/manual-meal-form";
+import { shouldSubmitComposer } from "./components/composer-keyboard";
 import { appPath, gliciaIconUrl } from "./config/app-urls";
 import type { InteractionMode, OnboardingProgress, PersistedPreferences } from "./domain";
 import { carbohydrateRatioFor } from "./domain";
@@ -52,11 +54,10 @@ function reduce(state: AppState, action: AppAction): AppState {
 
 const supabase = createSupabaseClient();
 const accessService = supabase ? new SupabaseAccessService(supabase) : null;
-const adminEmail = import.meta.env.VITE_GLICIA_ADMIN_EMAIL || "deniofriacamoreirajr@gmail.com";
+const adminEmail = import.meta.env.VITE_GLICIA_ADMIN_EMAIL || "glicia.app@gmail.com";
 
-function createSession(mode: InteractionMode, hasAiConnection: boolean, client: SupabaseClient, foodMemory: Readonly<Record<string, string>>): ConversationSession {
-  const provider = hasAiConnection ? new SupabaseAiProvider(client, buildOpenAiInstructions) : new DemoAiProvider();
-  return new ConversationSession(provider, mode, foodMemory);
+function createSession(mode: InteractionMode, client: SupabaseClient, foodMemory: Readonly<Record<string, string>>): ConversationSession {
+  return new ConversationSession(new SupabaseAiProvider(client, buildOpenAiInstructions), mode, foodMemory);
 }
 
 function initialState(session: ConversationSession): AppState {
@@ -78,16 +79,17 @@ function AssistantMarkdown({ content }: { content: string }) {
   return <div className="assistant-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{content}</ReactMarkdown></div>;
 }
 
-function ConversationApp({ preferences, hasAiConnection, client, foodMemory, mealRepository, onOpenSettings, onOpenHistory }: { preferences: PersistedPreferences; hasAiConnection: boolean; client: SupabaseClient; foodMemory: Readonly<Record<string, string>>; mealRepository: MealHistoryRepository & FoodMemoryRepository; onOpenSettings(): void; onOpenHistory(): void }) {
+function ConversationApp({ preferences, client, foodMemory, mealRepository, onOpenSettings, onOpenHistory }: { preferences: PersistedPreferences; client: SupabaseClient; foodMemory: Readonly<Record<string, string>>; mealRepository: MealHistoryRepository & FoodMemoryRepository; onOpenSettings(): void; onOpenHistory(): void }) {
   const sessionRef = useRef<ConversationSession | null>(null);
   if (sessionRef.current === null) {
-    sessionRef.current = createSession(preferences.interaction_mode, hasAiConnection, client, foodMemory);
+    sessionRef.current = createSession(preferences.interaction_mode, client, foodMemory);
   }
   const session = sessionRef.current;
   const [state, dispatch] = useReducer(reduce, session, initialState);
   const [decision, setDecision] = useState<MealDecision | null>(null);
   const [pendingRecord, setPendingRecord] = useState<MealRecord | null>(null);
   const [appliedDose, setAppliedDose] = useState("");
+  const [isManualEntry, setIsManualEntry] = useState(false);
   const isAwaitingConfirmation = state.snapshot.state === "awaiting_confirmation";
   const isConfirmed = state.snapshot.state === "confirmed";
 
@@ -116,9 +118,9 @@ function ConversationApp({ preferences, hasAiConnection, client, foodMemory, mea
       session.confirm();
       const nextDecision = decideConfirmedMeal(session.snapshot.current_turn!, preferences.clinical_settings);
       setDecision(nextDecision);
-      if (nextDecision.calculation && session.snapshot.current_turn) {
+      if (nextDecision.calculation && session.snapshot.current_turn && session.snapshot.ai_provider && session.snapshot.ai_model) {
         const lastMessage = session.snapshot.history.at(-1)?.user_message ?? "";
-        setPendingRecord(createMealRecord({ id: crypto.randomUUID(), createdAt: new Date().toISOString(), mealInput: lastMessage, turn: session.snapshot.current_turn, mode: session.snapshot.interaction_mode, settings: preferences.clinical_settings, carbohydrateRatio: carbohydrateRatioFor(preferences.clinical_settings, session.snapshot.current_turn.meal_type!), calculation: nextDecision.calculation, provider: preferences.provider.provider, model: preferences.provider.model }));
+        setPendingRecord(createMealRecord({ id: crypto.randomUUID(), createdAt: new Date().toISOString(), mealInput: lastMessage, turn: session.snapshot.current_turn, mode: session.snapshot.interaction_mode, settings: preferences.clinical_settings, carbohydrateRatio: carbohydrateRatioFor(preferences.clinical_settings, session.snapshot.current_turn.meal_type!), calculation: nextDecision.calculation, provider: session.snapshot.ai_provider, model: session.snapshot.ai_model }));
       }
       dispatch({ type: "snapshot_updated", snapshot: session.snapshot });
     } catch (error) {
@@ -136,10 +138,27 @@ function ConversationApp({ preferences, hasAiConnection, client, foodMemory, mea
       setDecision(null);
       setPendingRecord(null);
       setAppliedDose("");
+      setIsManualEntry(false);
       dispatch({ type: "snapshot_updated", snapshot: session.snapshot });
     } finally {
       dispatch({ type: "request_finished" });
     }
+  }
+
+  function submitManual(description: string, turn: Parameters<ConversationSession["submitManual"]>[1]) {
+    try {
+      session.submitManual(description, turn);
+      setIsManualEntry(false);
+      dispatch({ type: "snapshot_updated", snapshot: session.snapshot });
+    } catch (error) {
+      dispatch({ type: "request_failed", error: error instanceof Error ? error.message : "Não foi possível revisar os dados manuais." });
+    }
+  }
+
+  function handleComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    if (!shouldSubmitComposer({ key: event.key, shiftKey: event.shiftKey, isComposing: event.nativeEvent.isComposing })) return;
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
   }
 
   const currentTurn = state.snapshot.current_turn;
@@ -178,8 +197,8 @@ function ConversationApp({ preferences, hasAiConnection, client, foodMemory, mea
         {isConfirmed && decision ? <aside className="confirmed-card" aria-live="polite"><h2>{decision.safety.bolus_blocked ? "Trate a hipoglicemia primeiro." : `Sugestão: ${decision.calculation?.suggested} U`}</h2><p>{decision.safety.bolus_blocked ? "A Glicia não calcula bolus abaixo do seu limite configurado." : decision.safety.rapid_fall_warning ? "Atenção: queda rápida com glicemia abaixo de 100 mg/dL." : `Cálculo local com RIC de ${currentTurn ? preferences.clinical_settings.carbohydrate_ratios[currentTurn.meal_type!] : ""} g/U.`}</p>{pendingRecord ? <div className="applied-dose"><label htmlFor="applied-dose">Quanto você aplicou? (opcional)</label><input id="applied-dose" inputMode="decimal" value={appliedDose} onChange={(event) => setAppliedDose(event.target.value)} placeholder="Ex.: 4" /><button className="primary-action" type="button" onClick={() => void saveMealRecord(appliedDose.trim() ? Number(appliedDose.replace(",", ".")) : null)}>Registrar e encerrar</button></div> : <button className="secondary-action" type="button" onClick={startNewMeal}>Iniciar nova refeição</button>}</aside> : null}
       </section>
 
-      {!isConfirmed && hasAiConnection ? <form className="composer" onSubmit={send}><label htmlFor="meal-message">{isAwaitingConfirmation ? "O que precisa corrigir?" : "Refeição, glicemia, tendência e tipo"}</label><div className="composer-row"><textarea id="meal-message" value={state.draft} onChange={(event) => dispatch({ type: "draft_changed", draft: event.target.value })} placeholder={isAwaitingConfirmation ? "Ex.: a glicemia correta é 110" : "Ex.: arroz, frango e salada; 120 mg/dL, seta estável, almoço"} rows={2} disabled={state.is_waiting} /><button className="send-button" type="submit" disabled={state.is_waiting || !state.draft.trim()}><span className="visually-hidden">Enviar mensagem</span><span aria-hidden="true">↑</span></button></div><p>Confira a resposta antes de decidir.</p></form> : null}
-      {!isConfirmed && !hasAiConnection ? <aside className="key-required"><h2>Falta sua chave OpenAI.</h2><p>Ela será guardada de forma cifrada na sua conta. Abra Configurações para conectar.</p><button className="primary-action" type="button" onClick={onOpenSettings}>Abrir configurações</button></aside> : null}
+      {!isConfirmed && isManualEntry ? <ManualMealForm onSubmit={submitManual} onCancel={() => setIsManualEntry(false)} /> : null}
+      {!isConfirmed && !isManualEntry ? <form className="composer" onSubmit={send}><label htmlFor="meal-message">{isAwaitingConfirmation ? "O que precisa corrigir?" : "Refeição, glicemia, tendência e tipo"}</label><div className="composer-row"><textarea id="meal-message" value={state.draft} onChange={(event) => dispatch({ type: "draft_changed", draft: event.target.value })} onKeyDown={handleComposerKeyDown} enterKeyHint="send" placeholder={isAwaitingConfirmation ? "Ex.: a glicemia correta é 110" : "Ex.: arroz, frango e salada; 120 mg/dL, seta estável, almoço"} rows={2} disabled={state.is_waiting} /><button className="send-button" type="submit" disabled={state.is_waiting || !state.draft.trim()}><span className="visually-hidden">Enviar mensagem</span><span aria-hidden="true">↑</span></button></div><div className="composer-foot"><p>Enter envia · Shift+Enter quebra a linha.</p>{state.snapshot.state === "ready" ? <button type="button" onClick={() => setIsManualEntry(true)}>Informar sem IA</button> : null}</div></form> : null}
     </main>
   );
 }
@@ -187,25 +206,25 @@ function ConversationApp({ preferences, hasAiConnection, client, foodMemory, mea
 function AuthenticatedApp({ client, user }: { client: SupabaseClient; user: User }) {
   const preferencesService = useMemo(() => new PreferencesService(new SupabasePreferencesRepository(client, user.id)), [client, user.id]);
   const mealRepository = useMemo(() => new SupabaseMealRepository(client, user.id), [client, user.id]);
+  const accountService = useMemo(() => new SupabaseAccountService(client), [client]);
   const [preferences, setPreferences] = useState<PersistedPreferences | null | undefined>(undefined);
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [hasAiConnection, setHasAiConnection] = useState(false);
   const [screen, setScreen] = useState<"conversation" | "settings" | "history">("conversation");
   const [foodMemory, setFoodMemory] = useState<Readonly<Record<string, string>> | null>(null);
 
   useEffect(() => {
-    void Promise.all([preferencesService.load(), preferencesService.loadOnboarding(), mealRepository.load(), hasOpenAiConnection(client, user.id)])
-      .then(([savedPreferences, savedProgress, savedMemory, isConnected]) => { setPreferences(savedPreferences); setProgress(savedProgress); setFoodMemory(savedMemory); setHasAiConnection(isConnected); })
+    void Promise.all([preferencesService.load(), preferencesService.loadOnboarding(), mealRepository.load()])
+      .then(([savedPreferences, savedProgress, savedMemory]) => { setPreferences(savedPreferences); setProgress(savedProgress); setFoodMemory(savedMemory); })
       .catch(() => { setLoadError("Não foi possível abrir a configuração da sua conta."); setPreferences(null); setFoodMemory({}); });
   }, [client, mealRepository, preferencesService, user.id]);
 
   if (preferences === undefined || foodMemory === null) return <main className="onboarding-shell"><p className="waiting">Abrindo a Glicia…</p></main>;
   if (loadError) return <main className="onboarding-shell"><p className="error-message" role="alert">{loadError}</p></main>;
-  if (preferences === null) return <Onboarding initialProgress={progress} onProgress={(next) => preferencesService.saveOnboarding(next)} onComplete={async (next, key) => { await storeOpenAiConnection(client, key, next.provider.model); await preferencesService.save(next); await preferencesService.clearOnboarding(); setHasAiConnection(true); setPreferences(next); }} />;
-  if (screen === "settings") return <Settings preferences={preferences} hasAiConnection={hasAiConnection} onSetApiKey={async (key) => { await storeOpenAiConnection(client, key, preferences.provider.model); setHasAiConnection(true); }} onSignOut={async () => { await client.auth.signOut(); }} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
+  if (preferences === null) return <Onboarding initialProgress={progress} onProgress={(next) => preferencesService.saveOnboarding(next)} onComplete={async (next) => { await preferencesService.save(next); await preferencesService.clearOnboarding(); setPreferences(next); }} />;
+  if (screen === "settings") return <Settings preferences={preferences} onSignOut={async () => { await client.auth.signOut(); }} onDeleteAccount={() => accountService.deleteAccount("EXCLUIR")} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
   if (screen === "history") return <History repository={mealRepository} onBack={() => setScreen("conversation")} />;
-  return <ConversationApp preferences={preferences} hasAiConnection={hasAiConnection} client={client} foodMemory={foodMemory} mealRepository={mealRepository} onOpenSettings={() => setScreen("settings")} onOpenHistory={() => setScreen("history")} />;
+  return <ConversationApp preferences={preferences} client={client} foodMemory={foodMemory} mealRepository={mealRepository} onOpenSettings={() => setScreen("settings")} onOpenHistory={() => setScreen("history")} />;
 }
 
 export function App() {

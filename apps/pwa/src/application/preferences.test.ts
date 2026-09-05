@@ -8,7 +8,7 @@ describe("PreferencesService", () => {
   it("retoma o onboarding sem persistir credenciais", async () => {
     const repository = new MemoryPreferencesRepository();
     const service = new PreferencesService(repository);
-    const progress = createOnboardingProgress({ step: "carbohydrate_ratios", provider: { provider: "openai", model: "gpt-4o-mini" } });
+    const progress = createOnboardingProgress({ step: "carbohydrate_ratios" });
 
     await service.saveOnboarding(progress);
 
@@ -27,5 +27,11 @@ describe("PreferencesService", () => {
 
     expect((await service.load())?.interaction_mode).toBe("rapido");
     expect(await service.loadOnboarding()).toBeNull();
+  });
+
+  it("retoma um rascunho legado sem parar na etapa BYOK removida", () => {
+    const progress = createOnboardingProgress({ step: "provider" as never });
+
+    expect(progress.step).toBe("carbohydrate_ratios");
   });
 });

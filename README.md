@@ -1,6 +1,6 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.8.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.8.0-alpha.md)
+[![Versão](https://img.shields.io/badge/version-0.9.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.9.0-alpha.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Supabase](https://img.shields.io/badge/PWA-Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](#privacidade-e-dados)
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.8.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado e BYOK cifrado
+**Status:** `v0.9.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -22,15 +22,15 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
 
 - **CLI:** interface funcional e instalável, preservada como referência de comportamento.
 - **PWA:** fluxo conversacional mobile-first, instalável pelo navegador; usa Supabase Auth,
-  PostgreSQL com RLS, Edge Functions e Vault para manter dados e conexão de IA por conta. Durante
-  o experimento, novas contas dependem de aprovação do autor.
+  PostgreSQL com RLS e Edge Functions. Durante o experimento, novas contas dependem de aprovação
+  do autor e a credencial de IA é administrada centralmente no backend.
 - **Staging:** backend hospedado no Supabase e publicação da PWA preparada para Vercel; veja
   o [guia de staging](docs/staging.md).
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** segurança, privacidade, exclusão de conta e contingência na `v0.9.0-alpha`.
+- **Próximo marco:** limites de uso e guardrails de IA na `v0.10.0-alpha`.
 
-Leia as [notas da v0.8.0-alpha](docs/releases/v0.8.0-alpha.md) para conhecer as mudanças, os
+Leia as [notas da v0.9.0-alpha](docs/releases/v0.9.0-alpha.md) para conhecer as mudanças, os
 impactos para contribuidores e as limitações atuais.
 
 ## PWA no celular
@@ -42,8 +42,12 @@ configurar ou usar a Glicia.
 
 No primeiro acesso, solicite participação com seu e-mail. Depois da aprovação, escolha **Já fui
 aprovado**, abra o magic link e conclua o onboarding. Preferências, memória alimentar e histórico
-ficam associados à conta. Em **Configurações**, conecte sua chave OpenAI; ela é enviada
-por HTTPS à Edge Function, validada e cifrada no Supabase Vault. A chave não fica no navegador.
+ficam associados à conta. A PWA não pede uma chave OpenAI: a conexão de IA é configurada pelo
+operador no backend e a credencial nunca é enviada ao navegador.
+
+Na conversa, `Enter` envia e `Shift+Enter` cria uma nova linha. Se a IA estiver indisponível ou a
+pessoa já souber o total de carboidratos, **Informar sem IA** mantém a mesma revisão e o mesmo
+cálculo local. Histórico e conta podem ser excluídos pela própria interface.
 
 ## Instale com ajuda de uma IA
 
@@ -126,10 +130,10 @@ A CLI continua local: preferências ficam em `~/.glicia/preferences.json` e o hi
 `~/.glicia/history.sqlite3`. Na PWA, Supabase Auth identifica a conta e PostgreSQL armazena
 preferências, memória alimentar e refeições; políticas RLS isolam os registros por pessoa.
 
-A chave OpenAI da PWA é validada no backend e cifrada no Supabase Vault. A conversa — que pode
-incluir refeição, glicemia e contexto alimentar — segue da Edge Function para a OpenAI e não
-diretamente do navegador. Avalie as políticas dos serviços envolvidos e não use dados reais em
-testes, issues, logs ou demonstrações públicas.
+A chave OpenAI da PWA fica somente nos secrets das Edge Functions e é administrada pelo operador.
+A conversa — que pode incluir refeição, glicemia e contexto alimentar — segue da Edge Function
+para a OpenAI e não diretamente do navegador. Avalie as políticas dos serviços envolvidos e não
+use dados reais em testes, issues, logs ou demonstrações públicas.
 
 ## Configuração
 

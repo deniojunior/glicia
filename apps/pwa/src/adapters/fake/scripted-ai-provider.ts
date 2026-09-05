@@ -1,4 +1,4 @@
-import type { AiProvider, AiRequest } from "../../application";
+import type { AiProvider, AiRequest, AiResult } from "../../application";
 import type { ConversationTurn } from "../../domain";
 
 export class ScriptedAiProvider implements AiProvider {
@@ -10,7 +10,7 @@ export class ScriptedAiProvider implements AiProvider {
     return [...this.requests];
   }
 
-  public async ask(request: AiRequest): Promise<ConversationTurn> {
+  public async ask(request: AiRequest): Promise<AiResult> {
     this.requests.push(request);
     const next = this.replies.shift();
     if (next === undefined) {
@@ -19,7 +19,7 @@ export class ScriptedAiProvider implements AiProvider {
     if (next instanceof Error) {
       throw next;
     }
-    return next;
+    return { turn: next, provider: "fake", model: "scripted" };
   }
 
   public reset(): void {

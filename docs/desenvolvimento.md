@@ -54,13 +54,16 @@ Ela consome as fixtures de `packages/contracts` diretamente nos testes, para pre
 com a CLI. A partir da `v0.7.0-alpha`, Supabase Auth protege o onboarding e adaptadores remotos
 persistem preferências, memória alimentar e histórico sob RLS.
 
-A chave OpenAI é enviada somente à Edge Function autenticada `store-ai-connection`, validada e
-cifrada no Vault. A conversa chama `ai-chat`; o navegador não recebe a chave nem chama a OpenAI
-diretamente. O cálculo e as travas continuam locais e determinísticos após a confirmação.
+A PWA não solicita uma chave OpenAI. A conversa chama a Edge Function autenticada `ai-chat`, que
+usa `OPENAI_API_KEY` e `OPENAI_MODEL` configurados pelo operador nos secrets do Supabase. O
+navegador não recebe a chave nem chama a OpenAI diretamente. O cálculo e as travas continuam
+locais e determinísticos após a confirmação.
 
-Na `v0.8.0-alpha`, `request-access` recebe solicitações públicas sem criar conta e
+Desde a `v0.8.0-alpha`, `request-access` recebe solicitações públicas sem criar conta e
 `review-access-request` exige uma conta presente em `app_admins`. O hook de Auth bloqueia novas
 contas sem aprovação e todas as Edge Functions autenticadas verificam também uma concessão ativa.
+Na `v0.9.0-alpha`, `delete-account` remove a conta e seus dados, e o modo manual permite concluir
+o fluxo quando o provedor de IA estiver indisponível.
 
 ```bash
 cd apps/pwa
@@ -77,6 +80,9 @@ navegador porque o acesso aos dados depende da sessão e das políticas RLS. Nun
 `secret` ou `service_role` na PWA.
 Os comandos Supabase exigem Docker ativo. Obtenha os valores locais com
 `npm run supabase:status`: use `API URL` e `Publishable key`, nunca os campos privilegiados.
+Copie `supabase/functions/.env.example` para `supabase/functions/.env` e informe a credencial
+OpenAI exclusiva do desenvolvimento para habilitar a conversa local; o arquivo é ignorado pelo
+Git.
 
 O `npm run supabase:start` usa os containers gerenciados pela Supabase CLI — PostgreSQL, Auth,
 Data API, Edge Functions, Studio e Mailpit — e não acessa o projeto remoto. No fluxo local, abra
@@ -84,7 +90,8 @@ Data API, Edge Functions, Studio e Mailpit — e não acessa o projeto remoto. N
 `npm run supabase:stop` quando terminar; os dados locais são preservados.
 As notificações de solicitação e decisão também chegam ao Mailpit pela API HTTP local. Em
 produção, copie `supabase/.env.example`, configure URL pública, remetente verificado e chave
-Resend, e envie esses valores como secrets das Edge Functions.
+Resend, adicione a chave e o modelo centrais da OpenAI e envie esses valores como secrets das
+Edge Functions. Nunca use o prefixo `VITE_` para esses valores.
 Cadastre a URL pública da PWA e a URL local de desenvolvimento na lista de Redirect URLs do
 Supabase Auth; o magic link só retorna para endereços permitidos pelo projeto.
 O `supabase/config.toml` usa `https://glicia-ten.vercel.app/` como Site URL de staging e

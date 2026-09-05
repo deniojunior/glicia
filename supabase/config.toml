@@ -28,7 +28,7 @@ verify_enabled = true
 [functions.ai-chat]
 verify_jwt = true
 
-[functions.store-ai-connection]
+[functions.delete-account]
 verify_jwt = true
 
 [functions.request-access]

@@ -28,6 +28,8 @@ export interface MealRecord {
 export interface MealHistoryRepository {
   saveRecord(record: MealRecord): Promise<void>;
   list(): Promise<readonly MealRecord[]>;
+  deleteRecord(recordId: string): Promise<void>;
+  clearRecords(): Promise<void>;
 }
 
 export interface FoodMemoryRepository {

@@ -16,6 +16,16 @@ export class SupabaseMealRepository implements MealHistoryRepository, FoodMemory
     return (data ?? []).map(toMealRecord);
   }
 
+  public async deleteRecord(recordId: string): Promise<void> {
+    const { error } = await this.client.from("meal_records").delete().eq("id", recordId).eq("user_id", this.userId);
+    if (error) throw new Error("Não foi possível excluir esta refeição.");
+  }
+
+  public async clearRecords(): Promise<void> {
+    const { error } = await this.client.from("meal_records").delete().eq("user_id", this.userId);
+    if (error) throw new Error("Não foi possível apagar o histórico.");
+  }
+
   public async load(): Promise<Readonly<Record<string, string>>> {
     const { data, error } = await this.client.from("food_memory").select("food, usual_preparation").eq("user_id", this.userId);
     if (error) throw new Error("Não foi possível carregar a memória alimentar da sua conta.");

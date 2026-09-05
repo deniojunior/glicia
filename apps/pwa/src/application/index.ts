@@ -4,3 +4,5 @@ export * from "./meal-decision";
 export * from "./meal-history";
 export * from "./provider-error";
 export * from "./access-control";
+export * from "./manual-meal";
+export * from "./account";

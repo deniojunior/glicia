@@ -12,13 +12,17 @@ const firstMessage: AiRequest = {
 
 describe("DemoAiProvider", () => {
   it("fecha o resumo a partir da primeira mensagem completa", async () => {
-    const turn = await new DemoAiProvider().ask(firstMessage);
+    const result = await new DemoAiProvider().ask(firstMessage);
 
-    expect(turn).toMatchObject({
-      total_carbohydrates: 42,
-      glucose: 120,
-      glucose_trend: "ESTAVEL",
-      meal_type: "ALMOCO"
+    expect(result).toMatchObject({
+      provider: "demo",
+      model: "deterministic",
+      turn: {
+        total_carbohydrates: 42,
+        glucose: 120,
+        glucose_trend: "ESTAVEL",
+        meal_type: "ALMOCO"
+      }
     });
   });
 });

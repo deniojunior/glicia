@@ -26,7 +26,7 @@ Os valores editados pelo terminal têm prioridade sobre os padrões e as variáv
 A PWA usa `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e
 `VITE_GLICIA_ADMIN_EMAIL` no navegador. Este último apenas identifica a conta que pode abrir a
 tela de revisão; não concede permissão, que continua sendo validada por `app_admins`. Nunca
-publique `service_role`, a chave secreta do projeto, a chave OpenAI de uma pessoa ou a chave do
+publique `service_role`, a chave secreta do projeto, a chave OpenAI central ou a chave do
 serviço de e-mail em uma variável `VITE_*`.
 
 As Edge Functions de admissão usam:
@@ -34,10 +34,12 @@ As Edge Functions de admissão usam:
 | Variável | Ambiente | Finalidade |
 | --- | --- | --- |
 | `PUBLIC_APP_URL` | staging e produção | URL usada nos links de revisão e entrada. |
-| `GLICIA_ADMIN_EMAIL` | staging e produção | Destinatário das novas solicitações; usa o e-mail do autor por padrão. |
+| `GLICIA_ADMIN_EMAIL` | staging e produção | Destinatário institucional das novas solicitações. |
 | `GLICIA_EMAIL_FROM` | staging e produção | Remetente pertencente a um domínio verificado. |
 | `RESEND_API_KEY` | staging e produção | Credencial do adaptador de e-mail transacional. |
 | `MAILPIT_API_URL` | local, opcional | API do Mailpit quando a porta padrão não puder ser usada. |
+| `OPENAI_API_KEY` | local, staging e produção | Credencial central lida somente por `ai-chat`. |
+| `OPENAI_MODEL` | local, staging e produção | Modelo selecionado pelo operador. |
 
 `VITE_GLICIA_ADMIN_EMAIL` e `GLICIA_ADMIN_EMAIL` devem apontar para a mesma conta. O primeiro
 orienta a tela de login administrativo; o segundo define quem recebe as notificações.

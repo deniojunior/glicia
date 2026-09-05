@@ -1,19 +1,23 @@
-import type { AiProvider, AiRequest } from "../../application";
+import type { AiProvider, AiRequest, AiResult } from "../../application";
 import { createConversationTurn } from "../../application";
 import type { ConversationTurn } from "../../domain";
 
 /** Adaptador local para demonstrar o fluxo sem enviar dados ou exigir uma chave. */
 export class DemoAiProvider implements AiProvider {
-  public async ask(request: AiRequest): Promise<ConversationTurn> {
+  public async ask(request: AiRequest): Promise<AiResult> {
     if (request.message.startsWith("Os dados não foram confirmados.")) {
-      return this.completeTurn("Pronto, atualizei o resumo para você conferir novamente.");
+      return this.result("Pronto, atualizei o resumo para você conferir novamente.");
     }
-    return this.completeTurn(
+    return this.result(
       "Resumo de demonstração: estimei 42 g de carboidratos. Confira os dados antes de confirmar."
     );
   }
 
   public reset(): void {}
+
+  private result(reply: string): AiResult {
+    return { turn: this.completeTurn(reply), provider: "demo", model: "deterministic" };
+  }
 
   private completeTurn(reply: string): ConversationTurn {
     return createConversationTurn(reply, {

@@ -7,8 +7,6 @@ type PreferenceRow = {
   version: number;
   clinical_settings: PersistedPreferences["clinical_settings"];
   interaction_mode: PersistedPreferences["interaction_mode"];
-  provider: "openai";
-  model: string;
   onboarding_progress: OnboardingProgress | null;
 };
 
@@ -18,22 +16,20 @@ export class SupabasePreferencesRepository implements PreferencesRepository {
   public async loadPreferences(): Promise<PersistedPreferences | null> {
     const row = await this.loadRow();
     if (!row || row.onboarding_progress !== null) return null;
-    return { version: 1, clinical_settings: row.clinical_settings, interaction_mode: row.interaction_mode, provider: { provider: row.provider, model: row.model } };
+    return { version: 1, clinical_settings: row.clinical_settings, interaction_mode: row.interaction_mode };
   }
 
   public async savePreferences(preferences: PersistedPreferences): Promise<void> {
     await this.upsert({
       version: preferences.version,
       clinical_settings: preferences.clinical_settings,
-      interaction_mode: preferences.interaction_mode,
-      provider: preferences.provider.provider,
-      model: preferences.provider.model
+      interaction_mode: preferences.interaction_mode
     });
   }
 
   public async loadOnboardingProgress(): Promise<OnboardingProgress | null> {
     const row = await this.loadRow();
-    return row?.onboarding_progress ?? null;
+    return row?.onboarding_progress ? createOnboardingProgress(row.onboarding_progress) : null;
   }
 
   public async saveOnboardingProgress(progress: OnboardingProgress): Promise<void> {
@@ -41,8 +37,6 @@ export class SupabasePreferencesRepository implements PreferencesRepository {
       version: progress.version,
       clinical_settings: progress.clinical_settings,
       interaction_mode: progress.interaction_mode,
-      provider: progress.provider.provider,
-      model: progress.provider.model,
       onboarding_progress: createOnboardingProgress(progress)
     });
   }
@@ -53,7 +47,7 @@ export class SupabasePreferencesRepository implements PreferencesRepository {
   }
 
   private async loadRow(): Promise<PreferenceRow | null> {
-    const { data, error } = await this.client.from("user_preferences").select("version, clinical_settings, interaction_mode, provider, model, onboarding_progress").eq("user_id", this.userId).maybeSingle();
+    const { data, error } = await this.client.from("user_preferences").select("version, clinical_settings, interaction_mode, onboarding_progress").eq("user_id", this.userId).maybeSingle();
     if (error) throw new Error("Não foi possível carregar as configurações da conta.");
     return data as PreferenceRow | null;
   }

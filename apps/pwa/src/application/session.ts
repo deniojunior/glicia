@@ -23,8 +23,14 @@ export interface AiRequest {
 }
 
 export interface AiProvider {
-  ask(request: AiRequest): Promise<ConversationTurn>;
+  ask(request: AiRequest): Promise<AiResult>;
   reset(): void | Promise<void>;
+}
+
+export interface AiResult {
+  turn: ConversationTurn;
+  provider: string;
+  model: string;
 }
 
 export interface SessionSnapshot {
@@ -33,6 +39,8 @@ export interface SessionSnapshot {
   current_turn: ConversationTurn | null;
   interaction_mode: InteractionMode;
   food_memory: Readonly<Record<string, string>>;
+  ai_provider: string | null;
+  ai_model: string | null;
 }
 
 export class InvalidSessionTransition extends Error {}
@@ -45,6 +53,10 @@ export class ConversationSession {
   private currentTurn: ConversationTurn | null = null;
 
   private foodMemory: Record<string, string>;
+
+  private aiProvider: string | null = null;
+
+  private aiModel: string | null = null;
 
   public constructor(
     private readonly provider: AiProvider,
@@ -60,7 +72,9 @@ export class ConversationSession {
       history: [...this.history],
       current_turn: this.currentTurn,
       interaction_mode: this.interactionMode,
-      food_memory: { ...this.foodMemory }
+      food_memory: { ...this.foodMemory },
+      ai_provider: this.aiProvider,
+      ai_model: this.aiModel
     };
   }
 
@@ -76,6 +90,22 @@ export class ConversationSession {
       throw new InvalidSessionTransition("Não há dados aguardando correção.");
     }
     return this.send(`${CORRECTION_PREFIX} ${this.requiredMessage(correction)}`);
+  }
+
+  public submitManual(message: string, turn: ConversationTurn): ConversationTurn {
+    if (this.state !== "ready") {
+      throw new InvalidSessionTransition("Inicie uma nova refeição antes do preenchimento manual.");
+    }
+    if (!isConversationTurnComplete(turn)) {
+      throw new Error("Preencha todos os dados da refeição manual.");
+    }
+    const normalizedMessage = this.requiredMessage(message);
+    this.history.push({ user_message: normalizedMessage, assistant_turn: turn });
+    this.currentTurn = turn;
+    this.aiProvider = "manual";
+    this.aiModel = "deterministic";
+    this.state = "awaiting_confirmation";
+    return turn;
   }
 
   public confirm(): ConversationTurn {
@@ -95,6 +125,8 @@ export class ConversationSession {
     this.state = "ready";
     this.history = [];
     this.currentTurn = null;
+    this.aiProvider = null;
+    this.aiModel = null;
   }
 
   private async send(message: string): Promise<ConversationTurn> {
@@ -105,10 +137,13 @@ export class ConversationSession {
       interaction_mode: this.interactionMode,
       food_memory: { ...this.foodMemory }
     };
-    const turn = await this.provider.ask(request);
+    const result = await this.provider.ask(request);
+    const { turn } = result;
 
     this.history.push({ user_message: normalizedMessage, assistant_turn: turn });
     this.currentTurn = turn;
+    this.aiProvider = result.provider;
+    this.aiModel = result.model;
     this.foodMemory = mergeFoodMemory(this.foodMemory, turn.food_memory_updates);
     this.state = isConversationTurnComplete(turn) ? "awaiting_confirmation" : "collecting";
     return turn;

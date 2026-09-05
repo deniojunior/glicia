@@ -2,6 +2,26 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.9.0-alpha] - 2026-09-05
+
+- Credencial e modelo da OpenAI centralizados nos secrets do backend, sem BYOK na experiência.
+- Modo manual sem IA com a mesma confirmação, cálculo determinístico e histórico da conversa.
+- Envio da refeição com `Enter`, preservando `Shift+Enter` para quebra de linha.
+- Exclusão individual do histórico, limpeza completa dos registros e exclusão da própria conta.
+- Políticas operacionais de retenção, privacidade, segurança, rotação e recuperação documentadas.
+- CI ampliada e deploys de staging e produção definidos no GitHub Actions.
+
+Leia as [notas completas da v0.9.0-alpha](docs/releases/v0.9.0-alpha.md).
+
+## [0.8.0-alpha] - 2026-08-31
+
+- Experimento fechado com solicitação pública, revisão administrativa e acesso por aprovação.
+- Hook de admissão no Supabase Auth e RLS condicionada a uma concessão ativa.
+- Notificações por Mailpit no ambiente local e Resend no ambiente hospedado.
+- Staging reproduzível no Supabase e frontend publicado com segurança na Vercel.
+
+Leia as [notas completas da v0.8.0-alpha](docs/releases/v0.8.0-alpha.md).
+
 ## [0.7.0-alpha] - 2026-08-31
 
 - Supabase Auth por link mágico antes do onboarding e dados associados à conta.

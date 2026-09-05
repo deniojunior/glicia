@@ -36,6 +36,7 @@ describe("ConversationSession", () => {
 
     const completed = await subject.submit("150, seta estável, almoço");
     expect(subject.snapshot.state).toBe("awaiting_confirmation");
+    expect(subject.snapshot).toMatchObject({ ai_provider: "fake", ai_model: "scripted" });
     expect(subject.confirm()).toBe(completed);
     expect(subject.snapshot.state).toBe("confirmed");
   });
@@ -59,7 +60,7 @@ describe("ConversationSession", () => {
     const subject = session([new Error("falha fictícia"), turn(false)]);
 
     await expect(subject.submit("Mensagem que falha")).rejects.toThrow("falha fictícia");
-    expect(subject.snapshot).toMatchObject({ state: "ready", history: [], current_turn: null });
+    expect(subject.snapshot).toMatchObject({ state: "ready", history: [], current_turn: null, ai_provider: null, ai_model: null });
 
     await subject.submit("Nova tentativa");
     expect(subject.snapshot.state).toBe("collecting");
@@ -106,5 +107,30 @@ describe("ConversationSession", () => {
       "preciso",
       "rapido"
     ]);
+  });
+
+  it("aceita uma refeição manual completa sem chamar o provedor", () => {
+    const provider = new ScriptedAiProvider([]);
+    const subject = new ConversationSession(provider, "preciso");
+    const manualTurn = turn(true, "Dados informados manualmente.");
+
+    subject.submitManual("Arroz, feijão e frango", manualTurn);
+
+    expect(provider.receivedRequests).toHaveLength(0);
+    expect(subject.snapshot).toMatchObject({
+      state: "awaiting_confirmation",
+      ai_provider: "manual",
+      ai_model: "deterministic"
+    });
+    expect(subject.snapshot.history[0]?.user_message).toBe("Arroz, feijão e frango");
+  });
+
+  it("rejeita uma refeição manual incompleta", () => {
+    const subject = session([]);
+
+    expect(() => subject.submitManual("Refeição", turn(false))).toThrow(
+      "Preencha todos os dados da refeição manual"
+    );
+    expect(subject.snapshot.state).toBe("ready");
   });
 });
