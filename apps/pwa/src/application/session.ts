@@ -160,7 +160,8 @@ export class ConversationSession {
 
 export function createConversationTurn(
   reply: string,
-  fields: Partial<Omit<ConversationTurn, "reply" | "food_memory_updates">> & {
+  fields: Partial<Omit<ConversationTurn, "reply" | "food_memory_updates" | "meal_items">> & {
+    meal_items?: ConversationTurn["meal_items"];
     food_memory_updates?: readonly FoodMemoryUpdate[];
   } = {}
 ): ConversationTurn {
@@ -170,6 +171,7 @@ export function createConversationTurn(
     glucose: fields.glucose ?? null,
     glucose_trend: fields.glucose_trend ?? null,
     meal_type: fields.meal_type ?? null,
+    meal_items: fields.meal_items ?? [],
     food_memory_updates: fields.food_memory_updates ?? []
   };
 }

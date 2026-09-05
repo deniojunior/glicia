@@ -22,7 +22,7 @@ export function ManualMealForm({ onSubmit, onCancel }: {
     event.preventDefault();
     try {
       if (!description.trim()) throw new Error("Descreva brevemente a refeição.");
-      onSubmit(description.trim(), createManualMealTurn(input));
+      onSubmit(description.trim(), createManualMealTurn(input, description));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Confira os dados informados.");
     }

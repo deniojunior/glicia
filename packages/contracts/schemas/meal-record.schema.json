@@ -37,6 +37,19 @@
     "meal_type": {
       "enum": ["CAFE_DA_MANHA", "ALMOCO", "CAFE_DA_TARDE", "JANTAR", "CEIA"]
     },
+    "meal_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "portion", "carbohydrates"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "portion": { "type": "string", "minLength": 1 },
+          "carbohydrates": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
     "carbohydrates": { "type": "number", "minimum": 0 },
     "glucose": { "type": "number", "exclusiveMinimum": 0 },
     "glucose_trend": {

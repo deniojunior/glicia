@@ -1,5 +1,5 @@
 begin;
-select plan(33);
+select plan(45);
 
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.profiles'::regclass),
@@ -237,6 +237,68 @@ select is(
   'a retenção remove solicitações sem conta após 90 dias'
 );
 reset role;
+
+select ok(
+  exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'meal_records' and column_name = 'meal_items'
+  ),
+  'o histórico armazena os itens estruturados da refeição'
+);
+select ok(
+  (select is_nullable = 'NO' and column_default = '''[]''::jsonb'
+   from information_schema.columns
+   where table_schema = 'public' and table_name = 'meal_records' and column_name = 'meal_items'),
+  'itens da refeição são obrigatórios e registros antigos recebem uma lista vazia'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.meal_records'::regclass
+      and conname = 'meal_records_meal_items_array'
+      and contype = 'c'
+  ),
+  'meal_items possui uma restrição de formato no banco'
+);
+select ok(
+  to_regclass('public.meal_records_user_type_created_idx') is not null,
+  'a consulta contextual possui índice por pessoa, tipo e data'
+);
+select ok(
+  has_function_privilege('service_role', 'public.access_entry_state_from_edge(text,text)', 'EXECUTE')
+  and not has_function_privilege('authenticated', 'public.access_entry_state_from_edge(text,text)', 'EXECUTE')
+  and not has_function_privilege('anon', 'public.access_entry_state_from_edge(text,text)', 'EXECUTE'),
+  'somente service_role consulta o estado de entrada por e-mail'
+);
+
+insert into public.access_requests (email_normalized, status, reviewed_at)
+values ('recusada@example.test', 'rejected', now());
+
+select is(public.access_entry_state_from_edge('nova@example.test', repeat('1', 64)), 'new', 'um e-mail desconhecido inicia como novo');
+select is(public.access_entry_state_from_edge('conta-bloqueada@example.test', repeat('2', 64)), 'pending', 'uma solicitação existente permanece pendente');
+select is(public.access_entry_state_from_edge('recusada@example.test', repeat('3', 64)), 'rejected', 'uma solicitação recusada não volta à lista');
+select is(public.access_entry_state_from_edge('candidato@example.test', repeat('4', 64)), 'approved', 'uma aprovação sem conta já permite o envio do código');
+select is(public.access_entry_state_from_edge('CONTA-A@example.test', repeat('5', 64)), 'approved', 'uma conta com concessão ativa é reconhecida com e-mail normalizado');
+
+update public.app_access_grants
+set revoked_at = now()
+where user_id = '11111111-1111-4111-8111-111111111111';
+
+select is(public.access_entry_state_from_edge('conta-a@example.test', repeat('6', 64)), 'revoked', 'uma concessão revogada bloqueia uma conta existente');
+
+do $$
+begin
+  for attempt in 1..10 loop
+    perform public.access_entry_state_from_edge('limite@example.test', repeat('7', 64));
+  end loop;
+end;
+$$;
+
+select is(
+  public.access_entry_state_from_edge('limite@example.test', repeat('7', 64)),
+  'rate_limited',
+  'a consulta pública limita tentativas repetidas sem armazenar o e-mail em texto aberto'
+);
 
 select * from finish();
 rollback;

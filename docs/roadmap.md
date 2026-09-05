@@ -155,9 +155,9 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.7.0-alpha` | Plataforma Supabase, conta e BYOK seguro. | Infraestrutura versionada, autenticação por e-mail, PostgreSQL/RLS, conexão OpenAI cifrada e proxy em Edge Function. Concluída. |
 | `v0.8.0-alpha` | Acesso experimental controlado. | Solicitação pública, revisão administrativa autenticada, criação de conta bloqueada para e-mails não aprovados, notificações e login por magic link. Concluída. |
 | `v0.9.0-alpha` | Credencial central, segurança, CI/CD, privacidade e contingência. | BYOK removido da experiência, chave do projeto nos secrets do backend, CI obrigatória, deploy automatizado em staging, promoção protegida para produção, exclusão por conta, recuperação operacional e modo manual sem IA. Concluída. |
-| `v0.10.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
-| `v0.11.0-alpha` | Acesso fluido e histórico contextual. | Entrada única por e-mail, estados de aprovação coerentes, OTP dentro da PWA, prova de passkeys e reutilização confirmada de refeições anteriores sem copiar glicemia ou dose. |
-| `v0.12.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
+| `v0.10.0-alpha` | Acesso fluido e histórico contextual. | Entrada única por e-mail, estados de aprovação coerentes, OTP dentro da PWA, prova de passkeys e reutilização confirmada de refeições anteriores sem copiar glicemia ou dose. Concluída; o staging envia pelo domínio verificado `glicia.app`. |
+| `v0.11.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
+| `v0.12.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
 | `v0.13.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
 | `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
 

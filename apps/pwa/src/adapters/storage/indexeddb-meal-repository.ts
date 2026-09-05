@@ -7,6 +7,7 @@ const MEMORY_KEY = "food-memory";
 export class IndexedDbMealRepository implements MealHistoryRepository, FoodMemoryRepository {
   public async saveRecord(record: MealRecord): Promise<void> { await this.put(record, record.id); }
   public async list(): Promise<readonly MealRecord[]> { return (await this.values<MealRecord>()).sort((a, b) => b.created_at.localeCompare(a.created_at)); }
+  public async findBetween(from: string, to: string, mealType?: MealRecord["meal_type"]): Promise<readonly MealRecord[]> { return (await this.list()).filter((record) => record.created_at >= from && record.created_at < to && (!mealType || record.meal_type === mealType)); }
   public async deleteRecord(recordId: string): Promise<void> { await this.delete(recordId); }
   public async clearRecords(): Promise<void> { for (const record of await this.list()) await this.delete(record.id); }
   public async load(): Promise<Readonly<Record<string, string>>> { return (await this.get<Record<string, string>>(MEMORY_KEY)) ?? {}; }

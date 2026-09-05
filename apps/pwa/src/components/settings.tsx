@@ -24,6 +24,7 @@ export function Settings({ preferences, onSave, onSignOut, onDeleteAccount, onBa
   const [message, setMessage] = useState<string | null>(null);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,6 +44,13 @@ export function Settings({ preferences, onSave, onSignOut, onDeleteAccount, onBa
     catch (error) { setMessage(error instanceof Error ? error.message : "Não foi possível excluir sua conta."); setIsDeleting(false); }
   }
 
+  async function signOut() {
+    setIsSigningOut(true);
+    setMessage(null);
+    try { await onSignOut(); }
+    catch (error) { setMessage(error instanceof Error ? error.message : "Não foi possível sair neste dispositivo."); setIsSigningOut(false); }
+  }
+
   return <main className="onboarding-shell">
     <header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span><button className="text-action" type="button" onClick={onBack}>Voltar</button></header>
     <section className="setup-content" aria-labelledby="settings-title">
@@ -54,7 +62,7 @@ export function Settings({ preferences, onSave, onSignOut, onDeleteAccount, onBa
         <div className="mode-selector" aria-label="Modo de interação"><button className={draft.interaction_mode === "preciso" ? "selected" : ""} type="button" onClick={() => setDraft((current) => ({ ...current, interaction_mode: "preciso" as InteractionMode }))}>Preciso</button><button className={draft.interaction_mode === "rapido" ? "selected" : ""} type="button" onClick={() => setDraft((current) => ({ ...current, interaction_mode: "rapido" as InteractionMode }))}>Rápido</button></div>
         <button className="primary-action" type="submit">Salvar alterações</button>
       </form>
-      <button className="text-action account-sign-out" type="button" onClick={() => void onSignOut()}>Sair da conta</button>
+      <button className="text-action account-sign-out" type="button" disabled={isSigningOut} onClick={() => void signOut()}>{isSigningOut ? "Saindo…" : "Sair da conta"}</button>
       <section className="danger-zone" aria-labelledby="delete-account-title"><h2 id="delete-account-title">Excluir conta e dados</h2><p>Remove definitivamente configurações, memória alimentar, histórico e acesso. Esta ação não pode ser desfeita.</p><label htmlFor="delete-confirmation">Digite EXCLUIR para confirmar</label><input id="delete-confirmation" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} autoComplete="off" /><button className="danger-action" type="button" disabled={deleteConfirmation !== "EXCLUIR" || isDeleting} onClick={() => void deleteAccount()}>{isDeleting ? "Excluindo…" : "Excluir minha conta"}</button></section>
       {message ? <p className="status-message" role="status">{message}</p> : null}
     </section>

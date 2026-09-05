@@ -36,7 +36,7 @@ As Edge Functions de admissão usam:
 | `PUBLIC_APP_URL` | staging e produção | URL usada nos links de revisão e entrada. |
 | `GLICIA_ADMIN_EMAIL` | staging e produção | Destinatário institucional das novas solicitações. |
 | `GLICIA_EMAIL_FROM` | staging e produção | Remetente pertencente a um domínio verificado. |
-| `RESEND_API_KEY` | staging e produção | Credencial do adaptador de e-mail transacional. |
+| `RESEND_API_KEY` | staging e produção | Credencial do adaptador que envia notificações e códigos de acesso. |
 | `MAILPIT_API_URL` | local, opcional | API do Mailpit quando a porta padrão não puder ser usada. |
 | `OPENAI_API_KEY` | local, staging e produção | Credencial central lida somente por `ai-chat`. |
 | `OPENAI_MODEL` | local, staging e produção | Modelo selecionado pelo operador. |
@@ -47,3 +47,7 @@ orienta a tela de login administrativo; o segundo define quem recebe as notifica
 O desenvolvimento local seleciona Mailpit automaticamente. Produção falha de forma segura se o
 Resend ou o remetente não estiverem configurados; as chaves devem ser gravadas com o mecanismo de
 secrets do Supabase, nunca em migrations ou no Git.
+
+O OTP é gerado pelo Supabase Auth na Edge Function e entregue pelo mesmo adaptador de e-mail da
+Glicia. Não é necessário personalizar o template de Auth nem configurar o SMTP padrão do
+Supabase. O link de contingência somente aceita destinos na origem definida por `PUBLIC_APP_URL`.

@@ -2,6 +2,18 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.10.0-alpha] - 2026-09-05
+
+- Entrada única por e-mail com estados de aprovação, confirmação antes da lista e aviso de espera.
+- OTP digitável dentro da PWA, entregue pela Edge Function, com magic link automático como contingência.
+- Logout direto na conversa, limitado ao dispositivo atual e mantido também nos ajustes.
+- Limites de consulta por hash do e-mail e do cliente, sem expor a fila diretamente ao navegador.
+- Reutilização segura de refeições de ontem com escolha do registro e novos dados de glicose.
+- Composição estruturada por alimento e porção no contrato e no histórico remoto.
+- Prova de passkeys documentada; adoção adiada enquanto a integração do Supabase permanecer beta.
+
+Leia as [notas completas da v0.10.0-alpha](docs/releases/v0.10.0-alpha.md).
+
 ## [0.9.0-alpha] - 2026-09-05
 
 - Credencial e modelo da OpenAI centralizados nos secrets do backend, sem BYOK na experiência.

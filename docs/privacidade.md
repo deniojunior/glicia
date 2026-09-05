@@ -14,6 +14,7 @@ pedidos de acesso ou exclusão.
 | Solicitação pendente ou recusada | Até 90 dias após a última solicitação; a limpeza é uma rotina operacional do piloto. |
 | Credenciais individuais antigas | Removidas na migration da v0.9; novas credenciais BYOK não são aceitas. |
 | Logs técnicos | Sem conteúdo de saúde ou credenciais e pelo menor período oferecido pelo plano contratado. |
+| Limites da tela de entrada | Hashes do e-mail e do cliente; janelas com mais de um dia são eliminadas na consulta seguinte e não guardam o endereço em texto aberto. |
 
 Apagar o histórico não altera parâmetros ou memória alimentar. **Excluir minha conta** remove de
 forma permanente o usuário do Auth, preferências, memória, refeições, concessões administrativas

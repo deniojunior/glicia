@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { AccessServiceError, type AccessRequestStatus, type AccessRequestSummary, type AccessService } from "../../application";
+import { AccessServiceError, type AccessEntryState, type AccessRequestStatus, type AccessRequestSummary, type AccessService, type LoginDelivery } from "../../application";
 
 type AccessRequestRow = {
   id: string;
@@ -16,22 +16,40 @@ type AccessRequestRow = {
 export class SupabaseAccessService implements AccessService {
   constructor(private readonly client: SupabaseClient) {}
 
+  async checkAccess(email: string): Promise<AccessEntryState> {
+    const { data, error } = await this.client.functions.invoke("request-access", {
+      body: { email, action: "check" }
+    });
+    if (error || !isRecord(data) || !isAccessEntryState(data.state)) {
+      throw new AccessServiceError("check_failed");
+    }
+    return data.state;
+  }
+
   async requestAccess(email: string): Promise<void> {
-    const { error } = await this.client.functions.invoke("request-access", { body: { email } });
+    const { error } = await this.client.functions.invoke("request-access", {
+      body: { email, action: "request" }
+    });
     if (error) throw new AccessServiceError("request_failed");
   }
 
-  async sendLoginLink(email: string, redirectTo: string): Promise<void> {
-    const { error } = await this.client.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: redirectTo }
+  async sendLoginCode(email: string, redirectTo?: string): Promise<LoginDelivery> {
+    const { data, error } = await this.client.functions.invoke("request-access", {
+      body: { email, action: "login_code", redirectTo }
     });
-    if (!error) return;
-    const normalizedMessage = error.message.toLocaleLowerCase("pt-BR");
-    const code = normalizedMessage.includes("não aprovado") || normalizedMessage.includes("not approved")
-      ? "not_approved"
-      : "login_failed";
-    throw new AccessServiceError(code);
+    if (!error && isRecord(data) && data.sent === true) return "code";
+
+    const { error: fallbackError } = await this.client.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: true, emailRedirectTo: redirectTo }
+    });
+    if (!fallbackError) return "magic_link";
+    throw new AccessServiceError("login_failed");
+  }
+
+  async verifyLoginCode(email: string, token: string): Promise<void> {
+    const { error } = await this.client.auth.verifyOtp({ email, token, type: "email" });
+    if (error) throw new AccessServiceError("invalid_code");
   }
 
   async hasApprovedAccess(userId: string): Promise<boolean> {
@@ -57,6 +75,14 @@ export class SupabaseAccessService implements AccessService {
     });
     if (error) throw new AccessServiceError("admin_failed");
   }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isAccessEntryState(value: unknown): value is AccessEntryState {
+  return typeof value === "string" && ["new", "pending", "approved", "rejected", "revoked"].includes(value);
 }
 
 function isAccessRequestList(value: unknown): value is { requests: AccessRequestRow[] } {

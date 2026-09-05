@@ -12,7 +12,7 @@ uma auditoria independente antes de ampliar o acesso.
 - A PWA chama Edge Functions autenticadas; `ai-chat` chama a OpenAI e não registra o corpo da
   conversa. O cálculo de dose continua determinístico no navegador após confirmação humana.
 
-## Controles da v0.9
+## Controles até a v0.10
 
 | Risco | Controle atual |
 | --- | --- |
@@ -22,10 +22,18 @@ uma auditoria independente antes de ampliar o acesso.
 | XSS e conteúdo de IA | Markdown sem HTML, CSP, bloqueio de frames e política restrita de origens. |
 | Exclusão incompleta | Remoção do usuário em Auth e cascata transacional para dados, concessão e e-mail de acesso. |
 | Deploy não revisado | CI sem secrets, staging após CI e produção por tag em Environment protegido. |
+| Enumeração e abuso da entrada | Consulta por Edge Function, limites de 15 minutos por hash do e-mail e do cliente e OTP emitido somente após nova confirmação do estado aprovado. |
+| Redirecionamento do link de entrada | O destino do magic link de contingência precisa ter a mesma origem de `PUBLIC_APP_URL`. |
 
 Não registrar tokens, cabeçalhos de autorização, mensagens, refeições, glicemias ou respostas do
 provedor em logs. Para diagnosticar falhas, use apenas horário, função, status HTTP, código interno
 e identificadores técnicos que não revelem conteúdo.
+
+A resposta da entrada diferencia os estados porque essa informação é necessária à experiência
+solicitada. Isso permite inferir se um e-mail está na fila; o piloto aceita o risco residual com
+limites por e-mail e cliente. A tabela privada de limites guarda somente hashes, elimina janelas
+com mais de um dia na consulta seguinte e não é exposta à Data API. Uma ampliação pública exigirá
+proteção especializada na borda.
 
 ## Rotação da credencial central
 
@@ -42,4 +50,4 @@ rotacionados quando um mantenedor perder acesso ou houver suspeita de exposiçã
 
 O piloto ainda não possui quota por pessoa, limite global de custo, classificação de intenção nem
 defesas específicas contra prompt injection. O acesso aprovado reduz exposição, mas não elimina
-esses riscos. Eles pertencem à `v0.10.0-alpha` e devem ser concluídos antes de ampliar o piloto.
+esses riscos. Eles pertencem à `v0.12.0-alpha` e devem ser concluídos antes de ampliar o piloto.

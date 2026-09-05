@@ -65,6 +65,12 @@ contas sem aprovação e todas as Edge Functions autenticadas verificam também 
 Na `v0.9.0-alpha`, `delete-account` remove a conta e seus dados, e o modo manual permite concluir
 o fluxo quando o provedor de IA estiver indisponível.
 
+Na `v0.10.0-alpha`, a mesma função `request-access` consulta o estado de admissão e gera, por meio
+da API administrativa do Auth, um OTP somente para endereços aprovados. A entrega usa o adaptador
+de e-mail da Glicia: Mailpit localmente e Resend nos ambientes hospedados. Assim, o login digitável
+não depende de personalizar o template ou o SMTP padrão do Supabase; o e-mail inclui um magic link
+como contingência. A consulta pública tem limites por hash do e-mail e do cliente.
+
 ```bash
 cd apps/pwa
 npm ci
@@ -86,7 +92,7 @@ Git.
 
 O `npm run supabase:start` usa os containers gerenciados pela Supabase CLI — PostgreSQL, Auth,
 Data API, Edge Functions, Studio e Mailpit — e não acessa o projeto remoto. No fluxo local, abra
-`http://127.0.0.1:54324` para ler o magic link interceptado pelo Mailpit. Use
+`http://127.0.0.1:54324` para ler o código ou o magic link interceptado pelo Mailpit. Use
 `npm run supabase:stop` quando terminar; os dados locais são preservados.
 As notificações de solicitação e decisão também chegam ao Mailpit pela API HTTP local. Em
 produção, copie `supabase/.env.example`, configure URL pública, remetente verificado e chave
@@ -94,8 +100,8 @@ Resend, adicione a chave e o modelo centrais da OpenAI e envie esses valores com
 Edge Functions. Nunca use o prefixo `VITE_` para esses valores.
 Cadastre a URL pública da PWA e a URL local de desenvolvimento na lista de Redirect URLs do
 Supabase Auth; o magic link só retorna para endereços permitidos pelo projeto.
-O `supabase/config.toml` usa `https://glicia-ten.vercel.app/` como Site URL de staging e
-mantém `localhost` e `127.0.0.1` na lista de Redirect URLs para desenvolvimento híbrido. Revise o
+O `supabase/config.toml` usa `https://www.glicia.app/` como Site URL de staging e mantém também o
+domínio sem `www`, a URL antiga da Vercel, `localhost` e `127.0.0.1` na lista de Redirect URLs para desenvolvimento híbrido. Revise o
 diff de `npm run staging:deploy:config` antes de confirmar mudanças de Auth.
 
 O link de revisão exige a conta definida em `VITE_GLICIA_ADMIN_EMAIL`, não o e-mail da pessoa que

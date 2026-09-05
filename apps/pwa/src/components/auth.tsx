@@ -7,100 +7,148 @@ const mailpitUrl = import.meta.env.DEV
   ? import.meta.env.VITE_MAILPIT_URL || "http://127.0.0.1:54324"
   : null;
 
-type AuthMode = "request" | "login";
+type AuthStep = "email" | "consent" | "otp" | "link_sent" | "pending" | "unavailable";
 
 type AdminLogin = {
   email: string;
   redirectTo: string;
 };
 
-export function Auth({ service, initialMode, adminLogin }: { service: AccessService; initialMode?: AuthMode; adminLogin?: AdminLogin }) {
-  const [mode, setMode] = useState<AuthMode>(adminLogin ? "login" : initialMode ?? initialAuthMode());
+export function Auth({ service, adminLogin }: { service: AccessService; adminLogin?: AdminLogin }) {
+  const [step, setStep] = useState<AuthStep>("email");
   const [email, setEmail] = useState(adminLogin?.email ?? "");
-  const [status, setStatus] = useState<string | null>(null);
+  const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const normalizedEmail = email.trim().toLocaleLowerCase("pt-BR");
 
-  async function submit(event: FormEvent<HTMLFormElement>) {
+  async function identify(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    await run(async () => {
+      if (adminLogin) {
+        await sendCode(normalizedEmail);
+        return;
+      }
+      const state = await service.checkAccess(normalizedEmail);
+      if (state === "approved") await sendCode(normalizedEmail);
+      else if (state === "new") setStep("consent");
+      else if (state === "pending") setStep("pending");
+      else setStep("unavailable");
+    }, "Não foi possível verificar o acesso agora. Tente novamente.");
+  }
+
+  async function requestAccess() {
+    await run(async () => {
+      await service.requestAccess(normalizedEmail);
+      setStep("pending");
+    }, "Não foi possível entrar na lista agora. Tente novamente.");
+  }
+
+  async function verifyCode(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await run(async () => {
+      await service.verifyLoginCode(normalizedEmail, token.replace(/\s/g, ""));
+    }, "Código inválido ou expirado. Confira o e-mail ou peça um novo código.");
+  }
+
+  async function sendCode(targetEmail: string) {
+    const delivery = await service.sendLoginCode(targetEmail, adminLogin?.redirectTo ?? window.location.href);
+    setToken("");
+    setStep(delivery === "code" ? "otp" : "link_sent");
+  }
+
+  async function resendCode() {
+    await run(() => sendCode(normalizedEmail), "Não foi possível reenviar o código agora.");
+  }
+
+  async function run(action: () => Promise<void>, fallbackMessage: string) {
     setIsSending(true);
     setError(null);
-    setStatus(null);
     try {
-      if (mode === "request") {
-        await service.requestAccess(email.trim());
-        setStatus("Solicitação recebida. Avisaremos por e-mail quando seu acesso for analisado.");
-      } else {
-        const redirectTo = adminLogin?.redirectTo ?? new URL(import.meta.env.BASE_URL, window.location.origin).toString();
-        await service.sendLoginLink(email.trim(), redirectTo);
-        setStatus(adminLogin
-          ? "Enviamos o link para a conta administradora. Abra-o neste aparelho para voltar à revisão."
-          : "Enviamos um link para entrar. Abra-o neste aparelho para continuar.");
-      }
+      await action();
     } catch (caught) {
       if (caught instanceof AccessServiceError && caught.code === "not_approved") {
-        setError(adminLogin
-          ? "A conta administradora ainda não foi provisionada neste ambiente. Confira a configuração do acesso administrativo."
-          : "Este e-mail ainda não foi aprovado. Solicite acesso para participar do experimento.");
+        setStep("unavailable");
+        setError("Este e-mail ainda não possui acesso aprovado.");
       } else {
-        setError(mode === "request"
-          ? "Não foi possível enviar sua solicitação. Tente novamente."
-          : "Não foi possível enviar o link. Confira o e-mail e tente novamente.");
+        setError(fallbackMessage);
       }
     } finally {
       setIsSending(false);
     }
   }
 
-  function changeMode(next: AuthMode) {
-    setMode(next);
-    setStatus(null);
+  function restart() {
+    if (!adminLogin) setEmail("");
+    setToken("");
     setError(null);
+    setStep("email");
   }
 
-  const isRequest = mode === "request";
   return (
     <main className="onboarding-shell">
       <header className="app-header">
         <span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span>
       </header>
       <section className="setup-content auth-content" aria-labelledby="auth-title">
-        <h1 id="auth-title">{adminLogin ? "Acesso administrativo." : isRequest ? "Peça acesso à Glicia." : "Entre na Glicia."}</h1>
-        <p>{adminLogin
-          ? "Esta revisão só pode ser aberta pela conta administradora. Enviaremos um link de acesso para o e-mail abaixo."
-          : isRequest
-          ? "Estamos liberando a experiência para um grupo pequeno. Cadastre seu e-mail para participar."
-          : "Use o e-mail que foi aprovado. Você receberá um link seguro, sem precisar de senha."}</p>
+        {step === "email" ? <>
+          <h1 id="auth-title">{adminLogin ? "Acesso administrativo." : "Entre na Glicia."}</h1>
+          <p>{adminLogin ? "Confirme sua conta administradora para revisar solicitações." : "Informe seu e-mail. Se o acesso estiver liberado, enviaremos um código para entrar."}</p>
+          <form onSubmit={identify}>
+            <label htmlFor="email">{adminLogin ? "E-mail do administrador" : "Seu e-mail"}</label>
+            <input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" required readOnly={Boolean(adminLogin)} disabled={isSending} autoFocus={!adminLogin} />
+            <button className="primary-action" type="submit" disabled={isSending}>{isSending ? "Verificando…" : "Continuar"}</button>
+          </form>
+        </> : null}
 
-        {!adminLogin ? <div className="auth-mode" aria-label="Escolha como continuar">
-          <button type="button" className={isRequest ? "selected" : ""} aria-pressed={isRequest} onClick={() => changeMode("request")}>Solicitar acesso</button>
-          <button type="button" className={!isRequest ? "selected" : ""} aria-pressed={!isRequest} onClick={() => changeMode("login")}>Já fui aprovado</button>
-        </div> : null}
+        {step === "consent" ? <>
+          <h1 id="auth-title">Acesso por aprovação.</h1>
+          <p><strong>{normalizedEmail}</strong> ainda não está na lista. Quer solicitar participação no experimento da Glicia?</p>
+          <div className="auth-actions"><button className="primary-action" type="button" disabled={isSending} onClick={() => void requestAccess()}>{isSending ? "Enviando…" : "Entrar na lista"}</button><button className="text-action" type="button" disabled={isSending} onClick={restart}>Usar outro e-mail</button></div>
+        </> : null}
 
-        <form onSubmit={submit}>
-          <label htmlFor="email">{adminLogin ? "E-mail do administrador" : "Seu e-mail"}</label>
-          <input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" required readOnly={Boolean(adminLogin)} disabled={isSending} />
-          <button className="primary-action" type="submit" disabled={isSending}>{isSending ? "Enviando…" : isRequest ? "Pedir acesso" : adminLogin ? "Enviar link administrativo" : "Enviar link para entrar"}</button>
-        </form>
+        {step === "pending" ? <>
+          <h1 id="auth-title">Você está na lista.</h1>
+          <p>A solicitação de <strong>{normalizedEmail}</strong> aguarda aprovação. Avisaremos por e-mail quando o acesso for liberado.</p>
+          <button className="text-action auth-back" type="button" onClick={restart}>Usar outro e-mail</button>
+        </> : null}
 
-        {status ? <div className="auth-success" role="status"><p>{status}</p>{mailpitUrl ? <a className="mailpit-link" href={mailpitUrl} target="_blank" rel="noreferrer">Abrir Mailpit</a> : null}</div> : null}
-        {error ? <p className="error-message" role="alert">{error}</p> : null}
-        <p className="auth-note">{adminLogin
-          ? "O e-mail da pessoa que pediu acesso não entra nesta área administrativa."
-          : "A Glicia está em fase experimental. O cadastro não garante aprovação imediata."}</p>
+        {step === "unavailable" ? <>
+          <h1 id="auth-title">Acesso indisponível.</h1>
+          <p>Este e-mail não possui uma liberação ativa para usar a Glicia.</p>
+          <button className="text-action auth-back" type="button" onClick={restart}>Usar outro e-mail</button>
+        </> : null}
+
+        {step === "otp" ? <>
+          <h1 id="auth-title">Digite o código.</h1>
+          <p>Enviamos um código para <strong>{normalizedEmail}</strong>. Digite-o aqui para continuar sem sair da PWA.</p>
+          <form onSubmit={verifyCode}>
+            <label htmlFor="login-code">Código de acesso</label>
+            <input id="login-code" className="otp-input" inputMode="numeric" autoComplete="one-time-code" value={token} onChange={(event) => setToken(event.target.value.replace(/\D/g, "").slice(0, 8))} minLength={6} maxLength={8} pattern="[0-9]{6,8}" required disabled={isSending} autoFocus />
+            <button className="primary-action" type="submit" disabled={isSending || token.length < 6}>{isSending ? "Entrando…" : "Entrar"}</button>
+          </form>
+          <div className="auth-secondary-actions"><button className="text-action" type="button" disabled={isSending} onClick={() => void resendCode()}>Enviar novo código</button><button className="text-action" type="button" disabled={isSending} onClick={restart}>Trocar e-mail</button></div>
+          {mailpitUrl ? <a className="mailpit-link" href={mailpitUrl} target="_blank" rel="noreferrer">Abrir Mailpit</a> : null}
+        </> : null}
+
+        {step === "link_sent" ? <>
+          <h1 id="auth-title">Abra o link enviado.</h1>
+          <p>O código não pôde ser entregue agora. Enviamos um link seguro para <strong>{normalizedEmail}</strong> como contingência.</p>
+          <div className="auth-secondary-actions"><button className="text-action" type="button" disabled={isSending} onClick={() => void resendCode()}>Tentar o código novamente</button><button className="text-action" type="button" disabled={isSending} onClick={restart}>Trocar e-mail</button></div>
+          {mailpitUrl ? <a className="mailpit-link" href={mailpitUrl} target="_blank" rel="noreferrer">Abrir Mailpit</a> : null}
+        </> : null}
+
+        {error ? <p className="error-message auth-error" role="alert">{error}</p> : null}
+        <p className="auth-note">{adminLogin ? "Somente a conta administradora pode abrir esta revisão." : "A Glicia está em fase experimental e o acesso depende de aprovação."}</p>
       </section>
     </main>
   );
 }
 
 export function AccessNotApproved({ onSignOut }: { onSignOut(): Promise<void> }) {
-  return <main className="onboarding-shell"><header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span></header><section className="setup-content" aria-labelledby="access-title"><h1 id="access-title">Acesso ainda não liberado.</h1><p>Esta conta não possui uma aprovação ativa. Saia e solicite acesso com o e-mail que deseja utilizar.</p><button className="primary-action compact-action" type="button" onClick={() => void onSignOut()}>Voltar à entrada</button></section></main>;
+  return <main className="onboarding-shell"><header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span></header><section className="setup-content" aria-labelledby="access-title"><h1 id="access-title">Acesso ainda não liberado.</h1><p>Esta conta não possui uma aprovação ativa.</p><button className="primary-action compact-action" type="button" onClick={() => void onSignOut()}>Voltar à entrada</button></section></main>;
 }
 
 export function MissingSupabaseConfiguration() {
   return <main className="onboarding-shell"><header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span></header><section className="setup-content" aria-labelledby="configuration-title"><h1 id="configuration-title">A Glicia ainda não está conectada.</h1><p>Configure a URL e a chave publicável do Supabase para abrir sua conta neste ambiente.</p></section></main>;
-}
-
-function initialAuthMode(): AuthMode {
-  return new URLSearchParams(window.location.search).get("mode") === "login" ? "login" : "request";
 }

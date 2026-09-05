@@ -1,6 +1,6 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.9.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.9.0-alpha.md)
+[![Versão](https://img.shields.io/badge/version-0.10.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.10.0-alpha.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Supabase](https://img.shields.io/badge/PWA-Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](#privacidade-e-dados)
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.9.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado
+**Status:** `v0.10.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -28,9 +28,9 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
   o [guia de staging](docs/staging.md).
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** limites de uso e guardrails de IA na `v0.10.0-alpha`.
+- **Próximo marco:** modelos e múltiplos provedores de IA na `v0.11.0-alpha`.
 
-Leia as [notas da v0.9.0-alpha](docs/releases/v0.9.0-alpha.md) para conhecer as mudanças, os
+Leia as [notas da v0.10.0-alpha](docs/releases/v0.10.0-alpha.md) para conhecer as mudanças, os
 impactos para contribuidores e as limitações atuais.
 
 ## PWA no celular
@@ -40,14 +40,18 @@ Abra a PWA pelo navegador. No Android e em navegadores compatíveis, a Glicia of
 escolha **Adicionar à Tela de Início**. A instalação é opcional; ela não altera a forma de
 configurar ou usar a Glicia.
 
-No primeiro acesso, solicite participação com seu e-mail. Depois da aprovação, escolha **Já fui
-aprovado**, abra o magic link e conclua o onboarding. Preferências, memória alimentar e histórico
-ficam associados à conta. A PWA não pede uma chave OpenAI: a conexão de IA é configurada pelo
-operador no backend e a credencial nunca é enviada ao navegador.
+No primeiro acesso, informe seu e-mail. A Glicia identifica se ele já está aprovado, aguarda análise
+ou ainda precisa entrar na lista. Depois da aprovação, digite o código recebido sem sair da PWA;
+se a entrega do código estiver indisponível, um magic link é enviado como contingência. Preferências,
+memória alimentar e histórico ficam associados à conta. A PWA não pede uma chave OpenAI: a conexão
+de IA é configurada pelo operador no backend e a credencial nunca é enviada ao navegador.
 
 Na conversa, `Enter` envia e `Shift+Enter` cria uma nova linha. Se a IA estiver indisponível ou a
 pessoa já souber o total de carboidratos, **Informar sem IA** mantém a mesma revisão e o mesmo
-cálculo local. Histórico e conta podem ser excluídos pela própria interface.
+cálculo local. Depois de registrar uma refeição, frases como **“vou almoçar a mesma coisa que
+ontem”** recuperam a composição para confirmação, mas sempre exigem glicemia e tendência atuais e
+recalculam a dose. O botão **Sair** na conversa encerra somente a sessão do dispositivo atual;
+histórico e conta podem ser excluídos pela própria interface.
 
 ## Instale com ajuda de uma IA
 

@@ -16,6 +16,14 @@ export class SupabaseMealRepository implements MealHistoryRepository, FoodMemory
     return (data ?? []).map(toMealRecord);
   }
 
+  public async findBetween(from: string, to: string, mealType?: MealRecord["meal_type"]): Promise<readonly MealRecord[]> {
+    let query = this.client.from("meal_records").select("*").eq("user_id", this.userId).gte("created_at", from).lt("created_at", to).order("created_at", { ascending: false });
+    if (mealType) query = query.eq("meal_type", mealType);
+    const { data, error } = await query;
+    if (error) throw new Error("Não foi possível consultar as refeições anteriores.");
+    return (data ?? []).map(toMealRecord);
+  }
+
   public async deleteRecord(recordId: string): Promise<void> {
     const { error } = await this.client.from("meal_records").delete().eq("id", recordId).eq("user_id", this.userId);
     if (error) throw new Error("Não foi possível excluir esta refeição.");
@@ -44,7 +52,7 @@ function toMealRecord(row: Record<string, unknown>): MealRecord {
   const numeric = (value: unknown) => Number(value);
   return {
     id: String(row.id), created_at: String(row.created_at), meal_input: String(row.meal_input), assistant_summary: String(row.assistant_summary),
-    interaction_mode: row.interaction_mode as MealRecord["interaction_mode"], meal_type: row.meal_type as MealRecord["meal_type"],
+    interaction_mode: row.interaction_mode as MealRecord["interaction_mode"], meal_type: row.meal_type as MealRecord["meal_type"], meal_items: Array.isArray(row.meal_items) ? row.meal_items as unknown as MealRecord["meal_items"] : [],
     carbohydrates: numeric(row.carbohydrates), glucose: numeric(row.glucose), glucose_trend: row.glucose_trend as MealRecord["glucose_trend"],
     target_glucose: numeric(row.target_glucose), correction_factor: numeric(row.correction_factor), carbohydrate_ratio: numeric(row.carbohydrate_ratio), basal_morning_units: numeric(row.basal_morning_units),
     correction_dose: numeric(row.correction_dose), carbohydrate_dose: numeric(row.carbohydrate_dose), trend_adjustment: numeric(row.trend_adjustment), calculated_dose: numeric(row.calculated_dose), suggested_dose: numeric(row.suggested_dose),

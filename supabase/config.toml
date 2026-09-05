@@ -8,8 +8,8 @@ major_version = 17
 
 [auth]
 enabled = true
-site_url = "https://glicia-ten.vercel.app/"
-additional_redirect_urls = ["https://glicia-ten.vercel.app/**", "http://localhost:5173/**", "http://127.0.0.1:5173/**"]
+site_url = "https://www.glicia.app/"
+additional_redirect_urls = ["https://www.glicia.app/**", "https://glicia.app/**", "https://glicia-ten.vercel.app/**", "http://localhost:5173/**", "http://127.0.0.1:5173/**"]
 
 [auth.email]
 enable_signup = true

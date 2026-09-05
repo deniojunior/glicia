@@ -26,12 +26,19 @@ export interface FoodMemoryUpdate {
   usual_preparation: string;
 }
 
+export interface MealItem {
+  name: string;
+  portion: string;
+  carbohydrates: number;
+}
+
 export interface ConversationTurn {
   reply: string;
   total_carbohydrates: number | null;
   glucose: number | null;
   glucose_trend: GlucoseTrend | null;
   meal_type: MealType | null;
+  meal_items: readonly MealItem[];
   food_memory_updates: readonly FoodMemoryUpdate[];
 }
 
@@ -74,6 +81,16 @@ function foodMemoryUpdates(value: unknown): readonly FoodMemoryUpdate[] {
   });
 }
 
+function mealItems(value: unknown): readonly MealItem[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!isRecord(item) || typeof item.name !== "string" || typeof item.portion !== "string" || typeof item.carbohydrates !== "number" || item.carbohydrates < 0) return [];
+    const name = item.name.trim();
+    const portion = item.portion.trim();
+    return name && portion ? [{ name, portion, carbohydrates: item.carbohydrates }] : [];
+  });
+}
+
 export function conversationTurnFromResponse(payload: unknown): ConversationTurn {
   const response = isRecord(payload) ? payload : {};
   return {
@@ -85,6 +102,7 @@ export function conversationTurnFromResponse(payload: unknown): ConversationTurn
     glucose: optionalNumber(response.glucose),
     glucose_trend: optionalTrend(response.glucose_trend),
     meal_type: optionalMealType(response.meal_type),
+    meal_items: mealItems(response.meal_items),
     food_memory_updates: foodMemoryUpdates(response.food_memory_updates)
   };
 }

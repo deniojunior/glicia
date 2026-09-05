@@ -10,8 +10,9 @@
 - [Segurança](seguranca.md): modelo de ameaça, isolamento de secrets e rotação.
 - [Privacidade](privacidade.md): dados armazenados, retenção e exclusão.
 - [Operações](operacoes.md): contingência, recuperação e reversão.
+- [Decisões](decisoes/001-passkeys-na-pwa.md): registros de decisões arquiteturais, começando pela prova de passkeys.
 - [Uso](uso.md): fluxo e comandos da versão CLI.
 - [Tabela SBD](tabela-sbd.md): uso da base nutricional.
 - [Aviso sobre dados de terceiros](aviso-dados.md): atribuição e condições da tabela.
 - [Documentação DM1](documentacao_DM1.md): fundamentos clínicos e referências.
-- [Release v0.9.0-alpha](releases/v0.9.0-alpha.md): credencial central, privacidade, contingência e CI/CD.
+- [Release v0.10.0-alpha](releases/v0.10.0-alpha.md): entrada única, OTP e histórico contextual seguro.

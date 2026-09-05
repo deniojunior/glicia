@@ -8,7 +8,7 @@ export interface ManualMealInput {
   mealType: MealType | "";
 }
 
-export function createManualMealTurn(input: ManualMealInput) {
+export function createManualMealTurn(input: ManualMealInput, description = "Refeição informada manualmente") {
   const carbohydrates = requiredNumber(input.carbohydrates, "carboidratos", true);
   const glucose = requiredNumber(input.glucose, "glicemia", false);
   if (!GLUCOSE_TRENDS.includes(input.glucoseTrend as GlucoseTrend)) {
@@ -21,7 +21,8 @@ export function createManualMealTurn(input: ManualMealInput) {
     total_carbohydrates: carbohydrates,
     glucose,
     glucose_trend: input.glucoseTrend as GlucoseTrend,
-    meal_type: input.mealType as MealType
+    meal_type: input.mealType as MealType,
+    meal_items: [{ name: description.trim(), portion: "porção informada", carbohydrates }]
   });
 }
 

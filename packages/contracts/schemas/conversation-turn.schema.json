@@ -40,6 +40,19 @@
         null
       ]
     },
+    "meal_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "portion", "carbohydrates"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "portion": { "type": "string", "minLength": 1 },
+          "carbohydrates": { "type": "number", "minimum": 0 }
+        }
+      }
+    },
     "food_memory_updates": {
       "type": "array",
       "items": {

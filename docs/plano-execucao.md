@@ -452,16 +452,11 @@ Limites próprios de consumo, classificação de intenção e guardrails contra 
 fazem parte deste marco. O piloto aceita temporariamente esse risco porque o acesso permanece
 restrito a pessoas próximas aprovadas pelo autor.
 
-### `v0.10.0` — Limites de uso e guardrails de IA
+### `v0.10.0` — Acesso fluido e histórico contextual
 
-- Implementar quotas diárias por pessoa, limite global de custo e limite de concorrência.
-- Adicionar suspensão administrativa e mecanismo de interrupção emergencial.
-- Tornar as instruções do sistema autoritativas no backend e mitigar prompt injection.
-- Restringir o uso ao fluxo de contagem de carboidratos e rejeitar desvio de finalidade.
-- Limitar entrada e saída, validar o schema no backend e registrar somente métricas não sensíveis.
-- Manter uma suíte de avaliações de abuso e regressão antes de ampliar o piloto.
-
-### `v0.11.0` — Acesso fluido e histórico contextual
+Implementação concluída em 2026-09-05. O staging usa o remetente verificado
+`Glicia <acesso@glicia.app>`; o magic link permanece como contingência operacional do fluxo de
+entrada.
 
 - Substituir o seletor da entrada por um único campo de e-mail e um caso de uso que diferencie
   acesso aprovado, solicitação ausente, pendente, recusada e revogada.
@@ -481,7 +476,7 @@ restrito a pessoas próximas aprovadas pelo autor.
 - Evoluir o contrato do registro para preservar uma composição estruturada reutilizável, com
   migration retrocompatível para registros antigos que tenham somente resumo textual.
 
-### `v0.12.0` — Modelos e múltiplos provedores
+### `v0.11.0` — Modelos e múltiplos provedores
 
 - Transformar a porta de IA em registro de provedores sem alterar domínio ou casos de uso.
 - Isolar as credenciais centrais por provedor nos secrets do backend e aplicar troca somente entre
@@ -489,6 +484,15 @@ restrito a pessoas próximas aprovadas pelo autor.
 - Oferecer uma lista administrativa de modelos aprovados e registrar tecnicamente o modelo usado.
 - Executar avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória,
   recusas de cálculo e situações de segurança.
+
+### `v0.12.0` — Limites de uso e guardrails de IA
+
+- Implementar quotas diárias por pessoa, limite global de custo e limite de concorrência.
+- Adicionar suspensão administrativa e mecanismo de interrupção emergencial.
+- Tornar as instruções do sistema autoritativas no backend e mitigar prompt injection.
+- Restringir o uso ao fluxo de contagem de carboidratos e rejeitar desvio de finalidade.
+- Limitar entrada e saída, validar o schema no backend e registrar somente métricas não sensíveis.
+- Manter uma suíte de avaliações de abuso e regressão antes de ampliar o piloto.
 
 ### `v0.13.0` / Beta fechada
 
@@ -573,7 +577,7 @@ Uma tarefa só está concluída quando:
 
 ## Próximo incremento recomendado
 
-A `v0.9.0-alpha` concluiu a credencial central, privacidade, contingência e CI/CD. O próximo
-incremento é a `v0.10.0-alpha`: adicionar quotas por pessoa, limite global de custo, suspensão
-administrativa, restrição de finalidade e proteção contra prompt injection antes de ampliar o
-piloto fechado.
+A `v0.10.0-alpha` concluiu a entrada única e a reutilização segura de refeições do histórico. O
+próximo incremento é a `v0.11.0-alpha`: cadastrar modelos e múltiplos provedores administrados sem
+expor credenciais ao navegador. Limites e guardrails permanecem obrigatórios na
+`v0.12.0-alpha`, antes de ampliar o piloto fechado.

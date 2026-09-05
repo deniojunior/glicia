@@ -4,12 +4,12 @@ O staging da Glicia usa infraestrutura hospedada e isolada do desenvolvimento lo
 
 | Componente | Staging |
 | --- | --- |
-| PWA | `https://glicia-ten.vercel.app/` |
+| PWA | `https://www.glicia.app/` (domínio canônico; `glicia.app` redireciona) |
 | Supabase | projeto `snsdnxlwdhadrehksati` |
 | Banco, Auth, Vault e Functions | Supabase hospedado |
 | Deploy da PWA | Vercel Hobby integrada ao GitHub |
 | Notificações da Glicia | Resend |
-| Magic links | Supabase Auth |
+| Códigos e links de entrada | Supabase Auth gera; Resend entrega |
 
 O projeto remoto atual é staging, não produção. Um ambiente de produção deverá usar outro projeto
 Supabase, outras chaves e outra URL.
@@ -74,10 +74,14 @@ apps/pwa/node_modules/.bin/supabase secrets set \
 
 São obrigatórios para o fluxo completo de e-mail:
 
-- `PUBLIC_APP_URL=https://glicia-ten.vercel.app`
+- `PUBLIC_APP_URL=https://www.glicia.app`
 - `GLICIA_ADMIN_EMAIL=glicia.app@gmail.com`
 - `GLICIA_EMAIL_FROM`, com remetente verificado no Resend
 - `RESEND_API_KEY`
+
+O domínio `glicia.app` está verificado no Resend. O staging usa
+`GLICIA_EMAIL_FROM="Glicia <acesso@glicia.app>"`, publicado nos secrets do Supabase. Se o
+remetente for alterado, ele deve continuar pertencendo a um domínio verificado no Resend.
 
 Para a conversa também são obrigatórios:
 
@@ -98,7 +102,7 @@ Importe o repositório na Vercel e configure o projeto assim:
 4. Cadastre em **Production** as variáveis `VITE_SUPABASE_URL`,
    `VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_GLICIA_ADMIN_EMAIL` usando os valores de
    `.env.staging.example`.
-5. Faça o deploy e confirme o domínio de produção `https://glicia-ten.vercel.app`.
+5. Faça o deploy e confirme o domínio canônico `https://www.glicia.app`.
 
 A integração Git pode criar uma URL isolada para cada pull request, mas a publicação de `main`
 fica sob responsabilidade do workflow após a CI. O `vercel.json` também mantém o fallback de SPA
@@ -115,9 +119,14 @@ chave OpenAI ou `RESEND_API_KEY` na Vercel.
 3. Confirmar a notificação recebida pelo administrador.
 4. Abrir a revisão, autenticar a conta administrativa e aprovar.
 5. Confirmar a mensagem de aprovação no e-mail solicitado.
-6. Entrar por magic link e concluir o onboarding.
-7. Executar uma refeição fictícia usando a credencial central já configurada no backend.
-8. Confirmar isolamento, histórico e saída da conta.
+6. Informar o e-mail aprovado, digitar o OTP na própria PWA e concluir o onboarding; validar o
+   magic link somente como contingência.
+7. Registrar uma refeição fictícia, encerrar e então pedir “a mesma coisa que ontem”, conferindo
+   que alimentos e carboidratos são recuperados, mas glicemia, tendência e dose não são copiadas.
+8. Executar uma refeição fictícia usando a credencial central já configurada no backend.
+9. Usar **Sair** na conversa, confirmar o retorno à entrada e repetir o login; a sessão de outros
+   dispositivos não deve ser revogada.
+10. Confirmar isolamento e histórico.
 
 Use somente dados fictícios no staging.
 
