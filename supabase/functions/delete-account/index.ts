@@ -1,11 +1,5 @@
 import { authenticateApprovedUser } from "../_shared/auth.ts";
-import { HttpError } from "../_shared/http.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS"
-};
+import { corsHeaders, HttpError, json } from "../_shared/http.ts";
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -25,10 +19,3 @@ Deno.serve(async (request) => {
     return json({ error: "Não foi possível excluir a conta. Tente novamente." }, 500);
   }
 });
-
-function json(body: Record<string, unknown>, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" }
-  });
-}

@@ -1,11 +1,5 @@
 import { authenticateApprovedUser } from "../_shared/auth.ts";
-import { HttpError } from "../_shared/http.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS"
-};
+import { corsHeaders, HttpError, json } from "../_shared/http.ts";
 
 type ChatRequest = {
   messages: readonly { role: "user" | "assistant"; content: string }[];
@@ -65,10 +59,6 @@ Deno.serve(async (request) => {
   const resolvedModel = typeof openAiPayload.model === "string" ? openAiPayload.model : model;
   return new Response(JSON.stringify({ id: openAiPayload.id, output_text: outputText, provider: "openai", model: resolvedModel }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 });
-
-function json(body: Record<string, string>, status = 200): Response {
-  return new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-}
 
 function extractOutputText(payload: Record<string, unknown>): string | null {
   if (typeof payload.output_text === "string") return payload.output_text;

@@ -7,6 +7,7 @@ Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 - Credencial e modelo da OpenAI centralizados nos secrets do backend, sem BYOK na experiência.
 - Modo manual sem IA com a mesma confirmação, cálculo determinístico e histórico da conversa.
 - Envio da refeição com `Enter`, preservando `Shift+Enter` para quebra de linha.
+- Preflight CORS das Edge Functions compatível com os cabeçalhos enviados pelo SDK Supabase.
 - Exclusão individual do histórico, limpeza completa dos registros e exclusão da própria conta.
 - Políticas operacionais de retenção, privacidade, segurança, rotação e recuperação documentadas.
 - CI ampliada e deploys de staging e produção definidos no GitHub Actions.

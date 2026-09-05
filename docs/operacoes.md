@@ -10,6 +10,43 @@
 - **E-mail não recebido:** confira spam, endereço aprovado e configuração do Resend; no ambiente
   local, abra o Mailpit.
 
+## Diagnóstico da integração de IA
+
+No Dashboard do Supabase, abra **Edge Functions → ai-chat → Invocations** e reproduza a falha. A
+invocação mostra status HTTP e duração; a aba **Logs** mostra eventos da plataforma e mensagens
+estruturadas emitidas pela função. Nunca registre chave, token de sessão, cabeçalhos, e-mail,
+glicemia, refeição, prompt ou resposta do provedor.
+
+Interprete primeiro o status da invocação:
+
+- `401`: sessão ausente ou expirada;
+- `403`: conta sem concessão ativa;
+- `400`: payload da conversa inválido;
+- `429`: limite do provedor;
+- `500` ou `503`: configuração ou verificação interna indisponível;
+- `502` ou outro erro do provedor: credencial recusada, modelo ou resposta inválida.
+
+A CLI lista somente nomes e hashes dos secrets, nunca seus valores:
+
+```bash
+apps/pwa/node_modules/.bin/supabase secrets list \
+  --project-ref snsdnxlwdhadrehksati
+```
+
+Para sincronizar novamente o arquivo local ignorado pelo Git e republicar a função:
+
+```bash
+apps/pwa/node_modules/.bin/supabase secrets set \
+  --env-file supabase/.env.staging \
+  --project-ref snsdnxlwdhadrehksati
+
+cd apps/pwa
+npm run staging:deploy:functions
+```
+
+Não cole a chave em comandos, issues, logs ou conversas. Valide uma chave real somente com uma
+requisição fictícia e sem dados de usuário.
+
 ## Recuperação do banco
 
 As migrations em `supabase/migrations` são a fonte versionada do esquema. Antes de uma migration

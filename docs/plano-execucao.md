@@ -461,7 +461,27 @@ restrito a pessoas próximas aprovadas pelo autor.
 - Limitar entrada e saída, validar o schema no backend e registrar somente métricas não sensíveis.
 - Manter uma suíte de avaliações de abuso e regressão antes de ampliar o piloto.
 
-### `v0.11.0` — Modelos e múltiplos provedores
+### `v0.11.0` — Acesso fluido e histórico contextual
+
+- Substituir o seletor da entrada por um único campo de e-mail e um caso de uso que diferencie
+  acesso aprovado, solicitação ausente, pendente, recusada e revogada.
+- Pedir confirmação antes de incluir um novo endereço na lista e impedir duplicação quando já
+  existir uma solicitação pendente.
+- Trocar o magic link principal por OTP digitável dentro da PWA, mantendo link apenas como
+  contingência, sessão renovável e retorno explícito ao app instalado.
+- Limitar tentativas e revisar o risco de enumeração de e-mails antes de expor estados de admissão.
+- Executar uma prova de viabilidade de passkeys/WebAuthn com Supabase, iOS/Safari e
+  Android/Chrome; biometria permanece no dispositivo e não é armazenada pela Glicia.
+- Criar uma consulta de histórico por intervalo temporal, fuso e tipo de refeição, sempre limitada
+  à conta autenticada e coberta por RLS.
+- Resolver expressões como “a mesma coisa que ontem” para candidatos reais, pedir escolha quando
+  houver ambiguidade e confirmar alimentos, porções, data e carboidratos antes de reutilizar.
+- Recolher glicemia e tendência atuais e recalcular a sugestão pelas regras vigentes; nunca copiar
+  a dose sugerida ou aplicada do registro anterior.
+- Evoluir o contrato do registro para preservar uma composição estruturada reutilizável, com
+  migration retrocompatível para registros antigos que tenham somente resumo textual.
+
+### `v0.12.0` — Modelos e múltiplos provedores
 
 - Transformar a porta de IA em registro de provedores sem alterar domínio ou casos de uso.
 - Isolar as credenciais centrais por provedor nos secrets do backend e aplicar troca somente entre
@@ -470,7 +490,7 @@ restrito a pessoas próximas aprovadas pelo autor.
 - Executar avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória,
   recusas de cálculo e situações de segurança.
 
-### `v0.12.0` / Beta fechada
+### `v0.13.0` / Beta fechada
 
 - Matriz real de Android/iOS e navegadores suportados.
 - Auditoria de acessibilidade, teclado, leitor de tela, contraste, zoom e redução de movimento.
@@ -531,6 +551,8 @@ parte da CI de forks e nunca recebem credenciais de contribuidores automaticamen
 | Credencial central | `v0.9.0` | secret apenas no backend, BYOK removido da experiência e migração verificada |
 | CI/CD | `v0.9.0` | PR sem secrets, CI completa, staging automático e produção com aprovação manual |
 | Limites e guardrails | ampliação do piloto | quotas, interrupção emergencial e avaliações de abuso aprovadas |
+| Entrada única e OTP | beta fechada | estados de admissão, rate limit, OTP na PWA e recuperação testados em dispositivos reais |
+| Reutilização do histórico | beta fechada | seleção temporal determinística, confirmação e recálculo sem copiar dose anterior |
 | Licença da tabela SBD | publicação pública da PWA | autorização ou estratégia de distribuição alternativa |
 | Persistência e recuperação | `v0.9.0` | migrations reproduzíveis e restauração operacional testada em ambiente isolado |
 | Privacidade e enquadramento | ampliação além do piloto | documentação e avaliação apropriadas |

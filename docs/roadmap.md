@@ -66,7 +66,7 @@ dados preenchidos no navegador precisem ser informados novamente na aplicação 
 O onboarding será curto, retomável e dividido em etapas:
 
 1. **Apresentação e limites:** explicar a finalidade da Glicia, a confirmação humana e as limitações, incluindo a ausência de cálculo de insulina ativa.
-2. **Conta:** entrar por e-mail usando link ou código mágico; não haverá senha própria.
+2. **Conta:** entrar por e-mail usando código de uso único dentro da PWA; não haverá senha própria.
 3. **Parâmetros pessoais:** solicitar glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal.
 4. **RICs:** solicitar separadamente os valores de café da manhã, almoço, café da tarde, jantar e ceia.
 5. **Modo de interação:** escolher entre Preciso e Rápido, apresentando a diferença entre eles.
@@ -86,6 +86,49 @@ Depois do primeiro acesso, todos esses valores poderão ser consultados e altera
 Não haverá tela de chave da OpenAI. A chave central será configurada e rotacionada pelo autor nos
 secrets das Edge Functions e lida somente pelo adaptador do provedor no backend.
 
+### Entrada única, aprovação e autenticação no celular
+
+A tela inicial terá somente um campo de e-mail, sem alternância entre **Solicitar acesso** e
+**Já fui aprovado**. Depois do envio, um caso de uso único consultará o estado de admissão e
+conduzirá a pessoa para uma destas respostas:
+
+- acesso aprovado: enviar um código de uso único e abrir a etapa para digitá-lo na própria PWA;
+- nenhuma solicitação: explicar que o uso depende de aprovação e pedir confirmação antes de
+  cadastrar o e-mail na lista;
+- solicitação pendente: informar que o e-mail já está na lista e precisa aguardar a análise;
+- solicitação recusada ou acesso revogado: informar que o acesso não está disponível, sem criar
+  novas contas ou solicitações silenciosamente.
+
+O código digitável será preferido ao magic link no fluxo comum porque mantém a pessoa na PWA
+instalada, inclusive quando o cliente de e-mail abre links no Safari. Magic link continuará apenas
+como contingência. A consulta pública terá limitação de tentativas, respostas mínimas e telemetria
+sem e-mail em texto aberto; antes de ampliar o piloto, será reavaliado o risco de enumeração de
+endereços decorrente da exibição explícita do estado solicitado.
+
+Depois da primeira autenticação, a sessão renovável deverá manter a pessoa conectada no mesmo
+dispositivo. Passkeys/WebAuthn serão avaliadas como evolução opcional para novos acessos: Face ID,
+Touch ID ou biometria Android apenas desbloqueiam uma credencial protegida pelo dispositivo, e
+nenhum dado biométrico é recebido ou armazenado pela Glicia. A adoção dependerá de uma prova de
+compatibilidade entre Supabase Auth, Safari/iOS, Chrome/Android e a PWA instalada; não será criado
+um fluxo biométrico proprietário.
+
+### Reutilização segura de refeições do histórico
+
+A conversa reconhecerá referências temporais como **“vou almoçar a mesma coisa que ontem”** por
+meio de uma consulta estruturada ao histórico da própria conta. Data, fuso horário e tipo de
+refeição serão resolvidos deterministicamente; a IA poderá interpretar a frase, mas não escolherá
+nem inventará registros fora dos candidatos retornados pelo backend.
+
+Quando houver um único registro compatível, a Glicia mostrará a refeição, a data, os alimentos e os
+carboidratos recuperados e perguntará se alimentos e porções realmente serão iguais. Se houver
+mais de um candidato ou informação insuficiente, pedirá que a pessoa escolha ou esclareça. O
+registro anterior nunca será alterado.
+
+Somente a composição confirmada da refeição será reutilizada. Glicemia, tendência, parâmetros
+atuais e contexto clínico deverão ser informados novamente, e a sugestão será recalculada do zero
+pelas regras determinísticas vigentes. A dose anterior, inclusive a aplicada, será apenas dado
+histórico e nunca será copiada como recomendação atual.
+
 ## Versionamento e caminho para a v1
 
 Enquanto faltar uma parte essencial do fluxo de uso real no celular, as versões usam o sufixo
@@ -98,7 +141,7 @@ erros, autenticação e recuperação operacional têm uma decisão implementada
 uma alegação de dispositivo médico nem substitui a conferência humana.
 
 Use sufixos de correção para releases intermediárias, por exemplo `v0.3.0-alpha.1` e
-`v0.12.0-beta.1`. A versão `v1.0.0` só será publicada após uma beta sem problemas críticos e com
+`v0.13.0-beta.1`. A versão `v1.0.0` só será publicada após uma beta sem problemas críticos e com
 o fluxo principal, instalação e recuperação estáveis.
 
 | Versão | Foco | Critério de avanço |
@@ -113,8 +156,9 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.8.0-alpha` | Acesso experimental controlado. | Solicitação pública, revisão administrativa autenticada, criação de conta bloqueada para e-mails não aprovados, notificações e login por magic link. Concluída. |
 | `v0.9.0-alpha` | Credencial central, segurança, CI/CD, privacidade e contingência. | BYOK removido da experiência, chave do projeto nos secrets do backend, CI obrigatória, deploy automatizado em staging, promoção protegida para produção, exclusão por conta, recuperação operacional e modo manual sem IA. Concluída. |
 | `v0.10.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
-| `v0.11.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
-| `v0.12.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
+| `v0.11.0-alpha` | Acesso fluido e histórico contextual. | Entrada única por e-mail, estados de aprovação coerentes, OTP dentro da PWA, prova de passkeys e reutilização confirmada de refeições anteriores sem copiar glicemia ou dose. |
+| `v0.12.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
+| `v0.13.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
 | `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
 
 ## Contratos e testes
@@ -137,6 +181,8 @@ Antes de portar o fluxo, serão definidos casos de conformidade compartilhados p
 - bloqueio por hipoglicemia;
 - alerta de queda rápida;
 - persistência do registro confirmado.
+- referências temporais ao histórico, seleção de candidato e recálculo com glicemia atual;
+- estados de e-mail novo, pendente, aprovado, recusado e revogado na entrada única.
 
 A implementação web deverá produzir os mesmos resultados da implementação Python para os mesmos casos. Mudanças intencionais de comportamento serão documentadas separadamente e não deverão ser introduzidas silenciosamente durante o porte.
 
