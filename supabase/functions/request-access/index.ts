@@ -113,6 +113,7 @@ Deno.serve(async (request) => {
         p_kind: "admin"
       });
       if (releaseError) console.error("request-access notification release failed", { code: releaseError.code });
+      return json({ error: "Não foi possível enviar a notificação de aprovação agora. Tente novamente mais tarde." }, 502);
     }
   }
 
