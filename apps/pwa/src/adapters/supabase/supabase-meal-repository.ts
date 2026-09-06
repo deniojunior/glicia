@@ -11,9 +11,15 @@ export class SupabaseMealRepository implements MealHistoryRepository, FoodMemory
   }
 
   public async list(): Promise<readonly MealRecord[]> {
-    const { data, error } = await this.client.from("meal_records").select("*").eq("user_id", this.userId).order("created_at", { ascending: false });
-    if (error) throw new Error("Não foi possível carregar o histórico da sua conta.");
-    return (data ?? []).map(toMealRecord);
+    const records: MealRecord[] = [];
+    // Continue until an empty page, even if the server caps each response.
+    for (;;) {
+      const { data, error } = await this.client.from("meal_records").select("*").eq("user_id", this.userId)
+        .order("created_at", { ascending: false }).order("id", { ascending: false }).range(records.length, records.length + 499);
+      if (error) throw new Error("Não foi possível carregar o histórico da sua conta.");
+      if (!data?.length) return records;
+      records.push(...data.map(toMealRecord));
+    }
   }
 
   public async findBetween(from: string, to: string, mealType?: MealRecord["meal_type"]): Promise<readonly MealRecord[]> {

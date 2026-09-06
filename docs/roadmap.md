@@ -168,10 +168,11 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.9.0-alpha` | Credencial central, segurança, CI/CD, privacidade e contingência. | BYOK removido da experiência, chave do projeto nos secrets do backend, CI obrigatória, deploy automatizado em staging, promoção protegida para produção, exclusão por conta, recuperação operacional e modo manual sem IA. Concluída. |
 | `v0.10.0-alpha` | Acesso fluido e histórico contextual. | Entrada única por e-mail, estados de aprovação coerentes, OTP dentro da PWA, prova de passkeys e reutilização confirmada de refeições anteriores sem copiar glicemia ou dose. Concluída; o staging envia pelo domínio verificado `glicia.app`. |
 | `v0.11.0-alpha` | Nova identidade e experiência conversacional. | Chat centrado na amiga Glicia, avatar e ícone consistentes, Poppins, onboarding guiado e retomável com revisão explícita. Concluída; aguarda validação manual em dispositivos reais. |
-| `v0.12.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
+| `v0.12.0-alpha` | Refinamento da experiência mobile e autonomia da conta. | Entrada progressiva, conversa mais legível, ditado do teclado, histórico pesquisável e paginado, menu móvel, conta separada e preenchimento manual recuperável. Concluída; aguarda validação em dispositivos reais. |
 | `v0.13.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
 | `v0.14.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
 | `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
+| `v1.1.0` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
 
 ## Contratos e testes
 
@@ -218,13 +219,10 @@ sua própria credencial central no backend, sem reutilizar segredos entre servi�
 administrativa de provedor ou modelo será aplicada apenas à próxima refeição, nunca no meio de uma
 conversa já iniciada.
 
-Ordem preferencial de evolução:
-
-1. API Responses da OpenAI, com modelo previamente validado e configurado no backend.
-2. Registro administrativo de modelos e provedores.
-3. Adaptadores para outros provedores de IA, priorizados conforme demanda.
-4. Modo manual, sem IA, para contingência e uso totalmente local.
-5. Modelos locais, conforme viabilidade no navegador ou em uma instalação auto-hospedada.
+O registro administrativo de modelos, adaptadores para outros provedores e a investigação de
+modelos locais ficam para a `v1.1.0`, após a `v1.0.0` estável. A PWA mantém até lá a API
+Responses da OpenAI, com modelo previamente validado e configurado no backend; o modo manual
+continua como contingência sem IA.
 
 Modelos menores, rápidos ou classificados pelo fornecedor como *flash* poderão ser suficientes para o fluxo, pois a IA somente estrutura a refeição e não calcula a dose. Essa adequação não será presumida pelo nome ou pelo posicionamento comercial do modelo: cada combinação de provedor e modelo deverá passar por avaliações repetíveis que verifiquem:
 

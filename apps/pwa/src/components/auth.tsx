@@ -8,7 +8,7 @@ const mailpitUrl = import.meta.env.DEV
   ? import.meta.env.VITE_MAILPIT_URL || "http://127.0.0.1:54324"
   : null;
 
-type AuthStep = "email" | "consent" | "otp" | "link_sent" | "pending" | "unavailable";
+type AuthStep = "welcome" | "email" | "consent" | "otp" | "link_sent" | "pending" | "unavailable";
 
 type AdminLogin = {
   email: string;
@@ -16,7 +16,7 @@ type AdminLogin = {
 };
 
 export function Auth({ service, adminLogin }: { service: AccessService; adminLogin?: AdminLogin }) {
-  const [step, setStep] = useState<AuthStep>("email");
+  const [step, setStep] = useState<AuthStep>(adminLogin ? "email" : "welcome");
   const [email, setEmail] = useState(adminLogin?.email ?? "");
   const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -95,19 +95,29 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
         <GliciaAvatar size="large" />
       </div> : null}
       <section className="setup-content auth-content" aria-labelledby="auth-title">
+        {step === "welcome" ? <>
+          <h1 id="auth-title">Contar carboidratos pode ser mais simples.</h1>
+          <div className="auth-introduction">
+            <p>Oi, eu sou a Glicia! Me conte sua refeição: uso IA para consultar os carboidratos na tabela da Sociedade Brasileira de Diabetes.</p>
+            <p>Você confere os alimentos e as porções. Eu faço as contas e sugiro a insulina com os parâmetros do seu tratamento.</p>
+          </div>
+          <button className="primary-action" type="button" onClick={() => setStep("email")}>Entrar</button>
+        </> : null}
+
         {step === "email" ? <>
-          <h1 id="auth-title">{adminLogin ? "Acesso administrativo." : "Entre na Glicia."}</h1>
-          <p>{adminLogin ? "Confirme sua conta administradora para revisar solicitações." : "Informe seu e-mail. Se o acesso estiver liberado, enviaremos um código para entrar."}</p>
+          <h1 id="auth-title">{adminLogin ? "Acesso administrativo." : "Entrar na Glicia"}</h1>
+          <p id="email-guidance">{adminLogin ? "Confirme sua conta administradora para revisar solicitações." : "A Glicia está em fase experimental e o acesso depende de aprovação."}</p>
           <form onSubmit={identify}>
             <label htmlFor="email">{adminLogin ? "E-mail do administrador" : "Seu e-mail"}</label>
-            <input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" required readOnly={Boolean(adminLogin)} disabled={isSending} autoFocus={!adminLogin} />
+            <input id="email" type="email" autoComplete="email" aria-describedby="email-guidance" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" required readOnly={Boolean(adminLogin)} disabled={isSending} autoFocus={!adminLogin} />
             <button className="primary-action" type="submit" disabled={isSending}>{isSending ? "Verificando…" : "Continuar"}</button>
           </form>
+          {!adminLogin ? <button className="text-action auth-back" type="button" disabled={isSending} onClick={() => { setError(null); setStep("welcome"); }}>Voltar à apresentação</button> : null}
         </> : null}
 
         {step === "consent" ? <>
-          <h1 id="auth-title">Acesso por aprovação.</h1>
-          <p><strong>{normalizedEmail}</strong> ainda não está na lista. Quer solicitar participação no experimento da Glicia?</p>
+          <h1 id="auth-title">Vamos dar o primeiro passo?</h1>
+          <p>A Glicia está recebendo um grupo pequeno de pessoas nesta fase de testes. Quer colocar <strong>{normalizedEmail}</strong> na lista? Avisaremos quando seu acesso for aprovado.</p>
           <div className="auth-actions"><button className="primary-action" type="button" disabled={isSending} onClick={() => void requestAccess()}>{isSending ? "Enviando…" : "Entrar na lista"}</button><button className="text-action" type="button" disabled={isSending} onClick={restart}>Usar outro e-mail</button></div>
         </> : null}
 
@@ -125,7 +135,7 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
 
         {step === "otp" ? <>
           <h1 id="auth-title">Digite o código.</h1>
-          <p>Enviamos um código para <strong>{normalizedEmail}</strong>. Digite-o aqui para continuar sem sair da PWA.</p>
+          <p>Enviamos um código para <strong>{normalizedEmail}</strong>. Confira seu e-mail e digite o código aqui.</p>
           <form onSubmit={verifyCode}>
             <label htmlFor="login-code">Código de acesso</label>
             <input id="login-code" className="otp-input" inputMode="numeric" autoComplete="one-time-code" value={token} onChange={(event) => setToken(event.target.value.replace(/\D/g, "").slice(0, 8))} minLength={6} maxLength={8} pattern="[0-9]{6,8}" required disabled={isSending} autoFocus />
@@ -143,7 +153,7 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
         </> : null}
 
         {error ? <p className="error-message auth-error" role="alert">{error}</p> : null}
-        <p className="auth-note">{adminLogin ? "Somente a conta administradora pode abrir esta revisão." : "A Glicia está em fase experimental e o acesso depende de aprovação."}</p>
+        {step !== "welcome" && (adminLogin || step !== "email") ? <p className="auth-note">{adminLogin ? "Somente a conta administradora pode abrir esta revisão." : "A Glicia está em fase experimental e o acesso depende de aprovação."}</p> : null}
       </section>
     </main>
   );

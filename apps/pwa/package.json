@@ -1,6 +1,6 @@
 {
   "name": "@glicia/pwa",
-  "version": "0.11.0-alpha.0",
+  "version": "0.12.0-alpha.0",
   "private": true,
   "description": "PWA mobile-first da Glicia.",
   "type": "module",

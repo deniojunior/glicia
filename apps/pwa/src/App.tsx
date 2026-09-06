@@ -14,6 +14,9 @@ import { SupabaseAccountService } from "./adapters/supabase/supabase-account-ser
 import { Onboarding } from "./components/onboarding";
 import { Settings } from "./components/settings";
 import { History } from "./components/history";
+import { Account } from "./components/account";
+import { ConversationMenu } from "./components/conversation-menu";
+import { LoadingScreen } from "./components/loading-screen";
 import { AccessNotApproved, Auth, MissingSupabaseConfiguration } from "./components/auth";
 import { AdminAccessRequests } from "./components/admin-access-requests";
 import { ManualMealForm } from "./components/manual-meal-form";
@@ -81,7 +84,7 @@ function AssistantMarkdown({ content }: { content: string }) {
   return <div className="assistant-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>{content}</ReactMarkdown></div>;
 }
 
-function ConversationApp({ preferences, client, foodMemory, mealRepository, onOpenSettings, onOpenHistory, onSignOut }: { preferences: PersistedPreferences; client: SupabaseClient; foodMemory: Readonly<Record<string, string>>; mealRepository: MealHistoryRepository & FoodMemoryRepository; onOpenSettings(): void; onOpenHistory(): void; onSignOut(): Promise<void> }) {
+function ConversationApp({ preferences, client, foodMemory, mealRepository, onOpenSettings, onOpenHistory, onOpenAccount, onSignOut }: { preferences: PersistedPreferences; client: SupabaseClient; foodMemory: Readonly<Record<string, string>>; mealRepository: MealHistoryRepository & FoodMemoryRepository; onOpenSettings(): void; onOpenHistory(): void; onOpenAccount(): void; onSignOut(): Promise<void> }) {
   const sessionRef = useRef<ConversationSession | null>(null);
   if (sessionRef.current === null) {
     sessionRef.current = createSession(preferences.interaction_mode, client, foodMemory);
@@ -209,15 +212,15 @@ function ConversationApp({ preferences, client, foodMemory, mealRepository, onOp
     <main className="app-shell">
       <header className="app-header">
         <a className="brand conversation-brand" href="#conversation" aria-label="Glicia, ir para a conversa"><GliciaWordmark /></a>
-        <div className="header-actions"><button className="text-action" type="button" onClick={onOpenHistory}>Histórico</button><button className="text-action" type="button" onClick={onOpenSettings}>Ajustes</button><button className="text-action sign-out-action" type="button" disabled={isSigningOut} onClick={() => void signOut()}>{isSigningOut ? "Saindo…" : "Sair"}</button></div>
+        <ConversationMenu onOpenHistory={onOpenHistory} onOpenSettings={onOpenSettings} onOpenAccount={onOpenAccount} isSigningOut={isSigningOut} onSignOut={() => void signOut()} />
       </header>
 
-      <section className="conversation" id="conversation" aria-labelledby="conversation-title">
-        {state.snapshot.history.length === 0 ? <div className="conversation-intro"><GliciaAvatar size="small" variant="profile" decorative={false} /><div><p className="assistant-name">Glicia</p><h1 id="conversation-title">Oi, o que você vai comer?</h1><p>Me conta do seu jeito. Se já souber, pode incluir a glicemia, a seta e qual é a refeição.</p><p className="tagline">Glicia: sua assistente de contagem de carboidratos</p></div></div> : null}
+      <section className="conversation" id="conversation" aria-label="Conversa com a Glicia">
+        {state.snapshot.history.length === 0 ? <div className="conversation-intro"><GliciaAvatar size="small" variant="profile" decorative={false} /><div><h1 id="conversation-title">Oi! Vamos contar sua refeição?</h1><p>Me conta o que você vai comer e a quantidade. Pode incluir sua glicemia, a tendência e qual é a refeição.</p></div></div> : null}
 
         <div className="message-feed" aria-live="polite" aria-busy={state.is_waiting}>
           {state.snapshot.history.map((exchange, index) => <div className="exchange" key={`${index}-${exchange.user_message}`}><article className="message user-message"><p>{exchange.user_message}</p></article><div className="assistant-exchange"><GliciaAvatar size="small" variant="profile" decorative={false} /><article className="message assistant-message"><p className="assistant-name">Glicia</p><AssistantMarkdown content={exchange.assistant_turn.reply} /></article></div></div>)}
-          {state.is_waiting ? <p className="waiting">Organizando sua resposta…</p> : null}
+          {state.is_waiting ? <p className="waiting"><span className="loading-spinner" aria-hidden="true" />Estou conferindo sua refeição…</p> : null}
           {state.error ? <p className="error-message" role="alert">{state.error}</p> : null}
         </div>
 
@@ -228,7 +231,7 @@ function ConversationApp({ preferences, client, foodMemory, mealRepository, onOp
 
       {!isConfirmed && historicalCandidates ? <HistoricalMealReuse candidates={historicalCandidates} onSubmit={submitHistorical} onCancel={() => setHistoricalCandidates(null)} /> : null}
       {!isConfirmed && !historicalCandidates && isManualEntry ? <ManualMealForm onSubmit={submitManual} onCancel={() => setIsManualEntry(false)} /> : null}
-      {!isConfirmed && !historicalCandidates && !isManualEntry ? <form className="composer" onSubmit={send}><label htmlFor="meal-message">{isAwaitingConfirmation ? "O que precisa corrigir?" : "Escreva para a Glicia"}</label><div className="composer-row"><textarea id="meal-message" value={state.draft} onChange={(event) => dispatch({ type: "draft_changed", draft: event.target.value })} onKeyDown={handleComposerKeyDown} enterKeyHint="send" placeholder={isAwaitingConfirmation ? "Ex.: a glicemia correta é 110" : "Ex.: arroz, frango e salada; 120 mg/dL, seta estável, almoço"} rows={2} disabled={state.is_waiting} /><button className="send-button" type="submit" disabled={state.is_waiting || !state.draft.trim()}><span className="visually-hidden">Enviar mensagem</span><span aria-hidden="true">↑</span></button></div><div className="composer-foot"><p>Enter envia · Shift+Enter quebra a linha.</p>{state.snapshot.state === "ready" ? <button type="button" onClick={() => setIsManualEntry(true)}>Informar sem IA</button> : null}</div></form> : null}
+      {!isConfirmed && !historicalCandidates && !isManualEntry ? <form className="composer" onSubmit={send}><label htmlFor="meal-message">{isAwaitingConfirmation ? "O que precisa corrigir?" : "Escreva para a Glicia"}</label><div className="composer-row"><textarea id="meal-message" value={state.draft} onChange={(event) => dispatch({ type: "draft_changed", draft: event.target.value })} onKeyDown={handleComposerKeyDown} enterKeyHint="send" placeholder={isAwaitingConfirmation ? "Ex.: a glicemia correta é 110" : "Ex.: arroz, frango e salada; 120 mg/dL, seta estável, almoço"} rows={2} disabled={state.is_waiting} /><button className="send-button" type="submit" disabled={state.is_waiting || !state.draft.trim()}><span className="visually-hidden">Enviar mensagem</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m5 12 7-7 7 7M12 5v14" /></svg></button></div><div className="composer-foot"><details className="dictation-tip"><summary>Prefere gravar áudio?</summary><p>Toque no campo e use o microfone do seu teclado, se disponível. Ele transforma sua fala em texto. Confira as palavras e os números antes de enviar.</p></details>{state.snapshot.state === "ready" ? <button type="button" onClick={() => setIsManualEntry(true)}>Informar sem IA</button> : null}</div></form> : null}
     </main>
   );
 }
@@ -240,7 +243,7 @@ function AuthenticatedApp({ client, user }: { client: SupabaseClient; user: User
   const [preferences, setPreferences] = useState<PersistedPreferences | null | undefined>(undefined);
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [screen, setScreen] = useState<"conversation" | "settings" | "history">("conversation");
+  const [screen, setScreen] = useState<"conversation" | "settings" | "history" | "account">("conversation");
   const [foodMemory, setFoodMemory] = useState<Readonly<Record<string, string>> | null>(null);
 
   useEffect(() => {
@@ -249,12 +252,13 @@ function AuthenticatedApp({ client, user }: { client: SupabaseClient; user: User
       .catch(() => { setLoadError("Não foi possível abrir a configuração da sua conta."); setPreferences(null); setFoodMemory({}); });
   }, [client, mealRepository, preferencesService, user.id]);
 
-  if (preferences === undefined || foodMemory === null) return <main className="onboarding-shell"><p className="waiting">Abrindo a Glicia…</p></main>;
+  if (preferences === undefined || foodMemory === null) return <LoadingScreen message="Preparando sua conversa…" />;
   if (loadError) return <main className="onboarding-shell"><p className="error-message" role="alert">{loadError}</p></main>;
   if (preferences === null) return <Onboarding initialProgress={progress} onProgress={(next) => preferencesService.saveOnboarding(next)} onComplete={async (next) => { await preferencesService.save(next); await preferencesService.clearOnboarding(); setPreferences(next); }} />;
-  if (screen === "settings") return <Settings preferences={preferences} onSignOut={() => accountService.signOut()} onDeleteAccount={() => accountService.deleteAccount("EXCLUIR")} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
+  if (screen === "settings") return <Settings preferences={preferences} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
   if (screen === "history") return <History repository={mealRepository} onBack={() => setScreen("conversation")} />;
-  return <ConversationApp preferences={preferences} client={client} foodMemory={foodMemory} mealRepository={mealRepository} onOpenSettings={() => setScreen("settings")} onOpenHistory={() => setScreen("history")} onSignOut={() => accountService.signOut()} />;
+  if (screen === "account") return <Account onBack={() => setScreen("conversation")} onDeleteAccount={() => accountService.deleteAccount("EXCLUIR")} />;
+  return <ConversationApp preferences={preferences} client={client} foodMemory={foodMemory} mealRepository={mealRepository} onOpenSettings={() => setScreen("settings")} onOpenHistory={() => setScreen("history")} onOpenAccount={() => setScreen("account")} onSignOut={() => accountService.signOut()} />;
 }
 
 export function App() {
@@ -282,9 +286,9 @@ export function App() {
   }, [user]);
 
   if (!supabase || !accessService) return <MissingSupabaseConfiguration />;
-  if (user === undefined) return <main className="onboarding-shell"><p className="waiting">Verificando seu acesso…</p></main>;
+  if (user === undefined) return <LoadingScreen message="Conferindo seu acesso…" />;
   if (user === null) return <Auth service={accessService} adminLogin={isAdminRoute ? { email: adminEmail, redirectTo: adminRedirectTo } : undefined} />;
-  if (hasApprovedAccess === undefined) return <main className="onboarding-shell"><p className="waiting">Verificando sua aprovação…</p></main>;
+  if (hasApprovedAccess === undefined) return <LoadingScreen message="Conferindo sua aprovação…" />;
   if (!hasApprovedAccess) return <AccessNotApproved onSignOut={async () => { await supabase.auth.signOut({ scope: "local" }); }} />;
   if (isAdminRoute) return <AdminAccessRequests service={accessService} onSignOut={async () => { await supabase.auth.signOut({ scope: "local" }); }} />;
   return <AuthenticatedApp client={supabase} user={user} />;

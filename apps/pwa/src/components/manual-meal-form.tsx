@@ -21,16 +21,16 @@ export function ManualMealForm({ onSubmit, onCancel }: {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try {
-      if (!description.trim()) throw new Error("Descreva brevemente a refeição.");
-      onSubmit(description.trim(), createManualMealTurn(input, description));
+      const mealDescription = description.trim() || "Refeição informada manualmente";
+      onSubmit(mealDescription, createManualMealTurn(input, mealDescription));
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Confira os dados informados.");
     }
   }
 
   return <form className="manual-meal" onSubmit={submit}>
-    <div className="manual-heading"><div><h2>Informar sem IA</h2><p>Preencha os dados que você já conhece. O cálculo continua local e exige confirmação.</p></div><button className="text-action" type="button" onClick={onCancel}>Voltar à conversa</button></div>
-    <label>Descrição da refeição<input value={description} onChange={(event) => setDescription(event.target.value)} maxLength={500} placeholder="Ex.: arroz, feijão e frango" /></label>
+    <div className="manual-heading"><div><h2>Informar sem IA</h2><p>Preencha os dados que você já conhece. O cálculo continua local e exige confirmação.</p></div></div>
+    <label>O que você comeu? <span className="optional-field">Opcional</span><input value={description} onChange={(event) => setDescription(event.target.value)} maxLength={500} placeholder="Ex.: arroz, feijão e frango" /></label>
     <div className="manual-grid">
       <label>Carboidratos (g)<input inputMode="decimal" value={input.carbohydrates} onChange={(event) => setInput((current) => ({ ...current, carbohydrates: event.target.value }))} placeholder="Ex.: 45" /></label>
       <label>Glicemia (mg/dL)<input inputMode="decimal" value={input.glucose} onChange={(event) => setInput((current) => ({ ...current, glucose: event.target.value }))} placeholder="Ex.: 120" /></label>
@@ -38,6 +38,6 @@ export function ManualMealForm({ onSubmit, onCancel }: {
       <label>Tipo de refeição<select value={input.mealType} onChange={(event) => setInput((current) => ({ ...current, mealType: event.target.value as ManualMealInput["mealType"] }))}><option value="">Selecione</option><option value="CAFE_DA_MANHA">Café da manhã</option><option value="ALMOCO">Almoço</option><option value="CAFE_DA_TARDE">Café da tarde</option><option value="JANTAR">Jantar</option><option value="CEIA">Ceia</option></select></label>
     </div>
     {error ? <p className="error-message" role="alert">{error}</p> : null}
-    <button className="primary-action" type="submit">Revisar dados</button>
+    <div className="manual-actions"><button className="secondary-action" type="button" onClick={onCancel}>Voltar ao chat</button><button className="primary-action" type="submit">Revisar dados</button></div>
   </form>;
 }

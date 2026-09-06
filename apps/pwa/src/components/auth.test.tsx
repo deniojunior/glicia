@@ -14,12 +14,16 @@ const service: AccessService = {
   reviewAccessRequest: async () => undefined
 };
 
-test("começa com uma única entrada de e-mail, sem seletor de intenção", () => {
+test("começa com apresentação e botão Entrar, sem formulário de e-mail", () => {
   const html = renderToStaticMarkup(<Auth service={service} />);
 
-  expect(html).toContain("Entre na Glicia");
-  expect(html).toContain("Seu e-mail");
-  expect(html).toContain("Continuar");
+  expect(html).toContain("Contar carboidratos pode ser mais simples");
+  expect(html).toContain("Sociedade Brasileira de Diabetes");
+  expect(html).toContain(">Entrar</button>");
+  expect(html).not.toContain("Seu e-mail");
+  expect(html).not.toContain("<form");
+  expect(html).not.toContain("Quer experimentar?");
+  expect(html).not.toContain("A Glicia está em fase experimental");
   expect(html).not.toContain("Solicitar acesso");
   expect(html).not.toContain("Já fui aprovado");
 });
@@ -31,6 +35,7 @@ test("restringe a entrada da revisão à conta administradora", () => {
   }} />);
 
   expect(html).toContain("Acesso administrativo");
+  expect(html).toContain("Continuar");
   expect(html).toContain("admin@glicia.test");
   expect(html).toContain("readOnly");
   expect(html).toContain("Somente a conta administradora");

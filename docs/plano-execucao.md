@@ -492,14 +492,17 @@ Implementação concluída em 2026-09-06; validação manual em dispositivos rea
 - Verificar contas existentes, teclado aberto, zoom de texto, foco, instalação e atualização do
   ícone em Safari/iOS, Chrome/Android e desktop.
 
-### `v0.12.0` — Modelos e múltiplos provedores
+### `v0.12.0` — Refinamento da experiência mobile e autonomia da conta
 
-- Transformar a porta de IA em registro de provedores sem alterar domínio ou casos de uso.
-- Isolar as credenciais centrais por provedor nos secrets do backend e aplicar troca somente entre
-  refeições.
-- Oferecer uma lista administrativa de modelos aprovados e registrar tecnicamente o modelo usado.
-- Executar avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória,
-  recusas de cálculo e situações de segurança.
+Implementação concluída em 2026-09-06; validação manual em dispositivos reais continua aberta.
+
+- Apresentar a Glicia antes de solicitar e-mail e revelar o fluxo de acesso após a ação **Entrar**. ✅
+- Tornar a conversa, a área de mensagem, o ditado do teclado e as transições de acesso mais claros
+  em telas pequenas. ✅
+- Adicionar histórico com busca e paginação, sem omitir registros antigos da conta. ✅
+- Concentrar Histórico, Ajustes, Conta e saída no menu móvel; separar exclusão de conta dos
+  parâmetros clínicos. ✅
+- Permitir retornar do preenchimento manual e omitir a descrição livre da refeição. ✅
 
 ### `v0.13.0` — Limites de uso e guardrails de IA
 
@@ -524,6 +527,15 @@ Implementação concluída em 2026-09-06; validação manual em dispositivos rea
 - Política de compatibilidade e migrações definida.
 - Nenhum problema crítico de cálculo, segurança, privacidade, acessibilidade ou perda de dados.
 - CLI e PWA com responsabilidades e suporte explicitamente documentados.
+
+### `v1.1.0` — Modelos e múltiplos provedores
+
+- Transformar a porta de IA em registro de provedores sem alterar domínio ou casos de uso.
+- Isolar as credenciais centrais por provedor nos secrets do backend e aplicar troca somente entre
+  refeições.
+- Oferecer uma lista administrativa de modelos aprovados e registrar tecnicamente o modelo usado.
+- Executar avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória,
+  recusas de cálculo e situações de segurança.
 
 ## Sequência inicial de pull requests
 
@@ -593,11 +605,10 @@ Uma tarefa só está concluída quando:
 
 ## Próximo incremento recomendado
 
-A `v0.11.0-alpha` concluiu a primeira entrega do [plano de experiência
-conversacional](plano-experiencia-conversacional.md): nova identidade, chat com a avatar da
-Glicia, Poppins, ícones de instalação e onboarding guiado com parâmetros explicitamente revisados.
-Restam validação em dispositivos reais, migração de contas existentes e refinamentos de assets.
+A `v0.12.0-alpha` consolidou a experiência mobile da Glicia: entrada progressiva, chat,
+histórico, preenchimento manual, menu e conta. Restam validação em dispositivos reais, migração
+de contas existentes e refinamentos de assets.
 
-Os próximos marcos numerados são: `v0.12.0-alpha` para modelos e múltiplos provedores
-administrados sem expor credenciais ao navegador; `v0.13.0-alpha` para limites e guardrails antes
-de ampliar o piloto fechado; e `v0.14.0-beta` para a validação móvel da beta fechada.
+Os próximos marcos numerados são: `v0.13.0-alpha` para limites e guardrails antes de ampliar o
+piloto fechado; `v0.14.0-beta` para a validação móvel da beta fechada; e `v1.1.0` para modelos e
+múltiplos provedores administrados sem expor credenciais ao navegador, após a PWA estável.

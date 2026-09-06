@@ -22,4 +22,9 @@ describe("createManualMealTurn", () => {
     expect(() => createManualMealTurn({ carbohydrates: "", glucose: "120", glucoseTrend: "ESTAVEL", mealType: "ALMOCO" })).toThrow("carboidratos");
     expect(() => createManualMealTurn({ carbohydrates: "20", glucose: "0", glucoseTrend: "ESTAVEL", mealType: "ALMOCO" })).toThrow("glicemia");
   });
+
+  it("usa uma descrição neutra quando a refeição não é informada", () => {
+    expect(createManualMealTurn({ carbohydrates: "20", glucose: "120", glucoseTrend: "ESTAVEL", mealType: "ALMOCO" }))
+      .toMatchObject({ meal_items: [{ name: "Refeição informada manualmente" }] });
+  });
 });

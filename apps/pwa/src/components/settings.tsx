@@ -6,8 +6,6 @@ import { GliciaWordmark } from "./brand/glicia-wordmark";
 interface SettingsProps {
   preferences: PersistedPreferences;
   onSave(preferences: PersistedPreferences): Promise<void>;
-  onSignOut(): Promise<void>;
-  onDeleteAccount(): Promise<void>;
   onBack(): void;
 }
 
@@ -19,12 +17,9 @@ const ratios = [
   ["CEIA", "Ceia"]
 ] as const;
 
-export function Settings({ preferences, onSave, onSignOut, onDeleteAccount, onBack }: SettingsProps) {
+export function Settings({ preferences, onSave, onBack }: SettingsProps) {
   const [draft, setDraft] = useState(preferences);
   const [message, setMessage] = useState<string | null>(null);
-  const [deleteConfirmation, setDeleteConfirmation] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isSigningOut, setIsSigningOut] = useState(false);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -36,23 +31,8 @@ export function Settings({ preferences, onSave, onSignOut, onDeleteAccount, onBa
     }
   }
 
-  async function deleteAccount() {
-    if (deleteConfirmation !== "EXCLUIR") return;
-    setIsDeleting(true);
-    setMessage(null);
-    try { await onDeleteAccount(); }
-    catch (error) { setMessage(error instanceof Error ? error.message : "Não foi possível excluir sua conta."); setIsDeleting(false); }
-  }
-
-  async function signOut() {
-    setIsSigningOut(true);
-    setMessage(null);
-    try { await onSignOut(); }
-    catch (error) { setMessage(error instanceof Error ? error.message : "Não foi possível sair neste dispositivo."); setIsSigningOut(false); }
-  }
-
   return <main className="onboarding-shell">
-    <header className="app-header"><GliciaWordmark /><button className="text-action" type="button" onClick={onBack}>Voltar</button></header>
+    <header className="app-header"><GliciaWordmark /><button className="back-action" type="button" onClick={onBack}><span aria-hidden="true">←</span> Voltar ao chat</button></header>
     <section className="setup-content" aria-labelledby="settings-title">
       <h1 id="settings-title">Configurações</h1><p>Altere somente os valores definidos pela sua equipe de saúde.</p>
       <form onSubmit={save}>
@@ -61,8 +41,6 @@ export function Settings({ preferences, onSave, onSignOut, onDeleteAccount, onBa
         </div>
         <button className="primary-action" type="submit">Salvar alterações</button>
       </form>
-      <button className="text-action account-sign-out" type="button" disabled={isSigningOut} onClick={() => void signOut()}>{isSigningOut ? "Saindo…" : "Sair da conta"}</button>
-      <section className="danger-zone" aria-labelledby="delete-account-title"><h2 id="delete-account-title">Excluir conta e dados</h2><p>Remove definitivamente configurações, memória alimentar, histórico e acesso. Esta ação não pode ser desfeita.</p><label htmlFor="delete-confirmation">Digite EXCLUIR para confirmar</label><input id="delete-confirmation" value={deleteConfirmation} onChange={(event) => setDeleteConfirmation(event.target.value)} autoComplete="off" /><button className="danger-action" type="button" disabled={deleteConfirmation !== "EXCLUIR" || isDeleting} onClick={() => void deleteAccount()}>{isDeleting ? "Excluindo…" : "Excluir minha conta"}</button></section>
       {message ? <p className="status-message" role="status">{message}</p> : null}
     </section>
   </main>;
