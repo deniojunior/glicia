@@ -7,7 +7,7 @@ export interface PersistedPreferences {
   interaction_mode: InteractionMode;
 }
 
-export type OnboardingStep = "welcome" | "carbohydrate_ratios" | "review";
+export type OnboardingStep = "welcome" | "how_it_works" | "safety" | "clinical_settings" | "carbohydrate_ratios" | "interaction_mode" | "review";
 
 export interface OnboardingProgress {
   version: 1;

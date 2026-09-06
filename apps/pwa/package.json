@@ -1,6 +1,6 @@
 {
   "name": "@glicia/pwa",
-  "version": "0.10.0-alpha.0",
+  "version": "0.11.0-alpha.0",
   "private": true,
   "description": "PWA mobile-first da Glicia.",
   "type": "module",
@@ -26,6 +26,7 @@
     "staging:advisors": "supabase db advisors --linked --type all --level warn --workdir ../.."
   },
   "dependencies": {
+    "@fontsource/poppins": "^5.2.6",
     "@supabase/supabase-js": "2.57.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",

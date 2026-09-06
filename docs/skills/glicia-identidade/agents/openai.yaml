@@ -1,0 +1,4 @@
+interface:
+  display_name: "Identidade da Glicia"
+  short_description: "Identidade visual, voz e conversa da amiga Glicia"
+  default_prompt: "Use $glicia-identidade para planejar ou implementar a experiência da Glicia conforme a identidade visual e o plano de conversa do projeto."

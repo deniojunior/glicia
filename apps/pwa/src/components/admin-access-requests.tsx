@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type { AccessRequestStatus, AccessRequestSummary, AccessService } from "../application";
-import { appHomePath, gliciaIconUrl } from "../config/app-urls";
+import { GliciaWordmark } from "./brand/glicia-wordmark";
 
 const statusLabels: Record<AccessRequestStatus, string> = {
   pending: "Aguardando",
@@ -42,7 +42,7 @@ export function AdminAccessRequests({ service, onSignOut }: { service: AccessSer
   return (
     <main className="admin-shell">
       <header className="app-header">
-        <a className="brand" href={appHomePath}><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></a>
+        <GliciaWordmark link />
         <button className="text-action" type="button" onClick={() => void onSignOut()}>Sair</button>
       </header>
       <section className="admin-content" aria-labelledby="admin-title">

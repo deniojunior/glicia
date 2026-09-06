@@ -1,7 +1,8 @@
 import { FormEvent, useState } from "react";
 
 import { AccessServiceError, type AccessService } from "../application";
-import { gliciaIconUrl } from "../config/app-urls";
+import { GliciaAvatar } from "./brand/glicia-avatar";
+import { GliciaWordmark } from "./brand/glicia-wordmark";
 
 const mailpitUrl = import.meta.env.DEV
   ? import.meta.env.VITE_MAILPIT_URL || "http://127.0.0.1:54324"
@@ -88,8 +89,11 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
   return (
     <main className="onboarding-shell">
       <header className="app-header">
-        <span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span>
+        <GliciaWordmark />
       </header>
+      {!adminLogin ? <div className="auth-hero" aria-hidden="true">
+        <GliciaAvatar size="large" />
+      </div> : null}
       <section className="setup-content auth-content" aria-labelledby="auth-title">
         {step === "email" ? <>
           <h1 id="auth-title">{adminLogin ? "Acesso administrativo." : "Entre na Glicia."}</h1>
@@ -146,9 +150,9 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
 }
 
 export function AccessNotApproved({ onSignOut }: { onSignOut(): Promise<void> }) {
-  return <main className="onboarding-shell"><header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span></header><section className="setup-content" aria-labelledby="access-title"><h1 id="access-title">Acesso ainda não liberado.</h1><p>Esta conta não possui uma aprovação ativa.</p><button className="primary-action compact-action" type="button" onClick={() => void onSignOut()}>Voltar à entrada</button></section></main>;
+  return <main className="onboarding-shell"><header className="app-header"><GliciaWordmark /></header><section className="setup-content" aria-labelledby="access-title"><h1 id="access-title">Acesso ainda não liberado.</h1><p>Esta conta não possui uma aprovação ativa.</p><button className="primary-action compact-action" type="button" onClick={() => void onSignOut()}>Voltar à entrada</button></section></main>;
 }
 
 export function MissingSupabaseConfiguration() {
-  return <main className="onboarding-shell"><header className="app-header"><span className="brand"><img src={gliciaIconUrl} width="44" height="44" alt="" /><span>Glicia</span></span></header><section className="setup-content" aria-labelledby="configuration-title"><h1 id="configuration-title">A Glicia ainda não está conectada.</h1><p>Configure a URL e a chave publicável do Supabase para abrir sua conta neste ambiente.</p></section></main>;
+  return <main className="onboarding-shell"><header className="app-header"><GliciaWordmark /></header><section className="setup-content" aria-labelledby="configuration-title"><h1 id="configuration-title">A Glicia ainda não está conectada.</h1><p>Configure a URL e a chave publicável do Supabase para abrir sua conta neste ambiente.</p></section></main>;
 }

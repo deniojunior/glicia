@@ -57,16 +57,23 @@ A navegação principal da PWA será organizada em três áreas:
 
 ### Primeiro acesso e onboarding obrigatório
 
+A evolução deste fluxo será conduzida pela própria Glicia, com avatar, mensagens curtas e
+campos/botões dentro da conversa. A referência é a [nova identidade visual](identidade-visual.md);
+o [plano de conversa e onboarding](plano-experiencia-conversacional.md) detalha entregas, roteiro,
+retomada e revisão explícita dos parâmetros. A primeira entrega deste incremento compõe a
+`v0.11.0-alpha`.
+
 Na primeira abertura, a PWA deverá verificar se a pessoa já possui acesso. Quem ainda não tiver
 uma conta aprovada poderá cadastrar o e-mail para solicitar participação no experimento. O
 onboarding obrigatório começará somente depois da aprovação e da autenticação. A instalação na
-tela inicial será oferecida antes da configuração sempre que a plataforma permitir, evitando que
-dados preenchidos no navegador precisem ser informados novamente na aplicação instalada.
+tela inicial será opcional, oferecida após a apresentação ou ao concluir a configuração, sem
+interromper a refeição. O progresso associado à conta permite retomar na aplicação instalada.
 
 O onboarding será curto, retomável e dividido em etapas:
 
 1. **Apresentação e limites:** explicar a finalidade da Glicia, a confirmação humana e as limitações, incluindo a ausência de cálculo de insulina ativa.
-2. **Conta:** entrar por e-mail usando código de uso único dentro da PWA; não haverá senha própria.
+2. **Como funciona:** explicar a contagem pela tabela de alimentos, a revisão humana e o cálculo
+   determinístico com os parâmetros pessoais; a conta já foi autenticada por código na PWA.
 3. **Parâmetros pessoais:** solicitar glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal.
 4. **RICs:** solicitar separadamente os valores de café da manhã, almoço, café da tarde, jantar e ceia.
 5. **Modo de interação:** escolher entre Preciso e Rápido, apresentando a diferença entre eles.
@@ -75,6 +82,11 @@ O onboarding será curto, retomável e dividido em etapas:
 Não será possível pular a conta, os parâmetros de cálculo, os cinco RICs ou a revisão final. Cada
 valor numérico deverá ser finito e obedecer às mesmas validações da CLI. O progresso será
 associado à conta para que possa ser retomado em outro aparelho.
+
+Valores padrão não equivalem a parâmetros pessoais confirmados. A nova interface permitirá
+pausar quando faltar um valor e exigirá revisão de todos os parâmetros, sem inferir RICs ou
+pedir credenciais de IA. Contas existentes preservarão seus dados e terão uma revisão dos
+parâmetros quando não houver confirmação pessoal registrada.
 
 A conversa será liberada somente quando o onboarding estiver completo. Se o provedor estiver
 indisponível, a aplicação deverá informar uma falha operacional sem pedir uma chave à pessoa. Se
@@ -141,7 +153,7 @@ erros, autenticação e recuperação operacional têm uma decisão implementada
 uma alegação de dispositivo médico nem substitui a conferência humana.
 
 Use sufixos de correção para releases intermediárias, por exemplo `v0.3.0-alpha.1` e
-`v0.13.0-beta.1`. A versão `v1.0.0` só será publicada após uma beta sem problemas críticos e com
+`v0.14.0-beta.1`. A versão `v1.0.0` só será publicada após uma beta sem problemas críticos e com
 o fluxo principal, instalação e recuperação estáveis.
 
 | Versão | Foco | Critério de avanço |
@@ -156,9 +168,10 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.8.0-alpha` | Acesso experimental controlado. | Solicitação pública, revisão administrativa autenticada, criação de conta bloqueada para e-mails não aprovados, notificações e login por magic link. Concluída. |
 | `v0.9.0-alpha` | Credencial central, segurança, CI/CD, privacidade e contingência. | BYOK removido da experiência, chave do projeto nos secrets do backend, CI obrigatória, deploy automatizado em staging, promoção protegida para produção, exclusão por conta, recuperação operacional e modo manual sem IA. Concluída. |
 | `v0.10.0-alpha` | Acesso fluido e histórico contextual. | Entrada única por e-mail, estados de aprovação coerentes, OTP dentro da PWA, prova de passkeys e reutilização confirmada de refeições anteriores sem copiar glicemia ou dose. Concluída; o staging envia pelo domínio verificado `glicia.app`. |
-| `v0.11.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
-| `v0.12.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
-| `v0.13.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
+| `v0.11.0-alpha` | Nova identidade e experiência conversacional. | Chat centrado na amiga Glicia, avatar e ícone consistentes, Poppins, onboarding guiado e retomável com revisão explícita. Concluída; aguarda validação manual em dispositivos reais. |
+| `v0.12.0-alpha` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
+| `v0.13.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
+| `v0.14.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
 | `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
 
 ## Contratos e testes

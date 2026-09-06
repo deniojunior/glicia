@@ -34,4 +34,10 @@ describe("PreferencesService", () => {
 
     expect(progress.step).toBe("carbohydrate_ratios");
   });
+
+  it("mantém a etapa conversacional atual ao retomar o onboarding", () => {
+    const progress = createOnboardingProgress({ step: "clinical_settings" });
+
+    expect(progress.step).toBe("clinical_settings");
+  });
 });

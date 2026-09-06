@@ -476,7 +476,23 @@ entrada.
 - Evoluir o contrato do registro para preservar uma composição estruturada reutilizável, com
   migration retrocompatível para registros antigos que tenham somente resumo textual.
 
-### `v0.11.0` — Modelos e múltiplos provedores
+### `v0.11.0` — Nova identidade e experiência conversacional
+
+Implementação concluída em 2026-09-06; validação manual em dispositivos reais continua aberta.
+
+- Aplicar a identidade azul: Poppins local, tokens semânticos, wordmark, avatar e ícone de
+  instalação com origem registrada. ✅
+- Simplificar o chat para que a conversa seja a interface principal, sem alterar o domínio, a
+  confirmação humana, as travas ou o cálculo determinístico. ✅
+- Reescrever a voz da assistente como uma parceira acolhedora, clara e não clínica. ✅
+- Conduzir o primeiro uso no próprio chat: apresentação, funcionamento, limites, parâmetros,
+  RICs, modo e revisão explícita. ✅
+- Persistir o progresso de onboarding e permitir retomada, sem tratar valores padrão como
+  parâmetros pessoais confirmados. ✅
+- Verificar contas existentes, teclado aberto, zoom de texto, foco, instalação e atualização do
+  ícone em Safari/iOS, Chrome/Android e desktop.
+
+### `v0.12.0` — Modelos e múltiplos provedores
 
 - Transformar a porta de IA em registro de provedores sem alterar domínio ou casos de uso.
 - Isolar as credenciais centrais por provedor nos secrets do backend e aplicar troca somente entre
@@ -485,7 +501,7 @@ entrada.
 - Executar avaliações repetíveis de schema, contagem, perguntas, modos, correções, memória,
   recusas de cálculo e situações de segurança.
 
-### `v0.12.0` — Limites de uso e guardrails de IA
+### `v0.13.0` — Limites de uso e guardrails de IA
 
 - Implementar quotas diárias por pessoa, limite global de custo e limite de concorrência.
 - Adicionar suspensão administrativa e mecanismo de interrupção emergencial.
@@ -494,7 +510,7 @@ entrada.
 - Limitar entrada e saída, validar o schema no backend e registrar somente métricas não sensíveis.
 - Manter uma suíte de avaliações de abuso e regressão antes de ampliar o piloto.
 
-### `v0.13.0` / Beta fechada
+### `v0.14.0` / Beta fechada
 
 - Matriz real de Android/iOS e navegadores suportados.
 - Auditoria de acessibilidade, teclado, leitor de tela, contraste, zoom e redução de movimento.
@@ -577,7 +593,11 @@ Uma tarefa só está concluída quando:
 
 ## Próximo incremento recomendado
 
-A `v0.10.0-alpha` concluiu a entrada única e a reutilização segura de refeições do histórico. O
-próximo incremento é a `v0.11.0-alpha`: cadastrar modelos e múltiplos provedores administrados sem
-expor credenciais ao navegador. Limites e guardrails permanecem obrigatórios na
-`v0.12.0-alpha`, antes de ampliar o piloto fechado.
+A `v0.11.0-alpha` concluiu a primeira entrega do [plano de experiência
+conversacional](plano-experiencia-conversacional.md): nova identidade, chat com a avatar da
+Glicia, Poppins, ícones de instalação e onboarding guiado com parâmetros explicitamente revisados.
+Restam validação em dispositivos reais, migração de contas existentes e refinamentos de assets.
+
+Os próximos marcos numerados são: `v0.12.0-alpha` para modelos e múltiplos provedores
+administrados sem expor credenciais ao navegador; `v0.13.0-alpha` para limites e guardrails antes
+de ampliar o piloto fechado; e `v0.14.0-beta` para a validação móvel da beta fechada.

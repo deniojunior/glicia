@@ -29,6 +29,12 @@ com segurança e pouca fricção no celular, sem depender de conhecimentos técn
 
 ## Positioning
 
+A experiência desejada é conversar com a amiga Glicia: uma assistente virtual acolhedora,
+direta e sem julgamento, representada pela avatar da nova identidade visual. O chat concentra
+coleta, revisão, resultado e registro; o primeiro uso é uma conversa guiada. A direção está
+documentada em [identidade visual](identidade-visual.md) e no
+[plano de experiência](plano-experiencia-conversacional.md), ainda a implementar.
+
 A Glicia combina conversa em linguagem natural, tabela nutricional controlada, confirmação
 humana obrigatória e cálculo local independente da IA. A IA organiza a refeição; ela nunca
 calcula ou recomenda a dose.

@@ -2,6 +2,15 @@
 
 Todas as mudanças relevantes deste projeto serão registradas neste arquivo.
 
+## [0.11.0-alpha] - 2026-09-06
+
+- Nova identidade azul da Glicia, com Poppins local, wordmark, avatar e ícone de instalação em alta resolução.
+- Chat simplificado para tornar a conversa com a Glicia o centro da experiência.
+- Onboarding conversacional, retomável e com revisão explícita de limites, parâmetros, RICs e modo de interação.
+- Voz da assistente revisada: acolhedora, clara e sem promessas clínicas.
+
+Leia as [notas completas da v0.11.0-alpha](docs/releases/v0.11.0-alpha.md).
+
 ## [0.10.0-alpha] - 2026-09-05
 
 - Entrada única por e-mail com estados de aprovação, confirmação antes da lista e aviso de espera.

@@ -16,21 +16,21 @@ export default defineConfig({
         start_url: "/",
         scope: "/",
         display: "standalone",
-        background_color: "#f7fbfa",
-        theme_color: "#075365",
+        background_color: "#e7f3ff",
+        theme_color: "#0b2d6b",
         icons: [
           {
-            src: "/icons/glicia-192.png",
+            src: "/icons/glicia-192-v5.png",
             sizes: "192x192",
             type: "image/png"
           },
           {
-            src: "/icons/glicia-512.png",
+            src: "/icons/glicia-512-v5.png",
             sizes: "512x512",
             type: "image/png"
           },
           {
-            src: "/icons/glicia-512.png",
+            src: "/icons/glicia-512-v5.png",
             sizes: "512x512",
             type: "image/png",
             purpose: "maskable"

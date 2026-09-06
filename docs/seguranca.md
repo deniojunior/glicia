@@ -50,4 +50,4 @@ rotacionados quando um mantenedor perder acesso ou houver suspeita de exposiçã
 
 O piloto ainda não possui quota por pessoa, limite global de custo, classificação de intenção nem
 defesas específicas contra prompt injection. O acesso aprovado reduz exposição, mas não elimina
-esses riscos. Eles pertencem à `v0.12.0-alpha` e devem ser concluídos antes de ampliar o piloto.
+esses riscos. Eles pertencem à `v0.13.0-alpha` e devem ser concluídos antes de ampliar o piloto.
