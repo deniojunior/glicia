@@ -9,7 +9,7 @@ export class DemoAiProvider implements AiProvider {
       return this.result("Pronto, atualizei o resumo para você conferir novamente.");
     }
     return this.result(
-      "Resumo de demonstração: estimei 42 g de carboidratos. Confira os dados antes de confirmar."
+      "Resumo de demonstração: encontrei 42 g de carboidratos na tabela. Confira os dados antes de confirmar."
     );
   }
 

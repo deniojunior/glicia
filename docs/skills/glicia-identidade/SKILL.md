@@ -71,11 +71,11 @@ Em bloqueios, priorizar clareza e a orientação já definida pelo produto, sem 
   botões são permitidos dentro da conversa; comandos de terminal não são necessários.
 - Confirmação explícita vem antes do cálculo. Texto livre da IA não confirma dados, não
   inventa parâmetros e não produz dose. Resultado vem do domínio existente.
-- Explicar que a IA ajuda a organizar a refeição e estimar carboidratos; a Glicia aplica os
+- Explicar que a IA ajuda a buscar os alimentos exclusivamente na tabela da Sociedade Brasileira de Diabetes; a Glicia aplica os
   parâmetros pessoais confirmados para calcular a sugestão. Não mudar fórmula ou travas.
 - No onboarding, usar roteiro determinístico com entradas validadas e progresso retomável.
   Valores padrão não equivalem a parâmetros pessoais confirmados. Não pedir chave de IA.
-- Preservar Preciso/Rápido, correções, histórico contextual, modo manual e dose aplicada opcional.
+- Preservar o comportamento preciso padrão, correções, histórico contextual, modo manual e dose aplicada opcional.
   Uma refeição do histórico não fornece glicemia atual nem dose a repetir.
 - Manter instalação opcional e acesso aprovado por e-mail/OTP. Avatar ou conversa não
   implicam novos recursos de áudio, câmera, monitoramento ou integração com sensor.

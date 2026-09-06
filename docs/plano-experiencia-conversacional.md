@@ -89,13 +89,12 @@ de inferências do modelo para aceitar parâmetros clínicos.
 | Etapa | Mensagem/intenção | Resposta ou controle |
 | --- | --- | --- |
 | Boas-vindas | “Oi, eu sou a Glicia, sua assistente virtual para contar carboidratos. Vou te mostrar como funciona e preparar seus ajustes.” | **Vamos começar** |
-| Contagem | “Você me conta os alimentos e as porções. Eu uso a tabela de alimentos da Glicia para estimar os carboidratos e te mostro o resumo para conferir.” | **Continuar**; exemplo fictício opcional |
+| Contagem | “Você me conta os alimentos e as porções. Eu consulto exclusivamente a tabela da Sociedade Brasileira de Diabetes para encontrar os carboidratos e te mostro o resumo para conferir.” | **Continuar**; exemplo fictício opcional |
 | Sugestão | “Depois que você confirma, a Glicia calcula uma sugestão de insulina usando os parâmetros que você informou. A IA ajuda na refeição; a dose vem desse cálculo.” | **Entendi**; **Como funciona o cálculo** |
 | Limites | Explicar que os parâmetros vêm da equipe de saúde, não há cálculo de insulina ativa nem leitura automática do sensor. | Texto curto e ajuda disponível |
 | Parâmetros | “Vamos conferir os valores definidos com sua equipe de saúde?” | Glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal, com unidades e explicações |
 | RICs | “Qual é o seu RIC em cada refeição? Ele indica quantos gramas de carboidrato correspondem a uma unidade de insulina.” | Cinco campos, com opção de repetir um valor entre refeições mediante confirmação |
-| Preferência | Explicar Preciso e Rápido sem alterar confirmação ou travas. | Escolha; Preciso pode ser a preferência inicial de interface |
-| Revisão | “Confere seus ajustes antes de começarmos?” | Resumo de todos os parâmetros, cinco RICs e modo; **Editar** e confirmação explícita |
+| Revisão | “Confere seus ajustes antes de começarmos?” | Resumo de todos os parâmetros e cinco RICs; **Editar** e confirmação explícita |
 | Primeira conversa | “Tudo pronto. Me conta o que você vai comer.” | Compositor normal do chat |
 
 Apresentar uma pergunta ou um pequeno grupo relacionado por vez, sem despejar o roteiro

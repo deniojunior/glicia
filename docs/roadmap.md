@@ -22,9 +22,9 @@ fonte principal dos dados de saúde.
 6. A pessoa pode informar a quantidade de insulina realmente aplicada.
 7. Preferências, memória alimentar e histórico pertencem à conta da pessoa e ficam sincronizados.
 
-No celular, os comandos do terminal serão substituídos por controles visuais. O modo Preciso ou
-Rápido será um seletor acessível na conversa e nas configurações. Parâmetros clínicos, memória
-alimentar e histórico ficarão em áreas próprias. A conexão com o provedor de IA será uma
+No celular, os comandos do terminal serão substituídos por controles visuais. A conversa sempre
+usa o comportamento preciso, sem seletor de modo. Parâmetros clínicos, memória alimentar e
+histórico ficarão em áreas próprias. A conexão com o provedor de IA será uma
 configuração operacional do backend, sem chave ou seletor de modelo na interface da pessoa.
 
 O usuário continuará informando manualmente a glicemia e a seta exibidas pelo FreeStyle Libre. Não está prevista integração direta com o sensor, LibreLink ou LibreView.
@@ -52,7 +52,7 @@ A navegação principal da PWA será organizada em três áreas:
 
 - **Conversa:** diálogo com a Glicia, estado da consulta, confirmação e resultado.
 - **Histórico:** refeições confirmadas e doses aplicadas da conta.
-- **Configurações:** parâmetros clínicos, RICs, modo de interação, memória alimentar e controles
+- **Configurações:** parâmetros clínicos, RICs, memória alimentar e controles
   da conta. Provedor, modelo e credenciais são administrados no backend.
 
 ### Primeiro acesso e onboarding obrigatório
@@ -76,8 +76,7 @@ O onboarding será curto, retomável e dividido em etapas:
    determinístico com os parâmetros pessoais; a conta já foi autenticada por código na PWA.
 3. **Parâmetros pessoais:** solicitar glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal.
 4. **RICs:** solicitar separadamente os valores de café da manhã, almoço, café da tarde, jantar e ceia.
-5. **Modo de interação:** escolher entre Preciso e Rápido, apresentando a diferença entre eles.
-6. **Revisão:** mostrar todos os parâmetros e exigir confirmação de que foram definidos com a equipe de saúde.
+5. **Revisão:** mostrar todos os parâmetros e exigir confirmação de que foram definidos com a equipe de saúde.
 
 Não será possível pular a conta, os parâmetros de cálculo, os cinco RICs ou a revisão final. Cada
 valor numérico deverá ser finito e obedecer às mesmas validações da CLI. O progresso será
@@ -159,9 +158,9 @@ o fluxo principal, instalação e recuperação estáveis.
 | Versão | Foco | Critério de avanço |
 | --- | --- | --- |
 | `v0.1.0-alpha` | CLI alpha e validação inicial da utilidade. | Código instalável, contagem assistida por IA, confirmação explícita, cálculo local e histórico. |
-| `v0.2.0-alpha` | Contrato de comportamento independente da CLI. | Fluxo conversacional, correções, modos, memória, configuração, travas e histórico cobertos por testes de caracterização. |
+| `v0.2.0-alpha` | Contrato de comportamento independente da CLI. | Fluxo conversacional, correções, comportamento preciso, memória, configuração, travas e histórico cobertos por testes de caracterização. |
 | `v0.3.0-alpha` | Protótipo mobile-first da conversa. | PWA utilizável no navegador do celular com texto, ditado do teclado, respostas em Markdown e continuidade entre turnos. |
-| `v0.4.0-alpha` | Onboarding, configuração e BYOK na PWA. | Primeiro acesso obrigatório e retomável, estados de chave ausente/inválida/válida, configuração dos parâmetros e RICs, revisão final, seletor de modo e edição posterior confirmada. |
+| `v0.4.0-alpha` | Onboarding, configuração e BYOK na PWA. | Primeiro acesso obrigatório e retomável, estados de chave ausente/inválida/válida, configuração dos parâmetros e RICs, revisão final e edição posterior confirmada. |
 | `v0.5.0-alpha` | Paridade funcional com a CLI. | Confirmação e correção dos dados, mesmas travas, mesmos resultados de cálculo e registro da dose aplicada. |
 | `v0.6.0-alpha` | Persistência, portabilidade e instalação. | Preferências, memória alimentar e histórico estáveis; atualização da PWA sem perda de dados; exportação, importação e backup local validados; instalação orientada na tela inicial. Concluída. |
 | `v0.7.0-alpha` | Plataforma Supabase, conta e BYOK seguro. | Infraestrutura versionada, autenticação por e-mail, PostgreSQL/RLS, conexão OpenAI cifrada e proxy em Edge Function. Concluída. |
@@ -186,7 +185,7 @@ Antes de portar o fluxo, serão definidos casos de conformidade compartilhados p
 
 - completude dos quatro campos da conversa;
 - correções antes da confirmação;
-- modos Preciso e Rápido;
+- comportamento preciso e perguntas quando faltarem dados essenciais;
 - atualização da memória alimentar;
 - validação e precedência de parâmetros;
 - faixas de ajuste de tendência;

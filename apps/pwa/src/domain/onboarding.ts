@@ -24,7 +24,7 @@ export function createOnboardingProgress(
   return {
     version: 1,
     step: normalizeStep(values.step),
-    interaction_mode: values.interaction_mode ?? "preciso",
+    interaction_mode: "preciso",
     clinical_settings: createClinicalSettings(values.clinical_settings)
   };
 }
@@ -32,13 +32,15 @@ export function createOnboardingProgress(
 function normalizeStep(step: OnboardingStep | undefined): OnboardingStep {
   // Compatibilidade com rascunhos da v0.8, que tinham uma etapa exclusiva para BYOK.
   if ((step as string | undefined) === "provider") return "carbohydrate_ratios";
+  // A escolha de modo foi removida: toda conversa usa o comportamento preciso.
+  if ((step as string | undefined) === "interaction_mode") return "review";
   return step ?? "welcome";
 }
 
 export function preferencesFromProgress(progress: OnboardingProgress): PersistedPreferences {
   return {
     version: 1,
-    interaction_mode: progress.interaction_mode,
+    interaction_mode: "preciso",
     clinical_settings: createClinicalSettings(progress.clinical_settings)
   };
 }

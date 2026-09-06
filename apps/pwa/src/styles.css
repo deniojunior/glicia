@@ -144,16 +144,19 @@ button:disabled { cursor: not-allowed; }
 .key-row .secondary-action { margin: 0; padding: 0.7rem 0.85rem; color: #075365; }
 @media (min-width: 32rem) { .key-row { grid-template-columns: minmax(0, 1fr) auto auto; } }
 .status-message { margin: 1rem 0 0; color: #27675f; font-weight: 700; }
-.auth-content { padding-top: .65rem; padding-bottom: 2rem; }
-.auth-hero { display: flex; justify-content: flex-start; max-width: 38rem; margin: clamp(.75rem, 3vh, 1.5rem) 0 0; }
+.auth-header { justify-content: center; }
+.auth-content { max-width: 34rem; margin-inline: auto; padding-top: .65rem; padding-bottom: 2rem; text-align: center; }
+.auth-hero { display: flex; justify-content: center; max-width: 38rem; margin: clamp(.75rem, 3vh, 1.5rem) 0 0; }
 .auth-hero .glicia-avatar { width: clamp(9rem, 48vw, 14rem); margin-left: -.35rem; }
-.auth-actions { display: grid; justify-items: start; gap: 0.5rem; }
+.auth-content form { text-align: center; }
+.auth-content label { text-align: left; }
+.auth-actions { display: grid; justify-items: center; gap: 0.5rem; }
 .auth-actions .primary-action { width: auto; min-width: 11rem; }
-.auth-secondary-actions { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; margin-top: 0.55rem; }
+.auth-secondary-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem 1rem; margin-top: 0.55rem; }
 .auth-secondary-actions .text-action, .auth-back { padding-right: 0; padding-left: 0; text-decoration: underline; text-underline-offset: 0.18em; }
 .otp-input { min-height: 3.6rem; font-size: 1.45rem !important; font-variant-numeric: tabular-nums; font-weight: 750; letter-spacing: 0.28em; text-align: center; }
-.auth-error { margin-top: 1rem; }
-.auth-note { max-width: 44ch; margin: 1.25rem 0 0 !important; color: #5d777c !important; font-size: 0.78rem; line-height: 1.5 !important; }
+.auth-error { max-width: 44ch; margin: 1rem auto 0; }
+.auth-note { max-width: 44ch; margin: 1.25rem auto 0 !important; color: #5d777c !important; font-size: 0.78rem; line-height: 1.5 !important; }
 .mailpit-link { display: inline-flex; min-height: 2.75rem; align-items: center; border-radius: 0.75rem; padding: 0.7rem 0.95rem; background: #075365; color: #fff; font-size: 0.88rem; font-weight: 800; text-decoration: none; }
 .mailpit-link:hover { background: #0b6675; }
 .account-sign-out { margin-top: 2rem; padding: 0; color: #7b4038; text-decoration: underline; text-underline-offset: 0.18em; }

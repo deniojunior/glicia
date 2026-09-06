@@ -110,7 +110,7 @@ Explicar no primeiro contato que a Glicia é uma assistente virtual.
 | Porção ambígua | “Essa porção de arroz equivale a quantas colheres?” |
 | Revisão | “Confere se entendi sua refeição?” |
 | Correção | “Certo, vou atualizar a porção. Depois você confere de novo.” |
-| Explicação | “Eu organizo os alimentos e estimo os carboidratos. Você confere antes de continuar.” |
+| Explicação | “Eu consulto exclusivamente a tabela da Sociedade Brasileira de Diabetes, organizo os alimentos e encontro os carboidratos. Você confere antes de continuar.” |
 | Falha de envio | “Não consegui enviar sua mensagem. Ela continua aqui para você tentar de novo.” |
 | Retomada | “Vamos continuar de onde você parou?” |
 

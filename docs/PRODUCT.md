@@ -22,8 +22,8 @@ de glicemia que reduza sua capacidade de atenção.
 
 ## Product Purpose
 
-A Glicia conduz uma conversa curta para estruturar os dados da refeição, estimar carboidratos
-com apoio de IA e, após confirmação humana explícita, executar localmente o cálculo
+A Glicia conduz uma conversa curta para estruturar os dados da refeição, consultar exclusivamente
+a tabela de alimentos da Sociedade Brasileira de Diabetes com apoio de IA e, após confirmação humana explícita, executar localmente o cálculo
 determinístico já validado na CLI. O produto é bem-sucedido quando esse fluxo pode ser usado
 com segurança e pouca fricção no celular, sem depender de conhecimentos técnicos.
 
@@ -46,7 +46,7 @@ calcula ou recomenda a dose.
 - A pessoa pode digitar ou usar o ditado do teclado do celular para descrever a refeição.
 - Durante o experimento fechado, a pessoa solicita acesso por e-mail e somente contas aprovadas
   pelo autor podem iniciar o onboarding.
-- O primeiro acesso aprovado exige parâmetros clínicos, cinco RICs, modo de interação e revisão
+- O primeiro acesso aprovado exige parâmetros clínicos, cinco RICs e revisão
   final; a pessoa não configura credenciais nem escolhe o modelo de IA.
 - Configurações, memória alimentar e histórico ficam associados à conta no PostgreSQL.
 - O projeto é open source, sem fins lucrativos e deve ser simples para pessoas sem experiência
@@ -55,7 +55,7 @@ calcula ou recomenda a dose.
 ## Capabilities and Constraints
 
 - Preservar paridade com o comportamento validado na CLI antes de adicionar capacidades.
-- Oferecer conversa, confirmação e correção, modos Preciso e Rápido, memória alimentar,
+- Oferecer conversa, confirmação e correção em comportamento preciso, memória alimentar,
   histórico e registro da dose realmente aplicada.
 - Funcionar por URL e poder ser instalado na tela inicial como PWA, sem publicação em lojas.
 - Usar inicialmente uma credencial OpenAI central e evoluir para modelos e provedores

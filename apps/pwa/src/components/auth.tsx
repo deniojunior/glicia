@@ -88,7 +88,7 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
 
   return (
     <main className="onboarding-shell">
-      <header className="app-header">
+      <header className="app-header auth-header">
         <GliciaWordmark />
       </header>
       {!adminLogin ? <div className="auth-hero" aria-hidden="true">

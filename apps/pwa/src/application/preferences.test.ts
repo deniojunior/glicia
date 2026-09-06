@@ -25,7 +25,7 @@ describe("PreferencesService", () => {
     await service.save(preferencesFromProgress(progress));
     await service.clearOnboarding();
 
-    expect((await service.load())?.interaction_mode).toBe("rapido");
+    expect((await service.load())?.interaction_mode).toBe("preciso");
     expect(await service.loadOnboarding()).toBeNull();
   });
 

@@ -16,14 +16,14 @@ export class SupabasePreferencesRepository implements PreferencesRepository {
   public async loadPreferences(): Promise<PersistedPreferences | null> {
     const row = await this.loadRow();
     if (!row || row.onboarding_progress !== null) return null;
-    return { version: 1, clinical_settings: row.clinical_settings, interaction_mode: row.interaction_mode };
+    return { version: 1, clinical_settings: row.clinical_settings, interaction_mode: "preciso" };
   }
 
   public async savePreferences(preferences: PersistedPreferences): Promise<void> {
     await this.upsert({
       version: preferences.version,
       clinical_settings: preferences.clinical_settings,
-      interaction_mode: preferences.interaction_mode
+      interaction_mode: "preciso"
     });
   }
 
@@ -36,7 +36,7 @@ export class SupabasePreferencesRepository implements PreferencesRepository {
     await this.upsert({
       version: progress.version,
       clinical_settings: progress.clinical_settings,
-      interaction_mode: progress.interaction_mode,
+      interaction_mode: "preciso",
       onboarding_progress: createOnboardingProgress(progress)
     });
   }
