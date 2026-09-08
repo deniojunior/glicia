@@ -1,6 +1,6 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.13.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.13.0-alpha.md)
+[![Versão](https://img.shields.io/badge/version-0.14.0--beta-2563eb?style=flat-square)](docs/releases/v0.14.0-beta.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Supabase](https://img.shields.io/badge/PWA-Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](#privacidade-e-dados)
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.13.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado
+**Status:** `v0.14.0-beta` em preparação · CLI Python utilizável · PWA experimental com acesso aprovado
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -28,17 +28,17 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
   o [guia de staging](docs/staging.md).
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** validação da beta fechada em celulares na `v0.14.0-beta`.
+- **Marco atual:** provisionamento de staging e validação da `v0.14.0-beta` em celulares reais.
 
-Leia as [notas da v0.13.0-alpha](docs/releases/v0.13.0-alpha.md) para conhecer os controles de uso,
+Leia as [notas da v0.14.0-beta](docs/releases/v0.14.0-beta.md) para acompanhar instalação, recuperação, staging e validação mobile; as [notas da v0.13.0-alpha](docs/releases/v0.13.0-alpha.md) registram os controles de uso,
 os impactos para contribuidores e as limitações atuais.
 
 ## PWA no celular
 
-Abra a PWA pelo navegador. No Android e em navegadores compatíveis, a Glicia oferece o botão
-**Instalar Glicia** no primeiro acesso. No iPhone, abra no Safari, toque em **Compartilhar** e
-escolha **Adicionar à Tela de Início**. A instalação é opcional; ela não altera a forma de
-configurar ou usar a Glicia.
+Abra a PWA pelo navegador. A ação **Instalar app** aparece no primeiro acesso e continua disponível
+no menu da conversa. Em navegadores compatíveis, ela abre o prompt nativo. No iPhone, mostra os
+passos do Safari para **Compartilhar → Adicionar à Tela de Início**. A instalação é opcional; ela
+não altera a forma de configurar ou usar a Glicia.
 
 No primeiro acesso, informe seu e-mail. A Glicia identifica se ele já está aprovado, aguarda análise
 ou ainda precisa entrar na lista. Depois da aprovação, digite o código recebido sem sair da PWA;

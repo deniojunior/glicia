@@ -1,45 +1,44 @@
-import { useEffect, useState } from "react";
+import { useState, useSyncExternalStore } from "react";
+import { getInstallPromptState, requestInstall, subscribeInstallPrompt } from "../adapters/browser/install-prompt";
+import { detectInstallPlatform, type InstallPlatform } from "./install-platform";
 
-interface DeferredInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
+export function InstallGlicia({ variant = "onboarding" }: { variant?: "onboarding" | "menu" }) {
+  const [showHelp, setShowHelp] = useState(false);
+  const installPrompt = useSyncExternalStore(subscribeInstallPrompt, getInstallPromptState, getInstallPromptState);
+  const platform = detectInstallPlatform({
+    standalone: installPrompt.installed,
+    promptAvailable: installPrompt.prompt !== null,
+    userAgent: typeof navigator === "undefined" ? "" : navigator.userAgent,
+    navigatorPlatform: typeof navigator === "undefined" ? "" : navigator.platform,
+    maxTouchPoints: typeof navigator === "undefined" ? 0 : navigator.maxTouchPoints
+  });
 
-export function InstallGlicia() {
-  const [deferredPrompt, setDeferredPrompt] = useState<DeferredInstallPromptEvent | null>(null);
-  const [showIosHelp, setShowIosHelp] = useState(false);
-  const [installed, setInstalled] = useState(() => isStandalone());
-  const appleMobile = isAppleMobile();
-
-  useEffect(() => {
-    function capture(event: Event) { event.preventDefault(); setDeferredPrompt(event as DeferredInstallPromptEvent); }
-    function markInstalled() { setInstalled(true); setDeferredPrompt(null); }
-    window.addEventListener("beforeinstallprompt", capture);
-    window.addEventListener("appinstalled", markInstalled);
-    return () => { window.removeEventListener("beforeinstallprompt", capture); window.removeEventListener("appinstalled", markInstalled); };
-  }, []);
-
-  if (installed || (!deferredPrompt && !appleMobile)) return null;
+  if (platform === "installed") return null;
 
   async function install() {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    if (choice.outcome === "accepted") setInstalled(true);
-    setDeferredPrompt(null);
+    if (!installPrompt.prompt) { setShowHelp((current) => !current); return; }
+    await requestInstall();
   }
 
-  return <section className="install-glicia" aria-labelledby="install-title">
-    <h2 id="install-title">Ter a Glicia na tela inicial</h2>
-    <p>Instalar é opcional. Assim ela abre como aplicativo, sem App Store.</p>
-    {deferredPrompt ? <button className="secondary-action" type="button" onClick={() => void install()}>Instalar Glicia</button> : <><button className="text-action install-help" type="button" aria-expanded={showIosHelp} onClick={() => setShowIosHelp((current) => !current)}>Como instalar no iPhone</button>{showIosHelp ? <p className="install-instructions">No Safari, toque em Compartilhar e escolha <strong>Adicionar à Tela de Início</strong>. Depois volte aqui para continuar.</p> : null}</>}
+  const helpId = `install-help-${variant}`;
+
+  return <section className={`install-glicia install-glicia-${variant}`} aria-labelledby={`install-title-${variant}`}>
+    {variant === "onboarding" ? <><h2 id={`install-title-${variant}`}>Ter a Glicia na tela inicial</h2><p>É opcional. Instalada, ela abre como um aplicativo, sem precisar de loja.</p></> : <h3 id={`install-title-${variant}`}>Instalar a Glicia</h3>}
+    <button className={variant === "menu" ? "install-menu-action" : "secondary-action"} type="button" aria-expanded={installPrompt.prompt ? undefined : showHelp} aria-controls={installPrompt.prompt ? undefined : helpId} onClick={() => void install()}>
+      <InstallIcon />
+      <span><strong>Instalar app</strong>{variant === "menu" ? <small>{installPrompt.prompt ? "Adicionar à tela inicial" : "Ver instruções para este aparelho"}</small> : null}</span>
+      {variant === "menu" ? <svg className="install-menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d={installPrompt.prompt ? "m7 10 5 5 5-5" : "m10 7 5 5-5 5"} /></svg> : null}
+    </button>
+    {!installPrompt.prompt && showHelp ? <div className="install-instructions" id={helpId} role="status">{installHelp(platform)}</div> : null}
   </section>;
 }
 
-function isStandalone(): boolean {
-  return window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && (navigator as Navigator & { standalone?: boolean }).standalone === true);
+function installHelp(platform: InstallPlatform) {
+  if (platform === "ios-safari") return <p>No Safari, toque em <strong>Compartilhar</strong> e depois em <strong>Adicionar à Tela de Início</strong>.</p>;
+  if (platform === "ios-other") return <p>Abra <strong>glicia.app</strong> no Safari. Depois toque em <strong>Compartilhar</strong> e em <strong>Adicionar à Tela de Início</strong>.</p>;
+  return <p>Abra o menu do navegador e procure <strong>Instalar app</strong> ou <strong>Adicionar à tela inicial</strong>. Se essa opção não aparecer, você pode continuar usando a Glicia normalmente por aqui.</p>;
 }
 
-function isAppleMobile(): boolean {
-  return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+function InstallIcon() {
+  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" /></svg>;
 }

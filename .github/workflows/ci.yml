@@ -41,6 +41,8 @@ jobs:
         working-directory: apps/pwa
       - run: npm run build
         working-directory: apps/pwa
+      - name: Check deployment scripts
+        run: node --check .github/scripts/render-supabase-config.mjs && node --check .github/scripts/smoke-pwa.mjs && node --check .github/scripts/verify-staging-deploy.mjs
 
   supabase:
     runs-on: ubuntu-latest

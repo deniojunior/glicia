@@ -17,6 +17,7 @@ import { History } from "./components/history";
 import { Account } from "./components/account";
 import { ConversationMenu } from "./components/conversation-menu";
 import { LoadingScreen } from "./components/loading-screen";
+import { AccountLoadError } from "./components/account-load-error";
 import { AccessNotApproved, Auth, MissingSupabaseConfiguration } from "./components/auth";
 import { AdminAccessRequests } from "./components/admin-access-requests";
 import { ManualMealForm } from "./components/manual-meal-form";
@@ -243,17 +244,19 @@ function AuthenticatedApp({ client, user }: { client: SupabaseClient; user: User
   const [preferences, setPreferences] = useState<PersistedPreferences | null | undefined>(undefined);
   const [progress, setProgress] = useState<OnboardingProgress | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [screen, setScreen] = useState<"conversation" | "settings" | "history" | "account">("conversation");
   const [foodMemory, setFoodMemory] = useState<Readonly<Record<string, string>> | null>(null);
 
   useEffect(() => {
+    setPreferences(undefined); setFoodMemory(null); setLoadError(null);
     void Promise.all([preferencesService.load(), preferencesService.loadOnboarding(), mealRepository.load()])
       .then(([savedPreferences, savedProgress, savedMemory]) => { setPreferences(savedPreferences); setProgress(savedProgress); setFoodMemory(savedMemory); })
       .catch(() => { setLoadError("Não foi possível abrir a configuração da sua conta."); setPreferences(null); setFoodMemory({}); });
-  }, [client, mealRepository, preferencesService, user.id]);
+  }, [client, loadAttempt, mealRepository, preferencesService, user.id]);
 
   if (preferences === undefined || foodMemory === null) return <LoadingScreen message="Preparando sua conversa…" />;
-  if (loadError) return <main className="onboarding-shell"><p className="error-message" role="alert">{loadError}</p></main>;
+  if (loadError) return <AccountLoadError onRetry={() => setLoadAttempt((attempt) => attempt + 1)} onSignOut={() => accountService.signOut()} />;
   if (preferences === null) return <Onboarding initialProgress={progress} onProgress={(next) => preferencesService.saveOnboarding(next)} onComplete={async (next) => { await preferencesService.save(next); await preferencesService.clearOnboarding(); setPreferences(next); }} />;
   if (screen === "settings") return <Settings preferences={preferences} onBack={() => setScreen("conversation")} onSave={async (next) => { await preferencesService.save(next); setPreferences(next); }} />;
   if (screen === "history") return <History repository={mealRepository} onBack={() => setScreen("conversation")} />;

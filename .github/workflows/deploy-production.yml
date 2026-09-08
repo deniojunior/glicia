@@ -1,11 +1,12 @@
 name: Promote production
 
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: production
@@ -14,14 +15,21 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.release.tag_name }}
       - name: Validate release tag
-        run: test "$(printf '%s' "$GITHUB_REF_NAME" | sed -E 's/^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$//')" = ""
+        run: test "$(printf '%s' "$RELEASE_TAG" | sed -E 's/^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$//')" = ""
       - name: Require a commit reachable from main
-        run: git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+        run: git merge-base --is-ancestor "$(git rev-parse HEAD)" origin/main
+      - name: Require this commit to be deployed successfully in staging
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node .github/scripts/verify-staging-deploy.mjs "$GITHUB_REPOSITORY" "$(git rev-parse HEAD)"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -50,7 +58,9 @@ jobs:
   deploy:
     needs: verify
     runs-on: ubuntu-latest
-    environment: production
+    environment:
+      name: production
+      url: ${{ vars.PUBLIC_APP_URL }}
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
@@ -61,6 +71,8 @@ jobs:
       PUBLIC_APP_URL: ${{ vars.PUBLIC_APP_URL }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -94,3 +106,5 @@ jobs:
         run: npx --yes vercel@59.11.7 build --prod --token="$VERCEL_TOKEN"
       - name: Promote tagged PWA
         run: npx --yes vercel@59.11.7 deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+      - name: Smoke test production
+        run: node .github/scripts/smoke-pwa.mjs "$PUBLIC_APP_URL"

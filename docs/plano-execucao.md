@@ -515,10 +515,16 @@ Implementação concluída em 2026-09-06; validação manual em dispositivos rea
 
 ### `v0.14.0` / Beta fechada
 
-- Matriz real de Android/iOS e navegadores suportados.
+- Matriz real de Android/iOS e navegadores suportados, documentada em
+  `docs/checklist-beta-mobile.md`; execução em aparelhos reais pendente.
 - Auditoria de acessibilidade, teclado, leitor de tela, contraste, zoom e redução de movimento.
 - Rodadas observadas com usuários pilotos usando somente dados apropriados para teste.
-- Correções de instalação, autenticação, persistência e atualização encontradas na beta.
+- Instalação orientada no onboarding e no menu, com prompt nativo, instruções específicas para iOS
+  e detecção de modo standalone. ✅
+- Recuperação do carregamento da conta com nova tentativa ou saída segura. ✅
+- Separar staging e produção no pipeline; produção somente por GitHub Release após deploy do mesmo
+  commit em staging. Configuração versionada concluída; provisionamento externo pendente.
+- Correções adicionais de autenticação, persistência e atualização encontradas na validação real.
 - Congelamento de contratos e checklist de release candidate.
 
 ### `v1.0.0` — PWA estável

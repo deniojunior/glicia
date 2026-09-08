@@ -1,6 +1,6 @@
 {
   "name": "@glicia/pwa",
-  "version": "0.13.0-alpha.0",
+  "version": "0.14.0-beta.0",
   "private": true,
   "description": "PWA mobile-first da Glicia.",
   "type": "module",
@@ -21,8 +21,8 @@
     "supabase:test": "supabase test db --workdir ../..",
     "staging:check": "supabase migration list --linked --workdir ../.. && supabase db push --dry-run --linked --workdir ../..",
     "staging:deploy:db": "supabase db push --linked --workdir ../..",
-    "staging:deploy:functions": "supabase functions deploy --project-ref snsdnxlwdhadrehksati --workdir ../..",
-    "staging:deploy:config": "supabase config push --project-ref snsdnxlwdhadrehksati --workdir ../..",
+    "staging:deploy:functions": "supabase functions deploy --workdir ../..",
+    "staging:deploy:config": "supabase config push --workdir ../..",
     "staging:advisors": "supabase db advisors --linked --type all --level warn --workdir ../.."
   },
   "dependencies": {
@@ -51,6 +51,7 @@
     "typescript-eslint": "^8.41.0",
     "vite": "^7.1.3",
     "vite-plugin-pwa": "^1.0.3",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "workbox-window": "^7.4.1"
   }
 }

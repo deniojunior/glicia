@@ -44,9 +44,9 @@ No ambiente hospedado, configure os valores de `supabase/.env.example` como Edge
 secrets. `OPENAI_API_KEY` e `OPENAI_MODEL` são obrigatórios para a conversa. O domínio usado em
 `GLICIA_EMAIL_FROM` precisa estar verificado no Resend.
 
-O projeto hospedado `snsdnxlwdhadrehksati` é o ambiente de staging. A PWA correspondente é
-preparada para `https://glicia-ten.vercel.app/`; consulte `docs/staging.md` para o fluxo de
-deploy, secrets e validação ponta a ponta.
+O projeto hospedado `snsdnxlwdhadrehksati` atende atualmente a produção. Staging deverá usar um
+segundo projeto Supabase, sem usuários, dados ou secrets compartilhados, e a PWA em
+`https://staging.glicia.app/`; consulte `docs/staging.md` para o provisionamento e a validação.
 
 Antes de aplicar no projeto remoto, use `npx supabase db push --dry-run --workdir ../..` e confirme
 o diff. As chaves de publicação e os segredos das funções devem ser fornecidos por ambiente; nunca

@@ -1,4 +1,5 @@
 import { useId, useRef, useState } from "react";
+import { InstallGlicia } from "./install-glicia";
 
 interface ConversationMenuProps {
   onOpenHistory(): void;
@@ -32,6 +33,7 @@ export function ConversationMenu({ onOpenHistory, onOpenSettings, onOpenAccount,
           <button type="button" onClick={() => choose(onOpenSettings)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h7m4 0h5M4 17h3m4 0h9" /><circle cx="13" cy="7" r="2" /><circle cx="9" cy="17" r="2" /></svg><span><strong>Ajustes</strong><small>Confira seus parâmetros</small></span><span aria-hidden="true">›</span></button>
           <button type="button" onClick={() => choose(onOpenAccount)}><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3" /><path d="M5 21c.8-4 3.1-6 7-6s6.2 2 7 6" /></svg><span><strong>Conta</strong><small>Gerencie seus dados</small></span><span aria-hidden="true">›</span></button>
         </nav>
+        <InstallGlicia variant="menu" />
         <button className="conversation-menu-logout" type="button" disabled={isSigningOut} onClick={() => choose(onSignOut)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H4v16h5m6-13 5 5-5 5M9 12h11" /></svg>{isSigningOut ? "Saindo…" : "Sair da conta"}</button>
       </div>
     </dialog>

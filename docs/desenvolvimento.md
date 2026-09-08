@@ -100,7 +100,7 @@ Resend, adicione a chave e o modelo centrais da OpenAI e envie esses valores com
 Edge Functions. Nunca use o prefixo `VITE_` para esses valores.
 Cadastre a URL pública da PWA e a URL local de desenvolvimento na lista de Redirect URLs do
 Supabase Auth; o magic link só retorna para endereços permitidos pelo projeto.
-O `supabase/config.toml` usa `https://www.glicia.app/` como Site URL de staging e mantém também o
+O `supabase/config.toml` usa `https://www.glicia.app/` como Site URL base de produção e mantém também o
 domínio sem `www`, a URL antiga da Vercel, `localhost` e `127.0.0.1` na lista de Redirect URLs para desenvolvimento híbrido. Revise o
 diff de `npm run staging:deploy:config` antes de confirmar mudanças de Auth.
 

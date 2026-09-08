@@ -4,15 +4,20 @@ O staging da Glicia usa infraestrutura hospedada e isolada do desenvolvimento lo
 
 | Componente | Staging |
 | --- | --- |
-| PWA | `https://www.glicia.app/` (domínio canônico; `glicia.app` redireciona) |
-| Supabase | projeto `snsdnxlwdhadrehksati` |
+| PWA | projeto Vercel `glicia-staging`; `https://staging.glicia.app/` aguarda DNS |
+| Supabase | projeto exclusivo, ainda a provisionar |
 | Banco, Auth, Vault e Functions | Supabase hospedado |
 | Deploy da PWA | Vercel Hobby integrada ao GitHub |
 | Notificações da Glicia | Resend |
 | Códigos e links de entrada | Supabase Auth gera; Resend entrega |
 
-O projeto remoto atual é staging, não produção. Um ambiente de produção deverá usar outro projeto
-Supabase, outras chaves e outra URL.
+O projeto remoto atual `snsdnxlwdhadrehksati` e o projeto Vercel `glicia` atendem produção. Eles
+não deverão ser usados para validar commits comuns da `main`. Em 8 de setembro de 2026, o projeto
+Vercel `glicia-staging` foi criado com ID `prj_xhhkiyqGbJ2mNq69aEhe8NffnSc2`. O projeto Supabase
+exclusivo de staging ainda não estava provisionado.
+
+Staging não recebe cópia de usuários ou refeições reais. Migrations, configuração e Functions são
+promovidas pelo código versionado; contas e dados de teste são criados diretamente no ambiente.
 
 ## PWA local contra staging
 
@@ -51,11 +56,12 @@ Depois de uma execução verde na `main`, `Deploy staging` publica exatamente o 
 
 Crie o GitHub Environment `staging` e configure:
 
-- variável `SUPABASE_PROJECT_REF=snsdnxlwdhadrehksati`;
+- variável `SUPABASE_PROJECT_REF`, com o ref do novo projeto exclusivo de staging;
 - secret `SUPABASE_ACCESS_TOKEN`, com um token pessoal do Supabase;
 - secret `SUPABASE_DB_PASSWORD`, com a senha do banco de staging;
 - secret `VERCEL_TOKEN`, limitado ao projeto de staging;
-- variáveis `VERCEL_ORG_ID` e `VERCEL_PROJECT_ID` do projeto de staging.
+- variáveis `VERCEL_ORG_ID` e `VERCEL_PROJECT_ID` do projeto de staging;
+- variável `PUBLIC_APP_URL=https://staging.glicia.app`.
 
 Os secrets usados pelas Edge Functions, incluindo `OPENAI_API_KEY`, continuam no Supabase e não
 precisam ser copiados para o GitHub. Para que a publicação da PWA seja realmente condicionada à
@@ -68,20 +74,21 @@ Copie `supabase/.env.example` para `supabase/.env.staging`, preencha os valores 
 
 ```bash
 apps/pwa/node_modules/.bin/supabase secrets set \
-  --project-ref snsdnxlwdhadrehksati \
+  --project-ref "$SUPABASE_PROJECT_REF" \
   --env-file supabase/.env.staging
 ```
 
 São obrigatórios para o fluxo completo de e-mail:
 
-- `PUBLIC_APP_URL=https://www.glicia.app`
+- `PUBLIC_APP_URL=https://staging.glicia.app`
 - `GLICIA_ADMIN_EMAIL=glicia.app.admin@gmail.com`
 - `GLICIA_EMAIL_FROM`, com remetente verificado no Resend
 - `RESEND_API_KEY`
 
-O domínio `glicia.app` está verificado no Resend. O staging usa
-`GLICIA_EMAIL_FROM="Glicia <acesso@glicia.app>"`, publicado nos secrets do Supabase. Se o
-remetente for alterado, ele deve continuar pertencendo a um domínio verificado no Resend.
+O domínio `glicia.app` está verificado no Resend. Para diferenciar mensagens de teste, staging
+deverá usar um remetente próprio do domínio, como
+`GLICIA_EMAIL_FROM="Glicia Staging <staging@glicia.app>"`. Se o remetente for alterado, ele deve
+continuar pertencendo a um domínio verificado no Resend.
 
 Para a conversa também são obrigatórios:
 
@@ -99,10 +106,11 @@ Importe o repositório na Vercel e configure o projeto assim:
    portanto o build precisa receber o monorepo completo.
 3. Confirme o framework **Vite**. Instalação, build e saída já estão versionados no
    `vercel.json` da raiz.
-4. Cadastre em **Production** as variáveis `VITE_SUPABASE_URL`,
+4. Cadastre em **Production** desse projeto de staging as variáveis `VITE_SUPABASE_URL`,
    `VITE_SUPABASE_PUBLISHABLE_KEY` usando os valores de
    `.env.staging.example`.
-5. Faça o deploy e confirme o domínio canônico `https://www.glicia.app`.
+5. Vincule `staging.glicia.app` somente a esse projeto e confirme que o bundle aponta para o
+   Supabase de staging.
 
 A integração Git pode criar uma URL isolada para cada pull request, mas a publicação de `main`
 fica sob responsabilidade do workflow após a CI. O `vercel.json` também mantém o fallback de SPA
@@ -132,13 +140,31 @@ Use somente dados fictícios no staging.
 
 ## Promoção para produção
 
-Tags SemVer, como `v0.9.0-alpha`, acionam `Promote production`. Crie previamente o GitHub
-Environment `production`, cadastre um revisor obrigatório e use credenciais diferentes de
+Somente a publicação de uma GitHub Release associada a uma tag SemVer aciona
+`Promote production`. Criar ou enviar a tag isoladamente não publica produção. Crie previamente o
+GitHub Environment `production`, cadastre um revisor obrigatório e use credenciais diferentes de
 staging:
 
 - secrets `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD` e `VERCEL_TOKEN`;
 - variáveis `SUPABASE_PROJECT_REF`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` e `PUBLIC_APP_URL`.
 
-O job sem secrets repete toda a qualidade e confirma que a tag aponta para um commit alcançável
-pela `main`. Somente depois da aprovação do Environment o job de deploy acessa as credenciais,
-renderiza a configuração Auth com a URL de produção e publica Supabase e Vercel.
+O job sem secrets repete toda a qualidade, confirma que a tag aponta para um commit alcançável
+pela `main` e exige um `Deploy staging` bem-sucedido para o mesmo SHA. Somente depois da aprovação
+do Environment o job de deploy acessa as credenciais, renderiza a configuração Auth com a URL de
+produção, publica Supabase e Vercel e executa o smoke test da PWA.
+
+## Provisionamento pendente
+
+Antes de habilitar `Deploy staging`:
+
+1. criar um segundo projeto Supabase na organização da Glicia e guardar o ref e a senha somente no
+   GitHub Environment `staging`;
+2. usar o projeto Vercel `glicia-staging`, já criado e associado ao domínio, mantendo o deploy
+   automático da integração Git desabilitado;
+3. na GoDaddy, criar o CNAME `staging` apontando para
+   `a37e263802e13a77.vercel-dns-017.com` e aguardar a emissão do certificado;
+4. cadastrar variáveis publicáveis da PWA no projeto Vercel de staging e secrets operacionais nas
+   Edge Functions do Supabase de staging;
+5. criar os GitHub Environments `staging` e `production`, com `production` protegido por aprovação;
+6. fazer merge em `main`, observar a CI e o deploy de staging e executar o checklist com dados
+   fictícios antes de publicar qualquer GitHub Release.

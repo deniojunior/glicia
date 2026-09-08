@@ -43,7 +43,8 @@ O usuário continuará informando manualmente a glicemia e a seta exibidas pelo 
 - **Credencial central no backend:** durante o piloto fechado, a Glicia usa uma chave do projeto,
   armazenada somente nos secrets das Edge Functions. A credencial não pertence à pessoa usuária,
   não chega ao navegador e não entra em banco, logs ou backups operacionais.
-- **Instalação opcional:** a aplicação funcionará por URL e poderá ser adicionada à tela inicial.
+- **Instalação opcional e orientada:** a aplicação funcionará por URL e oferecerá uma ação visível
+  **Instalar app**, adaptada às capacidades do dispositivo e do navegador.
 - **Acessibilidade:** alvos de toque, contraste, tamanho de texto, navegação por teclado e leitores de tela farão parte dos critérios de conclusão.
 
 ## Experiência planejada
@@ -93,6 +94,37 @@ algum parâmetro obrigatório estiver ausente após uma atualização, novas con
 até a correção, sem apagar os demais dados válidos.
 
 Depois do primeiro acesso, glicemia-alvo, fator de correção, limite de hipoglicemia e os cinco RICs poderão ser consultados e alterados na aba **Ajustes**, com unidades e explicações claras antes de salvar. A pessoa também poderá reiniciar o onboarding sem apagar o histórico.
+
+### Instalação orientada no celular
+
+Antes da primeira versão beta, a PWA terá uma ação **Instalar app** disponível em um local fácil de
+reencontrar, como o menu principal ou a área da conta. A sugestão poderá aparecer também após a
+conclusão do onboarding, sem bloquear o primeiro uso nem interromper uma conversa.
+
+O fluxo deverá detectar primeiro as capacidades do navegador e se a Glicia já está sendo executada
+como aplicativo instalado. A experiência será adaptada assim:
+
+- quando o navegador disponibilizar o prompt nativo de instalação, o botão **Instalar app** deverá
+  abri-lo após o toque da pessoa;
+- no Safari do iPhone ou iPad, onde não existe instalação automática por um site, a Glicia deverá
+  mostrar um passo a passo visual e curto para **Compartilhar → Adicionar à Tela de Início**;
+- em navegadores iOS que não permitam concluir o fluxo, a orientação deverá indicar a abertura no
+  Safari antes de mostrar os passos;
+- quando a PWA já estiver instalada, a ação deverá ser ocultada ou substituída por uma confirmação
+  clara, evitando instruções repetidas;
+- quando a instalação não for suportada, a pessoa continuará usando normalmente pela URL e receberá
+  uma explicação simples, sem mensagem técnica.
+
+A instalação nunca será iniciada silenciosamente: navegadores compatíveis exigem uma ação explícita
+da pessoa antes de exibir o prompt. O aceite para a beta exige validação desse fluxo no Safari/iOS e
+em um navegador Chromium/Android, incluindo instalação, abertura pelo ícone, modo standalone,
+atualização da PWA e retorno seguro para a versão web.
+
+Novas versões serão detectadas pelo service worker em segundo plano, inclusive quando a pessoa
+voltar ao app depois de deixá-lo aberto. A Glicia mostrará um aviso pequeno e não bloqueante com
+as opções **Atualizar agora** e **Depois**. Adiar recolhe o aviso sem interromper a conversa; a
+versão atual continua funcionando até que a pessoa escolha atualizar. Nenhuma recarga automática
+deverá apagar uma mensagem ainda não enviada.
 
 Não haverá tela de chave da OpenAI. A chave central será configurada e rotacionada pelo autor nos
 secrets das Edge Functions e lida somente pelo adaptador do provedor no backend.
@@ -170,8 +202,8 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.11.0-alpha` | Nova identidade e experiência conversacional. | Chat centrado na amiga Glicia, avatar e ícone consistentes, Poppins, onboarding guiado e retomável com revisão explícita. Concluída; aguarda validação manual em dispositivos reais. |
 | `v0.12.0-alpha` | Refinamento da experiência mobile e autonomia da conta. | Entrada progressiva, conversa mais legível, ditado do teclado, histórico pesquisável e paginado, menu móvel, conta separada e preenchimento manual recuperável. Concluída; aguarda validação em dispositivos reais. |
 | `v0.13.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. Concluída; aguarda validação operacional em produção. |
-| `v0.14.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
-| `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
+| `v0.14.0-beta` | Beta fechada no celular. | Em implementação: fluxo **Instalar app** e recuperação da conta concluídos no código; faltam staging isolado e testes em Android/iOS, modo standalone, acessibilidade e pilotos. |
+| `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada, staging isolado validado e produção publicada exclusivamente por uma GitHub Release baseada em tag SemVer, sem problema crítico conhecido. |
 | `v1.1.0` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
 
 ## Contratos e testes
@@ -264,20 +296,51 @@ A `v0.9.0-alpha` evoluiu o workflow de CI e adicionou entrega contínua com GitH
 requests e alterações na branch principal validam CLI, PWA, contratos, migrations, RLS e Edge
 Functions antes de permitir publicação.
 
-O fluxo implementado é:
+Antes da `v1.0.0`, a Glicia terá dois ambientes hospedados e isolados:
+
+| Componente | Staging | Produção |
+| --- | --- | --- |
+| Frontend | projeto Vercel próprio em `https://staging.glicia.app` | projeto Vercel próprio em `https://glicia.app` |
+| Backend | projeto Supabase exclusivo de staging | projeto Supabase exclusivo de produção |
+| Dados | somente contas e dados fictícios de validação | contas e dados reais do piloto |
+| Auth e URLs | remetentes, redirects e URLs de staging | remetentes, redirects e URLs de produção |
+| Secrets | chaves exclusivas do ambiente | chaves exclusivas do ambiente |
+
+Banco, usuários, Auth, Edge Functions, credenciais do provedor e secrets não serão compartilhados
+entre staging e produção. A promoção leva código e migrations versionadas, nunca cópias dos dados
+de staging. Cada ambiente terá GitHub Environment próprio e credenciais com o menor privilégio
+necessário.
+
+O pipeline alvo será:
 
 1. **Pull request:** lint, formatação, tipos, testes Python e TypeScript, build da PWA e testes
-   locais do Supabase, sem acesso a secrets de deploy.
-2. **Branch principal:** repetir as verificações e, depois de aprovadas, aplicar migrations e Edge
-   Functions no Supabase de staging e publicar a PWA de staging na Vercel.
-3. **Produção:** promover uma versão identificada por tag por meio de um GitHub Environment
-   protegido, com aprovação manual e os mesmos artefatos ou commit já validados em staging.
+   locais do Supabase, sem secrets de staging ou produção. A Vercel poderá gerar previews efêmeros,
+   mas eles não promovem nem alteram produção.
+2. **Branch principal:** depois da CI verde, aplicar migrations compatíveis, configuração e Edge
+   Functions no Supabase de staging; construir a PWA com as variáveis de staging; publicar no
+   projeto Vercel associado a `staging.glicia.app`; executar smoke tests do fluxo principal.
+3. **Validação:** conferir em staging autenticação, onboarding, conversa por IA e modo manual,
+   confirmação, cálculo, histórico, administração, instalação da PWA e migrations. Falhas impedem
+   qualquer promoção.
+4. **Release:** criar uma tag SemVer e publicar a GitHub Release correspondente ao mesmo commit já
+   validado em staging. A publicação da Release será o único evento autorizado a iniciar produção;
+   pushes, merges, pull requests e deploys automáticos da integração Git não poderão atualizar
+   `glicia.app`.
+5. **Produção:** repetir as verificações, confirmar que a tag pertence à `main`, aguardar a aprovação
+   do GitHub Environment `production`, aplicar as migrations no Supabase de produção, publicar as
+   Edge Functions e promover na Vercel exatamente o commit identificado pela tag. Smoke tests
+   pós-deploy encerrarão a release.
 
 Tokens da Vercel, Supabase e demais serviços ficarão somente nos secrets dos GitHub Environments,
 com permissões mínimas e separação entre staging e produção. Workflows originados de forks não
 receberão esses segredos. Falhas interromperão a entrega antes da etapa seguinte, e migrations
 deverão permanecer compatíveis com a versão anterior durante a publicação para evitar que backend
 e PWA fiquem temporariamente incompatíveis.
+
+O deploy automático de produção pela integração Git da Vercel deverá permanecer desativado. O
+workflow registrará URL, commit, tag, ambiente e resultado dos smoke tests em cada execução. A
+reversão do frontend usará o último deployment saudável; alterações de banco já aplicadas serão
+corrigidas por uma nova migration compatível, sem rollback destrutivo automático.
 
 ## Decisões que antecedem a publicação pública
 
@@ -286,6 +349,10 @@ e PWA fiquem temporariamente incompatíveis.
 - Confirmar que nenhuma chave ou dado de saúde seja incluído em logs, relatórios de erro ou backups operacionais.
 - Validar a esteira de staging, a promoção protegida para produção e a ausência de secrets em
   workflows de pull requests externos.
+- Confirmar que `staging.glicia.app` aponta somente para a Vercel de staging e que cada frontend
+  utiliza exclusivamente o projeto Supabase do mesmo ambiente.
+- Confirmar que somente uma GitHub Release publicada a partir de uma tag SemVer pode disparar o
+  workflow de produção e que a integração Git da Vercel não publica diretamente em `glicia.app`.
 - Definir migrações para preferências e histórico sem perda de dados.
 - Definir e testar a recuperação operacional do banco em ambiente isolado, sem expor credenciais.
 - Confirmar as condições para redistribuição da tabela de alimentos.
