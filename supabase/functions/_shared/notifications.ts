@@ -28,7 +28,7 @@ export function publicAppUrl(): string {
 }
 
 export function administratorEmail(): string {
-  return Deno.env.get("GLICIA_ADMIN_EMAIL")?.trim() || "glicia.app@gmail.com";
+  return Deno.env.get("GLICIA_ADMIN_EMAIL")?.trim() || "glicia.app.admin@gmail.com";
 }
 
 export function escapeHtml(value: string): string {

@@ -3,8 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { ProviderError, type AiProvider, type AiRequest, type AiResult, type ProviderErrorCode } from "../../application";
 import { conversationTurnFromResponse } from "../../domain";
 
+type AiContext = { foodMemory: Readonly<Record<string, string>>; foodTable: string };
+
 export class SupabaseAiProvider implements AiProvider {
-  public constructor(private readonly client: SupabaseClient, private readonly instructions: (request: AiRequest) => string) {}
+  public constructor(private readonly client: SupabaseClient, private readonly context: (request: AiRequest) => AiContext) {}
 
   public async ask(request: AiRequest): Promise<AiResult> {
     const messages = [
@@ -14,14 +16,16 @@ export class SupabaseAiProvider implements AiProvider {
       ]),
       { role: "user" as const, content: request.message }
     ];
-    const { data, error } = await this.client.functions.invoke("ai-chat", { body: { messages, instructions: this.instructions(request) } });
+    const { data, error } = await this.client.functions.invoke("ai-chat", { body: { messages, ...this.context(request) } });
     if (error) {
       const response = error.context instanceof Response ? error.context : null;
       const payload = await readFunctionError(response);
-      const code: ProviderErrorCode = response?.status === 401
+      const code: ProviderErrorCode = response?.status === 401 || response?.status === 403
         ? "authentication"
         : response?.status === 429
           ? "rate_limit"
+          : response?.status === 400 || response?.status === 413
+            ? "invalid_response"
           : "network";
       throw new ProviderError(
         code,

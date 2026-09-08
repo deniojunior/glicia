@@ -22,7 +22,8 @@ Interprete primeiro o status da invocação:
 - `401`: sessão ausente ou expirada;
 - `403`: conta sem concessão ativa;
 - `400`: payload da conversa inválido;
-- `429`: limite do provedor;
+- `413`: conversa acima do limite aceito;
+- `429`: quota por pessoa, concorrência ou limite do provedor;
 - `500` ou `503`: configuração ou verificação interna indisponível;
 - `502` ou outro erro do provedor: credencial recusada, modelo ou resposta inválida.
 
@@ -46,6 +47,18 @@ npm run staging:deploy:functions
 
 Não cole a chave em comandos, issues, logs ou conversas. Valide uma chave real somente com uma
 requisição fictícia e sem dados de usuário.
+
+## Controles de IA
+
+A revisão administrativa mostra consumo agregado do dia e permite **Pausar IA**, **Reativar IA**,
+**Suspender acesso** e **Reativar acesso**. A pausa não impede o modo manual nem apaga reservas em
+andamento; novas chamadas são recusadas. Os valores iniciais ficam em
+`private.ai_runtime_config`: 40 chamadas e 2 milhões de tokens por pessoa/dia, USD 1 de custo
+global estimado/dia e 4 chamadas simultâneas.
+
+Execute mensalmente `select private.purge_ai_request_metrics();` com credencial administrativa
+para remover métricas com mais de 90 dias. Altere limites diretamente somente com uma migration
+revisada ou durante resposta operacional documentada.
 
 ## Recuperação do banco
 

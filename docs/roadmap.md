@@ -74,8 +74,8 @@ O onboarding será curto, retomável e dividido em etapas:
 1. **Apresentação e limites:** explicar a finalidade da Glicia, a confirmação humana e as limitações, incluindo a ausência de cálculo de insulina ativa.
 2. **Como funciona:** explicar a contagem pela tabela de alimentos, a revisão humana e o cálculo
    determinístico com os parâmetros pessoais; a conta já foi autenticada por código na PWA.
-3. **Parâmetros pessoais:** solicitar glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal.
-4. **RICs:** solicitar separadamente os valores de café da manhã, almoço, café da tarde, jantar e ceia.
+3. **Parâmetros pessoais:** solicitar glicemia-alvo, fator de correção e limite de hipoglicemia. A basal não participa do cálculo da Glicia e não será solicitada no onboarding.
+4. **Relação insulina-carboidrato (RIC):** explicar em linguagem comum que o RIC representa quantos gramas de carboidrato são cobertos por uma unidade de insulina e solicitar separadamente os valores de café da manhã, almoço, café da tarde, jantar e ceia.
 5. **Revisão:** mostrar todos os parâmetros e exigir confirmação de que foram definidos com a equipe de saúde.
 
 Não será possível pular a conta, os parâmetros de cálculo, os cinco RICs ou a revisão final. Cada
@@ -92,7 +92,7 @@ indisponível, a aplicação deverá informar uma falha operacional sem pedir um
 algum parâmetro obrigatório estiver ausente após uma atualização, novas consultas serão bloqueadas
 até a correção, sem apagar os demais dados válidos.
 
-Depois do primeiro acesso, todos esses valores poderão ser consultados e alterados na aba **Configurações**, com resumo e confirmação antes de salvar. A pessoa também poderá reiniciar o onboarding sem apagar o histórico.
+Depois do primeiro acesso, glicemia-alvo, fator de correção, limite de hipoglicemia e os cinco RICs poderão ser consultados e alterados na aba **Ajustes**, com unidades e explicações claras antes de salvar. A pessoa também poderá reiniciar o onboarding sem apagar o histórico.
 
 Não haverá tela de chave da OpenAI. A chave central será configurada e rotacionada pelo autor nos
 secrets das Edge Functions e lida somente pelo adaptador do provedor no backend.
@@ -169,7 +169,7 @@ o fluxo principal, instalação e recuperação estáveis.
 | `v0.10.0-alpha` | Acesso fluido e histórico contextual. | Entrada única por e-mail, estados de aprovação coerentes, OTP dentro da PWA, prova de passkeys e reutilização confirmada de refeições anteriores sem copiar glicemia ou dose. Concluída; o staging envia pelo domínio verificado `glicia.app`. |
 | `v0.11.0-alpha` | Nova identidade e experiência conversacional. | Chat centrado na amiga Glicia, avatar e ícone consistentes, Poppins, onboarding guiado e retomável com revisão explícita. Concluída; aguarda validação manual em dispositivos reais. |
 | `v0.12.0-alpha` | Refinamento da experiência mobile e autonomia da conta. | Entrada progressiva, conversa mais legível, ditado do teclado, histórico pesquisável e paginado, menu móvel, conta separada e preenchimento manual recuperável. Concluída; aguarda validação em dispositivos reais. |
-| `v0.13.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. |
+| `v0.13.0-alpha` | Limites de uso e guardrails de IA. | Quotas por pessoa e globais, proteção contra prompt injection e uso fora da finalidade, observabilidade sem conteúdo sensível e suspensão administrativa. Concluída; aguarda validação operacional em produção. |
 | `v0.14.0-beta` | Beta fechada no celular. | Testes em Android e iOS, acessibilidade, recuperação de conta, avaliação com pilotos, CI e nenhuma regressão conhecida em relação à CLI. |
 | `v1.0.0` | PWA estável. | Interface mobile estável, fluxo principal confiável, instalação documentada e nenhum problema crítico conhecido. |
 | `v1.1.0` | Modelos e múltiplos provedores de IA. | Registro administrativo de provedores, modelos validados, credenciais centrais isoladas e troca somente entre refeições. |
@@ -240,15 +240,9 @@ chave.
 
 Todo provedor deverá devolver os mesmos dados estruturados. A confirmação humana e o cálculo determinístico local permanecem independentes do modelo usado.
 
-### Limites de uso e guardrails futuros
+### Limites de uso e guardrails
 
-O piloto fechado começará sem quotas próprias da aplicação, classificação de intenção ou proteção
-específica contra prompt injection. O risco é aceito temporariamente porque somente pessoas
-próximas e aprovadas pelo autor poderão usar o sistema. Autenticação, aprovação de acesso e o
-isolamento da chave no backend continuam obrigatórios; eles não serão tratados como substitutos
-permanentes para controles de consumo e abuso.
-
-Antes de ampliar o piloto, a Glicia deverá implementar e validar:
+A `v0.13.0-alpha` implementa no backend:
 
 - limites diários de requisições e tokens por pessoa, além de um limite global de custo;
 - limite de concorrência, suspensão administrativa e mecanismo de interrupção emergencial;
@@ -258,7 +252,9 @@ Antes de ampliar o piloto, a Glicia deverá implementar e validar:
 - métricas de consumo, latência e falhas sem registrar refeição, glicemia ou conteúdo sensível;
 - testes repetíveis de abuso, desvio de finalidade e regressão dos guardrails.
 
-Esses controles pertencem à API e aos adaptadores de infraestrutura. O domínio continuará
+Os limites iniciais são configurados pela migration e podem ser alterados operacionalmente no
+banco. O painel administrativo permite pausar toda a IA e suspender contas individuais. Esses
+controles pertencem à API e aos adaptadores de infraestrutura. O domínio continua
 responsável apenas pelas regras determinísticas, confirmação humana e travas clínicas já
 existentes. O marco não introduzirá microserviços, CQRS ou event sourcing.
 

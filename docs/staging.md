@@ -75,7 +75,7 @@ apps/pwa/node_modules/.bin/supabase secrets set \
 São obrigatórios para o fluxo completo de e-mail:
 
 - `PUBLIC_APP_URL=https://www.glicia.app`
-- `GLICIA_ADMIN_EMAIL=glicia.app@gmail.com`
+- `GLICIA_ADMIN_EMAIL=glicia.app.admin@gmail.com`
 - `GLICIA_EMAIL_FROM`, com remetente verificado no Resend
 - `RESEND_API_KEY`
 
@@ -100,7 +100,7 @@ Importe o repositório na Vercel e configure o projeto assim:
 3. Confirme o framework **Vite**. Instalação, build e saída já estão versionados no
    `vercel.json` da raiz.
 4. Cadastre em **Production** as variáveis `VITE_SUPABASE_URL`,
-   `VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_GLICIA_ADMIN_EMAIL` usando os valores de
+   `VITE_SUPABASE_PUBLISHABLE_KEY` usando os valores de
    `.env.staging.example`.
 5. Faça o deploy e confirme o domínio canônico `https://www.glicia.app`.
 

@@ -92,8 +92,8 @@ de inferências do modelo para aceitar parâmetros clínicos.
 | Contagem | “Você me conta os alimentos e as porções. Eu consulto exclusivamente a tabela da Sociedade Brasileira de Diabetes para encontrar os carboidratos e te mostro o resumo para conferir.” | **Continuar**; exemplo fictício opcional |
 | Sugestão | “Depois que você confirma, a Glicia calcula uma sugestão de insulina usando os parâmetros que você informou. A IA ajuda na refeição; a dose vem desse cálculo.” | **Entendi**; **Como funciona o cálculo** |
 | Limites | Explicar que os parâmetros vêm da equipe de saúde, não há cálculo de insulina ativa nem leitura automática do sensor. | Texto curto e ajuda disponível |
-| Parâmetros | “Vamos conferir os valores definidos com sua equipe de saúde?” | Glicemia-alvo, fator de correção, limite de hipoglicemia e basal matinal, com unidades e explicações |
-| RICs | “Qual é o seu RIC em cada refeição? Ele indica quantos gramas de carboidrato correspondem a uma unidade de insulina.” | Cinco campos, com opção de repetir um valor entre refeições mediante confirmação |
+| Parâmetros | “Vamos conferir os valores definidos com sua equipe de saúde?” | Glicemia-alvo, fator de correção e limite de hipoglicemia, com unidades e explicações; a basal não é solicitada porque não participa do cálculo |
+| RICs | “RIC significa relação insulina-carboidrato: quantos gramas de carboidrato são cobertos por uma unidade de insulina.” | Cinco campos, um para cada refeição, sempre com o nome por extenso antes da sigla |
 | Revisão | “Confere seus ajustes antes de começarmos?” | Resumo de todos os parâmetros e cinco RICs; **Editar** e confirmação explícita |
 | Primeira conversa | “Tudo pronto. Me conta o que você vai comer.” | Compositor normal do chat |
 

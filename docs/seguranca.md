@@ -12,7 +12,7 @@ uma auditoria independente antes de ampliar o acesso.
 - A PWA chama Edge Functions autenticadas; `ai-chat` chama a OpenAI e não registra o corpo da
   conversa. O cálculo de dose continua determinístico no navegador após confirmação humana.
 
-## Controles até a v0.10
+## Controles até a v0.13
 
 | Risco | Controle atual |
 | --- | --- |
@@ -24,6 +24,9 @@ uma auditoria independente antes de ampliar o acesso.
 | Deploy não revisado | CI sem secrets, staging após CI e produção por tag em Environment protegido. |
 | Enumeração e abuso da entrada | Consulta por Edge Function, limites de 15 minutos por hash do e-mail e do cliente e OTP emitido somente após nova confirmação do estado aprovado. |
 | Redirecionamento do link de entrada | O destino do magic link de contingência precisa ter a mesma origem de `PUBLIC_APP_URL`. |
+| Consumo excessivo da IA | Reserva atômica no PostgreSQL, quotas diárias por pessoa, teto global de custo e limite de concorrência. |
+| Prompt injection e desvio de finalidade | Instruções autoritativas no backend, contexto tratado como dado não confiável, fonte SBD validada por SHA-256 e schema estrito de saída. |
+| Resposta a incidente | Pausa emergencial global e suspensão de concessões individuais no painel administrativo. |
 
 Não registrar tokens, cabeçalhos de autorização, mensagens, refeições, glicemias ou respostas do
 provedor em logs. Para diagnosticar falhas, use apenas horário, função, status HTTP, código interno
@@ -46,8 +49,8 @@ proteção especializada na borda.
 Tokens de deploy também devem ser separados por ambiente, ter o menor escopo disponível e ser
 rotacionados quando um mantenedor perder acesso ou houver suspeita de exposição.
 
-## Riscos aceitos temporariamente
+## Métricas operacionais
 
-O piloto ainda não possui quota por pessoa, limite global de custo, classificação de intenção nem
-defesas específicas contra prompt injection. O acesso aprovado reduz exposição, mas não elimina
-esses riscos. Eles pertencem à `v0.13.0-alpha` e devem ser concluídos antes de ampliar o piloto.
+Cada chamada registra somente pessoa, estado, tamanhos, tokens, custo estimado, latência, código de
+falha e horários. Mensagens, memória, tabela, glicemia e resposta não são persistidas. As métricas
+são privadas, agregadas para o painel administrativo e retidas por 90 dias.

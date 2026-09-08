@@ -81,7 +81,7 @@ npm run dev
 ```
 
 Copie `.env.example` para `.env.local` e informe `VITE_SUPABASE_URL`,
-`VITE_SUPABASE_PUBLISHABLE_KEY` e `VITE_GLICIA_ADMIN_EMAIL`. A chave publicável pode ficar no
+`VITE_SUPABASE_PUBLISHABLE_KEY`. A chave publicável pode ficar no
 navegador porque o acesso aos dados depende da sessão e das políticas RLS. Nunca use uma chave
 `secret` ou `service_role` na PWA.
 Os comandos Supabase exigem Docker ativo. Obtenha os valores locais com
@@ -104,8 +104,8 @@ O `supabase/config.toml` usa `https://www.glicia.app/` como Site URL de staging 
 domínio sem `www`, a URL antiga da Vercel, `localhost` e `127.0.0.1` na lista de Redirect URLs para desenvolvimento híbrido. Revise o
 diff de `npm run staging:deploy:config` antes de confirmar mudanças de Auth.
 
-O link de revisão exige a conta definida em `VITE_GLICIA_ADMIN_EMAIL`, não o e-mail da pessoa que
-solicitou acesso. Depois do magic link, o navegador retorna à mesma solicitação administrativa.
+O link de revisão exige a conta administradora `glicia.app.admin@gmail.com`.
+Depois do login, o navegador retorna à mesma solicitação administrativa.
 
 Para trabalhar sem Docker contra o backend hospedado, copie `.env.staging.example` para
 `.env.staging.local` e execute `npm run dev:staging`. O procedimento completo de deploy e teste

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { AccessServiceError, type AccessEntryState, type AccessRequestStatus, type AccessRequestSummary, type AccessService, type LoginDelivery } from "../../application";
+import { AccessServiceError, type AccessEntryState, type AccessRequestStatus, type AccessRequestSummary, type AccessService, type AiAdminControls, type LoginDelivery } from "../../application";
 
 type AccessRequestRow = {
   id: string;
@@ -11,7 +11,11 @@ type AccessRequestRow = {
   last_requested_at: string;
   reviewed_at: string | null;
   user_id: string | null;
+  access_suspended: boolean;
 };
+
+const aiMetricKeys = ["per_user_daily_request_limit", "per_user_daily_token_limit", "global_daily_cost_limit_microusd", "max_concurrent_requests", "requests_today", "completed_today", "failed_today", "active_users_today", "tokens_today", "estimated_cost_today_microusd", "requests_month", "completed_month", "failed_month", "active_users_month", "tokens_month", "estimated_cost_month_microusd", "projected_month_cost_microusd", "average_cost_per_analysis_microusd", "active_requests", "average_latency_ms"] as const;
+type AiAdminControlsRow = { enabled: boolean } & Record<(typeof aiMetricKeys)[number], number>;
 
 export class SupabaseAccessService implements AccessService {
   constructor(private readonly client: SupabaseClient) {}
@@ -75,6 +79,22 @@ export class SupabaseAccessService implements AccessService {
     });
     if (error) throw new AccessServiceError("admin_failed");
   }
+
+  async getAiAdminControls(): Promise<AiAdminControls> {
+    const { data, error } = await this.client.functions.invoke("review-access-request", { method: "GET" });
+    if (error || !isRecord(data) || !isAiAdminControls(data.aiControls)) throw new AccessServiceError("admin_failed");
+    return mapAiControls(data.aiControls);
+  }
+
+  async setAiEnabled(enabled: boolean): Promise<void> {
+    const { error } = await this.client.functions.invoke("review-access-request", { body: { action: "set_ai_enabled", enabled } });
+    if (error) throw new AccessServiceError("admin_failed");
+  }
+
+  async setAccessSuspended(userId: string, suspended: boolean): Promise<void> {
+    const { error } = await this.client.functions.invoke("review-access-request", { body: { action: "set_access", userId, suspended } });
+    if (error) throw new AccessServiceError("admin_failed");
+  }
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -93,6 +113,11 @@ function isAccessRequestList(value: unknown): value is { requests: AccessRequest
     && "status" in request && ["pending", "approved", "rejected"].includes(String(request.status)));
 }
 
+function isAiAdminControls(value: unknown): value is AiAdminControlsRow {
+  if (!isRecord(value)) return false;
+  return typeof value.enabled === "boolean" && aiMetricKeys.every((key) => typeof value[key] === "number");
+}
+
 function mapAccessRequest(row: AccessRequestRow): AccessRequestSummary {
   return {
     id: row.id,
@@ -102,6 +127,11 @@ function mapAccessRequest(row: AccessRequestRow): AccessRequestSummary {
     requestedAt: row.requested_at,
     lastRequestedAt: row.last_requested_at,
     reviewedAt: row.reviewed_at,
-    userId: row.user_id
+    userId: row.user_id,
+    accessSuspended: row.access_suspended === true
   };
+}
+
+function mapAiControls(row: AiAdminControlsRow): AiAdminControls {
+  return { enabled: row.enabled, perUserDailyRequestLimit: row.per_user_daily_request_limit, perUserDailyTokenLimit: row.per_user_daily_token_limit, globalDailyCostLimitMicrousd: row.global_daily_cost_limit_microusd, maxConcurrentRequests: row.max_concurrent_requests, requestsToday: row.requests_today, completedToday: row.completed_today, failedToday: row.failed_today, activeUsersToday: row.active_users_today, tokensToday: row.tokens_today, estimatedCostTodayMicrousd: row.estimated_cost_today_microusd, requestsMonth: row.requests_month, completedMonth: row.completed_month, failedMonth: row.failed_month, activeUsersMonth: row.active_users_month, tokensMonth: row.tokens_month, estimatedCostMonthMicrousd: row.estimated_cost_month_microusd, projectedMonthCostMicrousd: row.projected_month_cost_microusd, averageCostPerAnalysisMicrousd: row.average_cost_per_analysis_microusd, activeRequests: row.active_requests, averageLatencyMs: row.average_latency_ms };
 }

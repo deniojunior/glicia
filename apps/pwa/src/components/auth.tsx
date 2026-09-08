@@ -11,13 +11,12 @@ const mailpitUrl = import.meta.env.DEV
 type AuthStep = "welcome" | "email" | "consent" | "otp" | "link_sent" | "pending" | "unavailable";
 
 type AdminLogin = {
-  email: string;
   redirectTo: string;
 };
 
 export function Auth({ service, adminLogin }: { service: AccessService; adminLogin?: AdminLogin }) {
   const [step, setStep] = useState<AuthStep>(adminLogin ? "email" : "welcome");
-  const [email, setEmail] = useState(adminLogin?.email ?? "");
+  const [email, setEmail] = useState("");
   const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
@@ -80,7 +79,7 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
   }
 
   function restart() {
-    if (!adminLogin) setEmail("");
+    setEmail("");
     setToken("");
     setError(null);
     setStep("email");
@@ -109,7 +108,7 @@ export function Auth({ service, adminLogin }: { service: AccessService; adminLog
           <p id="email-guidance">{adminLogin ? "Confirme sua conta administradora para revisar solicitações." : "A Glicia está em fase experimental e o acesso depende de aprovação."}</p>
           <form onSubmit={identify}>
             <label htmlFor="email">{adminLogin ? "E-mail do administrador" : "Seu e-mail"}</label>
-            <input id="email" type="email" autoComplete="email" aria-describedby="email-guidance" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" required readOnly={Boolean(adminLogin)} disabled={isSending} autoFocus={!adminLogin} />
+            <input id="email" type="email" autoComplete="email" aria-describedby="email-guidance" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" required disabled={isSending} autoFocus />
             <button className="primary-action" type="submit" disabled={isSending}>{isSending ? "Verificando…" : "Continuar"}</button>
           </form>
           {!adminLogin ? <button className="text-action auth-back" type="button" disabled={isSending} onClick={() => { setError(null); setStep("welcome"); }}>Voltar à apresentação</button> : null}

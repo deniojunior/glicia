@@ -3,8 +3,12 @@ import { corsHeaders, HttpError, json } from "../_shared/http.ts";
 import { escapeHtml, publicAppUrl, sendEmail } from "../_shared/notifications.ts";
 
 type ReviewPayload = {
+  action?: "set_ai_enabled" | "set_access";
   requestId?: string;
   decision?: "approved" | "rejected";
+  enabled?: boolean;
+  userId?: string;
+  suspended?: boolean;
 };
 
 Deno.serve(async (request) => {
@@ -21,7 +25,15 @@ Deno.serve(async (request) => {
         .order("last_requested_at", { ascending: false })
         .limit(100);
       if (error) throw new HttpError(500, "Não foi possível abrir as solicitações.", "request_list_failed");
-      return json({ requests: data ?? [] });
+      const userIds = (data ?? []).flatMap((item) => item.user_id ? [item.user_id] : []);
+      const [{ data: grants, error: grantsError }, { data: controlsData, error: controlsError }] = await Promise.all([
+        userIds.length > 0 ? admin.from("app_access_grants").select("user_id,revoked_at").in("user_id", userIds) : Promise.resolve({ data: [], error: null }),
+        admin.rpc("ai_admin_controls_from_edge", { p_admin_id: user.id })
+      ]);
+      if (grantsError || controlsError) throw new HttpError(500, "Não foi possível abrir os controles administrativos.", "admin_controls_failed");
+      const suspended = new Set((grants ?? []).filter((grant) => grant.revoked_at !== null).map((grant) => grant.user_id));
+      const controls = Array.isArray(controlsData) ? controlsData[0] : controlsData;
+      return json({ requests: (data ?? []).map((item) => ({ ...item, access_suspended: item.user_id ? suspended.has(item.user_id) : false })), aiControls: controls });
     }
 
     if (request.method !== "POST") return json({ error: "Método não permitido." }, 405);
@@ -30,6 +42,18 @@ Deno.serve(async (request) => {
       payload = await request.json();
     } catch {
       throw new HttpError(400, "Solicitação inválida.", "invalid_request");
+    }
+    if (payload.action === "set_ai_enabled") {
+      if (typeof payload.enabled !== "boolean") throw new HttpError(400, "Informe o estado da IA.", "invalid_request");
+      const { error } = await admin.rpc("update_ai_runtime_from_edge", { p_admin_id: user.id, p_enabled: payload.enabled });
+      if (error) throw new HttpError(500, "Não foi possível alterar o estado da IA.", error.code ?? "ai_control_failed");
+      return json({ enabled: payload.enabled });
+    }
+    if (payload.action === "set_access") {
+      if (!isUuid(payload.userId) || typeof payload.suspended !== "boolean") throw new HttpError(400, "Informe a conta e o estado do acesso.", "invalid_request");
+      const { error } = await admin.rpc("set_app_access_from_edge", { p_admin_id: user.id, p_user_id: payload.userId, p_suspended: payload.suspended });
+      if (error) throw new HttpError(error.code === "P0002" ? 404 : 400, "Não foi possível alterar o acesso.", error.code ?? "access_control_failed");
+      return json({ suspended: payload.suspended });
     }
     if (!isUuid(payload.requestId) || !payload.decision) {
       throw new HttpError(400, "Informe a solicitação e a decisão.", "invalid_request");

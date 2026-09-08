@@ -23,9 +23,8 @@ Os valores editados pelo terminal têm prioridade sobre os padrões e as variáv
 
 ## PWA e notificações de acesso
 
-A PWA usa `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` e
-`VITE_GLICIA_ADMIN_EMAIL` no navegador. Este último apenas identifica a conta que pode abrir a
-tela de revisão; não concede permissão, que continua sendo validada por `app_admins`. Nunca
+A PWA usa `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY` no navegador.
+O e-mail administrativo é digitado na entrada; a permissão é validada por `app_admins`. Nunca
 publique `service_role`, a chave secreta do projeto, a chave OpenAI central ou a chave do
 serviço de e-mail em uma variável `VITE_*`.
 
@@ -41,8 +40,10 @@ As Edge Functions de admissão usam:
 | `OPENAI_API_KEY` | local, staging e produção | Credencial central lida somente por `ai-chat`. |
 | `OPENAI_MODEL` | local, staging e produção | Modelo selecionado pelo operador. |
 
-`VITE_GLICIA_ADMIN_EMAIL` e `GLICIA_ADMIN_EMAIL` devem apontar para a mesma conta. O primeiro
-orienta a tela de login administrativo; o segundo define quem recebe as notificações.
+`GLICIA_ADMIN_EMAIL=glicia.app.admin@gmail.com` define o destinatário das revisões.
+Essa é a única conta administradora, provisionada pela migration `single_project_admin`.
+`deniofriacamoreirajr@gmail.com` é usuário comum de teste. `glicia.app@gmail.com` é a conta de
+comunicação e não possui acesso ao sistema. O remetente Resend continua usando o domínio verificado.
 
 O desenvolvimento local seleciona Mailpit automaticamente. Produção falha de forma segura se o
 Resend ou o remetente não estiverem configurados; as chaves devem ser gravadas com o mecanismo de

@@ -59,6 +59,9 @@ jobs:
       - name: Check Edge Functions
         run: deno check functions/ai-chat/index.ts functions/delete-account/index.ts functions/request-access/index.ts functions/review-access-request/index.ts
         working-directory: supabase
+      - name: Test Edge Function guardrails
+        run: deno test functions/ai-chat/guardrails_test.ts
+        working-directory: supabase
       - name: Start local Supabase
         run: npm run supabase:start
         working-directory: apps/pwa

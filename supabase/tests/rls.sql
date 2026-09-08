@@ -1,5 +1,9 @@
 begin;
-select plan(45);
+select plan(66);
+
+select is((select array_agg(email_normalized) from private.bootstrap_admin_emails), array['glicia.app.admin@gmail.com']::text[], 'somente a conta administrativa recebe privilégios no primeiro login');
+select is((select status from public.access_requests where email_normalized = 'glicia.app@gmail.com'), 'rejected', 'a conta de comunicação não tem acesso');
+select is((select status from public.access_requests where email_normalized = 'deniofriacamoreirajr@gmail.com'), 'approved', 'a conta pessoal permanece como piloto aprovado');
 
 select ok(
   (select relrowsecurity from pg_class where oid = 'public.profiles'::regclass),
@@ -215,9 +219,9 @@ select is(
   'excluir a conta remove também o e-mail da fila de acesso'
 );
 select is(
-  (select status from public.access_requests where email_normalized = 'glicia.app@gmail.com'),
+  (select status from public.access_requests where email_normalized = 'glicia.app.admin@gmail.com'),
   'approved',
-  'a conta institucional permanece pré-aprovada para assumir a administração'
+  'a conta administrativa exclusiva permanece pré-aprovada'
 );
 
 insert into public.access_requests (email_normalized, status, last_requested_at)
@@ -279,6 +283,61 @@ select is(public.access_entry_state_from_edge('conta-bloqueada@example.test', re
 select is(public.access_entry_state_from_edge('recusada@example.test', repeat('3', 64)), 'rejected', 'uma solicitação recusada não volta à lista');
 select is(public.access_entry_state_from_edge('candidato@example.test', repeat('4', 64)), 'approved', 'uma aprovação sem conta já permite o envio do código');
 select is(public.access_entry_state_from_edge('CONTA-A@example.test', repeat('5', 64)), 'approved', 'uma conta com concessão ativa é reconhecida com e-mail normalizado');
+
+insert into public.app_access_grants (user_id, access_request_id)
+values ('33333333-3333-4333-8333-333333333333', (select id from public.access_requests where email_normalized = 'conta-bloqueada@example.test'));
+
+select ok(to_regclass('private.ai_runtime_config') is not null and to_regclass('private.ai_request_metrics') is not null, 'configuração e métricas de IA ficam no schema privado');
+select ok(
+  has_function_privilege('service_role', 'public.reserve_ai_request_from_edge(uuid,integer)', 'EXECUTE')
+  and has_function_privilege('service_role', 'public.finish_ai_request_from_edge(uuid,uuid,text,integer,integer,integer,integer,text)', 'EXECUTE')
+  and not has_function_privilege('authenticated', 'public.reserve_ai_request_from_edge(uuid,integer)', 'EXECUTE'),
+  'operações de consumo de IA são exclusivas do service_role'
+);
+
+set local role service_role;
+select is((select allowed from public.reserve_ai_request_from_edge('11111111-1111-4111-8111-111111111111', 500)), true, 'uma conta ativa reserva uma análise');
+reset role;
+select is((select status from private.ai_request_metrics order by started_at desc limit 1), 'active', 'a reserva registra somente metadados operacionais');
+
+select is(public.finish_ai_request_from_edge(
+  (select request_id from private.ai_request_metrics where user_id = '11111111-1111-4111-8111-111111111111' order by started_at desc limit 1),
+  '11111111-1111-4111-8111-111111111111', 'completed', 300, 100, 50, 750, null
+), true, 'a Edge Function conclui a própria reserva');
+select ok(
+  (select input_tokens = 100 and output_tokens = 50 and latency_ms = 750 and estimated_cost_microusd = 45
+   from private.ai_request_metrics where user_id = '11111111-1111-4111-8111-111111111111' order by started_at desc limit 1),
+  'métricas guardam tokens, custo e latência, sem conteúdo da conversa'
+);
+
+set local role service_role;
+select is((select tokens_today from public.ai_admin_controls_from_edge('11111111-1111-4111-8111-111111111111')), 150::bigint, 'o painel agrega tokens do dia');
+select is((select estimated_cost_month_microusd from public.ai_admin_controls_from_edge('11111111-1111-4111-8111-111111111111')), 45::bigint, 'o painel agrega custo do mês');
+select is((select average_cost_per_analysis_microusd from public.ai_admin_controls_from_edge('11111111-1111-4111-8111-111111111111')), 45::bigint, 'o painel calcula custo médio por análise concluída');
+select is((select active_users_month from public.ai_admin_controls_from_edge('11111111-1111-4111-8111-111111111111')), 1::bigint, 'o painel informa pessoas ativas no mês sem expor conteúdo');
+select throws_ok(
+  $$select * from public.ai_admin_controls_from_edge('33333333-3333-4333-8333-333333333333')$$,
+  '42501', null, 'uma pessoa não administradora não acessa métricas'
+);
+select is(public.set_app_access_from_edge('11111111-1111-4111-8111-111111111111', '33333333-3333-4333-8333-333333333333', true), true, 'a administração suspende uma conta');
+select is((select denial_code from public.reserve_ai_request_from_edge('33333333-3333-4333-8333-333333333333', 100)), 'suspended', 'uma conta suspensa não consome IA');
+select is(public.set_app_access_from_edge('11111111-1111-4111-8111-111111111111', '33333333-3333-4333-8333-333333333333', false), false, 'a administração reativa uma conta');
+select is(public.update_ai_runtime_from_edge('11111111-1111-4111-8111-111111111111', false), false, 'a administração aciona a pausa emergencial');
+select is((select denial_code from public.reserve_ai_request_from_edge('11111111-1111-4111-8111-111111111111', 100)), 'disabled', 'a pausa emergencial bloqueia novas chamadas');
+select public.update_ai_runtime_from_edge('11111111-1111-4111-8111-111111111111', true);
+reset role;
+
+update private.ai_runtime_config set per_user_daily_request_limit = 1;
+set local role service_role;
+select is((select denial_code from public.reserve_ai_request_from_edge('11111111-1111-4111-8111-111111111111', 100)), 'user_daily_limit', 'a quota diária por pessoa é aplicada atomicamente');
+reset role;
+update private.ai_runtime_config set per_user_daily_request_limit = 40;
+
+insert into private.ai_request_metrics (user_id, input_chars, status, expires_at, finished_at, started_at)
+values ('11111111-1111-4111-8111-111111111111', 1, 'failed', now(), now(), now() - interval '91 days');
+set local role service_role;
+select is(private.purge_ai_request_metrics(), 1, 'métricas operacionais são removidas após 90 dias');
+reset role;
 
 update public.app_access_grants
 set revoked_at = now()

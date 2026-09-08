@@ -11,6 +11,31 @@ export type AccessRequestSummary = {
   lastRequestedAt: string;
   reviewedAt: string | null;
   userId: string | null;
+  accessSuspended: boolean;
+};
+
+export type AiAdminControls = {
+  enabled: boolean;
+  perUserDailyRequestLimit: number;
+  perUserDailyTokenLimit: number;
+  globalDailyCostLimitMicrousd: number;
+  maxConcurrentRequests: number;
+  requestsToday: number;
+  completedToday: number;
+  failedToday: number;
+  activeUsersToday: number;
+  tokensToday: number;
+  estimatedCostTodayMicrousd: number;
+  requestsMonth: number;
+  completedMonth: number;
+  failedMonth: number;
+  activeUsersMonth: number;
+  tokensMonth: number;
+  estimatedCostMonthMicrousd: number;
+  projectedMonthCostMicrousd: number;
+  averageCostPerAnalysisMicrousd: number;
+  activeRequests: number;
+  averageLatencyMs: number;
 };
 
 export interface AccessService {
@@ -21,6 +46,9 @@ export interface AccessService {
   hasApprovedAccess(userId: string): Promise<boolean>;
   listAccessRequests(): Promise<readonly AccessRequestSummary[]>;
   reviewAccessRequest(requestId: string, decision: Exclude<AccessRequestStatus, "pending">): Promise<void>;
+  getAiAdminControls(): Promise<AiAdminControls>;
+  setAiEnabled(enabled: boolean): Promise<void>;
+  setAccessSuspended(userId: string, suspended: boolean): Promise<void>;
 }
 
 export class AccessServiceError extends Error {

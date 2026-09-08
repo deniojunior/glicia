@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { ConversationSession, createMealRecord, decideConfirmedMeal, findHistoricalMealCandidates, PreferencesService, type FoodMemoryRepository, type MealDecision, type MealHistoryRepository, type MealRecord, type SessionSnapshot } from "./application";
-import { buildOpenAiInstructions } from "./adapters/openai/instructions";
+import { buildOpenAiContext } from "./adapters/openai/instructions";
 import { createSupabaseClient } from "./adapters/supabase/client";
 import { SupabaseAccessService } from "./adapters/supabase/supabase-access-service";
 import { SupabasePreferencesRepository } from "./adapters/supabase/supabase-preferences-repository";
@@ -22,6 +22,7 @@ import { AdminAccessRequests } from "./components/admin-access-requests";
 import { ManualMealForm } from "./components/manual-meal-form";
 import { HistoricalMealReuse } from "./components/historical-meal-reuse";
 import { shouldSubmitComposer } from "./components/composer-keyboard";
+import { useApprovedAccess } from "./components/use-approved-access";
 import { appPath } from "./config/app-urls";
 import { GliciaAvatar } from "./components/brand/glicia-avatar";
 import { GliciaWordmark } from "./components/brand/glicia-wordmark";
@@ -59,10 +60,9 @@ function reduce(state: AppState, action: AppAction): AppState {
 
 const supabase = createSupabaseClient();
 const accessService = supabase ? new SupabaseAccessService(supabase) : null;
-const adminEmail = import.meta.env.VITE_GLICIA_ADMIN_EMAIL || "glicia.app@gmail.com";
 
 function createSession(mode: InteractionMode, client: SupabaseClient, foodMemory: Readonly<Record<string, string>>): ConversationSession {
-  return new ConversationSession(new SupabaseAiProvider(client, buildOpenAiInstructions), mode, foodMemory);
+  return new ConversationSession(new SupabaseAiProvider(client, buildOpenAiContext), mode, foodMemory);
 }
 
 function initialState(session: ConversationSession): AppState {
@@ -263,7 +263,7 @@ function AuthenticatedApp({ client, user }: { client: SupabaseClient; user: User
 
 export function App() {
   const [user, setUser] = useState<User | null | undefined>(undefined);
-  const [hasApprovedAccess, setHasApprovedAccess] = useState<boolean | undefined>(undefined);
+  const hasApprovedAccess = useApprovedAccess(user?.id, accessService);
   const isAdminRoute = window.location.pathname.startsWith(appPath("admin/access-requests"));
   const adminRedirectTo = `${window.location.origin}${window.location.pathname}${window.location.search}`;
 
@@ -274,22 +274,11 @@ export function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    if (!user || !accessService) {
-      setHasApprovedAccess(undefined);
-      return;
-    }
-    setHasApprovedAccess(undefined);
-    void accessService.hasApprovedAccess(user.id)
-      .then(setHasApprovedAccess)
-      .catch(() => setHasApprovedAccess(false));
-  }, [user]);
-
   if (!supabase || !accessService) return <MissingSupabaseConfiguration />;
   if (user === undefined) return <LoadingScreen message="Conferindo seu acesso…" />;
-  if (user === null) return <Auth service={accessService} adminLogin={isAdminRoute ? { email: adminEmail, redirectTo: adminRedirectTo } : undefined} />;
+  if (user === null) return <Auth service={accessService} adminLogin={isAdminRoute ? { redirectTo: adminRedirectTo } : undefined} />;
   if (hasApprovedAccess === undefined) return <LoadingScreen message="Conferindo sua aprovação…" />;
   if (!hasApprovedAccess) return <AccessNotApproved onSignOut={async () => { await supabase.auth.signOut({ scope: "local" }); }} />;
   if (isAdminRoute) return <AdminAccessRequests service={accessService} onSignOut={async () => { await supabase.auth.signOut({ scope: "local" }); }} />;
-  return <AuthenticatedApp client={supabase} user={user} />;
+  return <AuthenticatedApp key={user.id} client={supabase} user={user} />;
 }

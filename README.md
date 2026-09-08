@@ -1,6 +1,6 @@
 # Glicia
 
-[![Versão](https://img.shields.io/badge/version-0.12.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.12.0-alpha.md)
+[![Versão](https://img.shields.io/badge/version-0.13.0--alpha-8b5cf6?style=flat-square)](docs/releases/v0.13.0-alpha.md)
 [![Python](https://img.shields.io/badge/python-3.12%2B-3776AB?style=flat-square&logo=python&logoColor=white)](apps/cli/pyproject.toml)
 [![Licença](https://img.shields.io/badge/license-MIT-00b894?style=flat-square)](LICENSE)
 [![Supabase](https://img.shields.io/badge/PWA-Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white)](#privacidade-e-dados)
@@ -11,7 +11,7 @@ O Glicia conversa em português para reunir os dados de uma refeição — carbo
 tendência do sensor e tipo de refeição. Depois que a pessoa confere esses dados, o cálculo é
 executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a dose final.
 
-**Status:** `v0.12.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado
+**Status:** `v0.13.0-alpha` · CLI Python utilizável · PWA experimental com acesso aprovado
 
 ![Demonstração do Glicia no terminal](docs/assets/glicia-demo.gif)
 
@@ -28,9 +28,9 @@ executado localmente. A IA ajuda a estruturar a contagem; ela nunca calcula a do
   o [guia de staging](docs/staging.md).
 - **Contratos:** schemas e casos fictícios verificam cálculo, arredondamento, tendência,
   configuração, conversa e segurança.
-- **Próximo marco:** limites de uso e guardrails de IA na `v0.13.0-alpha`.
+- **Próximo marco:** validação da beta fechada em celulares na `v0.14.0-beta`.
 
-Leia as [notas da v0.12.0-alpha](docs/releases/v0.12.0-alpha.md) para conhecer a nova experiência,
+Leia as [notas da v0.13.0-alpha](docs/releases/v0.13.0-alpha.md) para conhecer os controles de uso,
 os impactos para contribuidores e as limitações atuais.
 
 ## PWA no celular

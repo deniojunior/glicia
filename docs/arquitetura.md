@@ -84,6 +84,9 @@ PWA ── sessão Supabase Auth ──> Edge Functions ──> OpenAI
   `v0.9.0` remove as estruturas BYOK e os segredos individuais da `v0.7.0`.
 - O adaptador OpenAI e detalhes como `previous_response_id` vivem no backend. O cálculo e as
   travas determinísticos continuam no domínio TypeScript e não são delegados à IA.
+- `ai-chat` define as instruções autoritativas, valida a assinatura da tabela SBD, limita entrada e
+  saída e reserva cada chamada atomicamente antes de acessar o provedor. O PostgreSQL aplica quotas,
+  concorrência e pausa global; somente métricas operacionais sem conteúdo são persistidas.
 - O modo manual estrutura os quatro campos na camada de aplicação e entra na mesma máquina de
   estados, confirmação, cálculo e persistência; não cria uma segunda implementação clínica.
 - A exclusão total entra por uma porta de conta, é adaptada por `delete-account` e usa a remoção
