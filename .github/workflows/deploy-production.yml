@@ -101,7 +101,9 @@ jobs:
         run: npm run staging:advisors
         working-directory: apps/pwa
       - name: Pull Vercel production configuration
-        run: npx --yes vercel@59.11.7 pull --yes --environment=production --token="$VERCEL_TOKEN"
+        run: |
+          npx --yes vercel@59.11.7 link --yes --project="$VERCEL_PROJECT_ID" --scope="$VERCEL_ORG_ID" --token="$VERCEL_TOKEN"
+          npx --yes vercel@59.11.7 pull --yes --environment=production --token="$VERCEL_TOKEN"
       - name: Build tagged PWA
         run: npx --yes vercel@59.11.7 build --prod --token="$VERCEL_TOKEN"
       - name: Promote tagged PWA
