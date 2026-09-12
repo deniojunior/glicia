@@ -1,6 +1,8 @@
 import { authenticateApprovedUser, type AuthenticatedClients } from "../_shared/auth.ts";
 import { corsHeaders, HttpError, json } from "../_shared/http.ts";
-import { buildInstructions } from "./guardrails.ts";
+import { buildInstructions } from "./guardrails.mjs";
+import { FOOD_TABLE_SHA256 } from "./food-table-source.mjs";
+import { turnSchema } from "./turn-schema.mjs";
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
 type ChatRequest = {
@@ -10,25 +12,10 @@ type ChatRequest = {
   instructions?: string;
 };
 
-const FOOD_TABLE_SHA256 = "c1437ad6ad8562bf880a9da35e5eb06359428a22aa47c93e26c89611548f5906";
 const MAX_MESSAGES = 20;
 const MAX_MESSAGE_CHARS = 2_000;
 const MAX_MEMORY_ITEMS = 50;
 const MAX_OUTPUT_TOKENS = 1_200;
-
-const turnSchema = {
-  type: "object", additionalProperties: false,
-  required: ["reply", "total_carbohydrates", "glucose", "glucose_trend", "meal_type", "meal_items", "food_memory_updates"],
-  properties: {
-    reply: { type: "string", maxLength: 4_000 },
-    total_carbohydrates: { type: ["number", "null"], minimum: 0 },
-    glucose: { type: ["number", "null"], exclusiveMinimum: 0 },
-    glucose_trend: { type: ["string", "null"], enum: ["SUBINDO_RAPIDO", "SUBINDO", "ESTAVEL", "CAINDO", "CAINDO_RAPIDO", "NAO_INFORMADA", null] },
-    meal_type: { type: ["string", "null"], enum: ["CAFE_DA_MANHA", "ALMOCO", "CAFE_DA_TARDE", "JANTAR", "CEIA", null] },
-    meal_items: { type: "array", maxItems: 30, items: { type: "object", additionalProperties: false, required: ["name", "portion", "carbohydrates"], properties: { name: { type: "string", minLength: 1, maxLength: 160 }, portion: { type: "string", minLength: 1, maxLength: 160 }, carbohydrates: { type: "number", minimum: 0 } } } },
-    food_memory_updates: { type: "array", maxItems: 20, items: { type: "object", additionalProperties: false, required: ["food", "usual_preparation"], properties: { food: { type: "string", minLength: 1, maxLength: 160 }, usual_preparation: { type: "string", minLength: 1, maxLength: 500 } } } }
-  }
-} as const;
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "pao-frances-medida-usual",
+    "message": "Vou comer 1 pão francês no café da manhã. Glicemia 110 mg/dL, seta estável.",
+    "expected": { "kind": "matched", "items": [{ "food": "Pão francês", "measure": "1 unidade", "factor": 1 }] }
+  },
+  {
+    "id": "arroz-porcao-multiplicada",
+    "message": "Almoço: 2 colheres de sopa cheias de arroz branco cozido. Glicemia 120, seta estável.",
+    "expected": { "kind": "matched", "items": [{ "food": "Arroz branco cozido", "measure": "1 colher de sopa cheia", "factor": 2 }] }
+  },
+  {
+    "id": "banana-variedade-e-tamanho",
+    "message": "Lanche da tarde: 1 banana prata crua média. Glicemia 105, seta estável.",
+    "expected": { "kind": "matched", "items": [{ "food": "Banana prata crua", "measure": "1 unidade média", "factor": 1 }] }
+  },
+  {
+    "id": "integral-nao-e-pao-branco",
+    "message": "Café da manhã: 1 pão francês integral. Glicemia 100, seta estável.",
+    "expected": { "kind": "matched", "items": [{ "food": "Pão francês integral", "measure": "1 unidade", "factor": 1 }] }
+  },
+  {
+    "id": "alimento-zero-cho",
+    "message": "Jantar: 1 filé médio de abadejo assado. Glicemia 115, seta estável.",
+    "expected": { "kind": "matched", "items": [{ "food": "Abadejo assado", "measure": "1 filé médio", "factor": 1 }] }
+  },
+  {
+    "id": "refeicao-dois-itens",
+    "message": "Café da manhã: 1 pão francês e 1 banana prata crua média. Glicemia 100, seta estável.",
+    "expected": { "kind": "matched", "items": [{ "food": "Pão francês", "measure": "1 unidade", "factor": 1 }, { "food": "Banana prata crua", "measure": "1 unidade média", "factor": 1 }] }
+  },
+  {
+    "id": "banana-sem-variedade",
+    "message": "Lanche da tarde: vou comer uma banana. Glicemia 110, seta estável.",
+    "expected": { "kind": "clarification" }
+  },
+  {
+    "id": "porcao-ausente",
+    "message": "Vou comer arroz branco cozido no almoço. Glicemia 120, seta estável.",
+    "expected": { "kind": "clarification" }
+  }
+]
