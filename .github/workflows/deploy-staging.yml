@@ -53,7 +53,7 @@ jobs:
       - name: Render staging Auth configuration
         run: node .github/scripts/render-supabase-config.mjs supabase/config.toml /tmp/glicia-staging/supabase/config.toml "$SUPABASE_PROJECT_REF" "$PUBLIC_APP_URL"
       - name: Deploy Supabase configuration
-        run: npm exec -- supabase config push --project-ref "$SUPABASE_PROJECT_REF" --workdir /tmp/glicia-staging
+        run: npm exec -- supabase config push --project-ref "$SUPABASE_PROJECT_REF" --workdir /tmp/glicia-staging --yes
         working-directory: apps/pwa
       - name: Run database advisors
         run: npm run staging:advisors

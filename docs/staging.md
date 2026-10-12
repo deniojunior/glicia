@@ -5,7 +5,7 @@ O staging da Glicia usa infraestrutura hospedada e isolada do desenvolvimento lo
 | Componente | Staging |
 | --- | --- |
 | PWA | projeto Vercel `glicia-staging`; `https://staging.glicia.app/` aguarda DNS |
-| Supabase | projeto exclusivo, ainda a provisionar |
+| Supabase | projeto exclusivo `qqrnimcdfxgbvamucwxt` |
 | Banco, Auth, Vault e Functions | Supabase hospedado |
 | Deploy da PWA | Vercel Hobby integrada ao GitHub |
 | Notificações da Glicia | Resend |
@@ -14,7 +14,7 @@ O staging da Glicia usa infraestrutura hospedada e isolada do desenvolvimento lo
 O projeto remoto atual `snsdnxlwdhadrehksati` e o projeto Vercel `glicia` atendem produção. Eles
 não deverão ser usados para validar commits comuns da `main`. Em 8 de setembro de 2026, o projeto
 Vercel `glicia-staging` foi criado com ID `prj_xhhkiyqGbJ2mNq69aEhe8NffnSc2`. O projeto Supabase
-exclusivo de staging ainda não estava provisionado.
+exclusivo de staging é `qqrnimcdfxgbvamucwxt`.
 
 Staging não recebe cópia de usuários ou refeições reais. Migrations, configuração e Functions são
 promovidas pelo código versionado; contas e dados de teste são criados diretamente no ambiente.
@@ -153,12 +153,11 @@ pela `main` e exige um `Deploy staging` bem-sucedido para o mesmo SHA. Somente d
 do Environment o job de deploy acessa as credenciais, renderiza a configuração Auth com a URL de
 produção, publica Supabase e Vercel e executa o smoke test da PWA.
 
-## Provisionamento pendente
+## Configuração restante
 
 Antes de habilitar `Deploy staging`:
 
-1. criar um segundo projeto Supabase na organização da Glicia e guardar o ref e a senha somente no
-   GitHub Environment `staging`;
+1. guardar o ref `qqrnimcdfxgbvamucwxt` e a senha somente no GitHub Environment `staging`;
 2. usar o projeto Vercel `glicia-staging`, já criado e associado ao domínio, mantendo o deploy
    automático da integração Git desabilitado;
 3. na GoDaddy, criar o CNAME `staging` apontando para

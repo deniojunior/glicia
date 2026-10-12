@@ -16,3 +16,5 @@ dist/
 supabase/.temp/
 .vercel/
 .impeccable
+.DS_Store
+**/.DS_Store

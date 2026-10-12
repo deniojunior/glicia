@@ -6,6 +6,9 @@ enabled = true
 [db]
 major_version = 17
 
+[vector]
+enabled = false
+
 [auth]
 enabled = true
 site_url = "https://www.glicia.app/"
