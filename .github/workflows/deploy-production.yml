@@ -30,7 +30,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: node .github/scripts/verify-staging-deploy.mjs "$GITHUB_REPOSITORY" "$(git rev-parse HEAD)"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - uses: actions/setup-node@v4
