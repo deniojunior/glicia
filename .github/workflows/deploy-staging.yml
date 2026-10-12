@@ -52,9 +52,12 @@ jobs:
         working-directory: apps/pwa
       - name: Render staging Auth configuration
         run: node .github/scripts/render-supabase-config.mjs supabase/config.toml /tmp/glicia-staging/supabase/config.toml "$SUPABASE_PROJECT_REF" "$PUBLIC_APP_URL"
+      - name: Verify staging Supabase configuration
+        run: |
+          grep -A1 '^\[vector\]$' /tmp/glicia-staging/supabase/config.toml
+          ! grep -A1 '^\[vector\]$' /tmp/glicia-staging/supabase/config.toml | grep -q 'enabled = true'
       - name: Deploy Supabase configuration
-        run: npm exec -- supabase config push --project-ref "$SUPABASE_PROJECT_REF" --workdir /tmp/glicia-staging --yes
-        working-directory: apps/pwa
+        run: cd /tmp/glicia-staging && npm --prefix "$GITHUB_WORKSPACE/apps/pwa" exec -- supabase config push --project-ref "$SUPABASE_PROJECT_REF" --yes
       - name: Run database advisors
         run: npm run staging:advisors
         working-directory: apps/pwa
