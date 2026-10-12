@@ -13,5 +13,11 @@ config = config
   .replace(/^site_url = .*$/m, `site_url = ${JSON.stringify(`${origin}/`)}`)
   .replace(/^additional_redirect_urls = .*$/m, `additional_redirect_urls = [${JSON.stringify(`${origin}/**`)}]`);
 
+if (/^\[vector\]$/m.test(config)) {
+  config = config.replace(/(^\[vector\]\s*\n)enabled = .*$/m, "$1enabled = false");
+} else {
+  config += "\n[vector]\nenabled = false\n";
+}
+
 await mkdir(dirname(destinationPath), { recursive: true });
 await writeFile(destinationPath, config);
